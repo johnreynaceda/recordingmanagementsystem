@@ -79,7 +79,8 @@
 
                 <div class="inline-flex items-center ml-5 space-x-6 lg:justify-end">
 
-                    <a href="#_" class="mr-5 flex space-x-2 font-medium leading-6 text-gray-600 hover:text-main">
+                    <a href="{{ route('login') }}"
+                        class="mr-5 flex space-x-2 font-medium leading-6 text-gray-600 hover:text-main">
                         <span>
                             Login
                         </span>
