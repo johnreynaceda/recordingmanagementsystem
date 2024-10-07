@@ -12,8 +12,14 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+    <tallstackui:script />
+    @filamentStyles
+    @vite('resources/css/app.css')
 </head>
 
 <body>
@@ -68,8 +74,8 @@
                             </p>
                             <ul>
                                 <li>
-                                    <a class="inline-flex items-center w-full px-4 py-2 mt-1  text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
-                                        href="#_">
+                                    <a class="{{ request()->routeIs('admin.staffs') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1   transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                        href="{{ route('admin.staffs') }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round"
@@ -82,8 +88,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="inline-flex items-center w-full px-4 py-2 mt-1  text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
-                                        href="#_">
+                                    <a class="{{ request()->routeIs('admin.students') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1   transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                        href="{{ route('admin.students') }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round"
@@ -95,11 +101,45 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="inline-flex items-center w-full px-4 py-2 mt-1  text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
-                                        href="#_">
+                                    <a class="{{ request()->routeIs('admin.grade-level') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1   transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                        href="{{ route('admin.grade-level') }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-file-spreadsheet">
+                                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                                            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                                            <path d="M8 13h2" />
+                                            <path d="M14 13h2" />
+                                            <path d="M8 17h2" />
+                                            <path d="M14 17h2" />
+                                        </svg>
+                                        <span class="ml-4"> Grade Levels </span>
+                                    </a>
+                                </li>
+                                {{-- <li>
+                                    <a class="inline-flex items-center w-full px-4 py-2 mt-1  text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                        href="#_">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-file-spreadsheet">
+                                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                                            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                                            <path d="M8 13h2" />
+                                            <path d="M14 13h2" />
+                                            <path d="M8 17h2" />
+                                            <path d="M14 17h2" />
+                                        </svg>
+                                        <span class="ml-4"> Sections </span>
+                                    </a>
+                                </li> --}}
+                                <li>
+                                    <a class="inline-flex items-center w-full px-4 py-2 mt-1  text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                        href="#_">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                             class="lucide lucide-file-spreadsheet">
                                             <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
                                             <path d="M14 2v4a2 2 0 0 0 2 2h4" />
@@ -225,6 +265,8 @@
             </main>
         </div>
     </div>
+    @filamentScripts
+    @vite('resources/js/app.js')
 </body>
 
 </html>
