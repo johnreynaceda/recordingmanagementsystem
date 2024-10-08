@@ -14,8 +14,12 @@ Route::get('/dashboard', function () {
     switch (auth()->user()->user_type) {
         case 'admin':
             return redirect()->route('admin.dashboard');
-            
-        
+        case 'teacher':
+            return redirect()->route('teacher.dashboard');
+
+        case 'student':
+                return redirect()->route('student.index');
+
         default:
             # code...
             break;
@@ -41,6 +45,20 @@ Route::prefix('administrator')->middleware(['auth', 'verified'])->group( functio
     Route::get('/students/create', function () {
         return view('admin.students-create');
     })->name('admin.students-create');
+});
+
+Route::prefix('teacher')->middleware(['auth', 'verified'])->group( function(){
+    Route::get('/dashboard', function () {
+        return view('teacher.dashboard');
+    })->name('teacher.dashboard');
+
+});
+
+Route::prefix('student')->middleware(['auth', 'verified'])->group( function(){
+    Route::get('/dashboard', function () {
+        return view('student.index');
+    })->name('student.index');
+
 });
 
 
