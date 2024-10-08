@@ -59,6 +59,8 @@ Route::prefix('student')->middleware(['auth', 'verified'])->group( function(){
         return view('student.index');
     })->name('student.index');
 
+
+
 });
 
 
