@@ -7,6 +7,7 @@ use App\Models\Section;
 use App\Models\Staff;
 use App\Models\User;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -51,13 +52,26 @@ class SectionList extends Component implements HasForms, HasTable
             ->columns([
                
                 TextColumn::make('name')->label('NAME'),
+                TextColumn::make('staff')->label('TEACHER')->formatStateUsing(
+                    fn($record) => $record->staff->firstname. ' ' . $record->staff->lastname
+                ),
              
             ])
             ->filters([
                 // ...
             ])
             ->actions([
-               
+               Action::make('teacher')->label('Assign Teacher')->icon('heroicon-o-user-plus')->button()->color('success')->action(
+                function($record, $data){
+                    $record->update([
+                        'staff_id' => $data['staff'],
+                    ]);
+                }
+               )->form([
+                Select::make('staff')->label('Teacher')->options(Staff::all()->mapWithKeys(function($record){
+                    return [$record->id => $record->firstname. ' ' . $record->lastname];
+                }))->required()
+               ])->modalWidth('xl')->visible(fn($record) => $record->staff_id == null),
                EditAction::make('edit')->color('success')->action(
                 function($record, $data){
                    $record->update([

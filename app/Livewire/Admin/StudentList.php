@@ -53,7 +53,8 @@ class StudentList extends Component implements HasForms, HasTable
                EditAction::make('edit')->color('success'),
                DeleteAction::make('delete'),
                ActionGroup::make([
-               
+                Action::make('view')->label('View Record')->icon('heroicon-o-viewfinder-circle')->color('success')->url(fn (Student $record): string => route('admin.students-record', $record))
+                ->openUrlInNewTab(),
                 EditAction::make(),
                 DeleteAction::make(),
             ]),

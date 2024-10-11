@@ -46,7 +46,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function staffs(){
-        return $this->hasMany(Staff::class);
+    public function staff(){
+        return $this->hasOne(Staff::class);
     }
 }

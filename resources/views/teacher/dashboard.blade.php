@@ -5,5 +5,3 @@
     </div>
 
 </x-teacher-layout>
-
-

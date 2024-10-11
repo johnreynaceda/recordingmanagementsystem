@@ -11,6 +11,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -42,7 +43,6 @@ class GradeLevelList extends Component implements HasForms, HasTable
                 // ...
             ])
             ->actions([
-                Action::make('sections')->label('Manage Section')->button()->icon('heroicon-o-arrow-right')->iconPosition(IconPosition::After)->url(fn (GradeLevel $record): string => route('admin.section', $record)),
                EditAction::make('edit')->color('success')->action(
                 function($record, $data){
                     $record->update([
@@ -60,6 +60,10 @@ class GradeLevelList extends Component implements HasForms, HasTable
                 TextInput::make('name')->required()
                ])->modalWidth('xl')->modalHeading('Edit Grade Level'),
                DeleteAction::make('delete'),
+               ActionGroup::make([
+                Action::make('sections')->label('Manage Section')->color('danger')->icon('heroicon-o-arrow-right')->url(fn (GradeLevel $record): string => route('admin.section', $record)),
+                Action::make('subjects')->label('Assign Subjects')->color('success')->icon('heroicon-o-folder-plus')->url(fn (GradeLevel $record): string => route('admin.grade-level-subjects', $record))
+                ])
             ])
             ->bulkActions([
                 // ...

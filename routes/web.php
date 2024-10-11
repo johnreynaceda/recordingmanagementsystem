@@ -36,21 +36,32 @@ Route::prefix('administrator')->middleware(['auth', 'verified'])->group( functio
     Route::get('/grade-level', function () {
         return view('admin.grade-level');
     })->name('admin.grade-level');
+    Route::get('/grade-level/subjects/{id}', function () {
+        return view('admin.grade-level-subjects');
+    })->name('admin.grade-level-subjects');
     Route::get('/section/{id}', function () {
         return view('admin.section');
     })->name('admin.section');
     Route::get('/students', function () {
         return view('admin.students');
     })->name('admin.students');
+   
     Route::get('/students/create', function () {
         return view('admin.students-create');
     })->name('admin.students-create');
+
+        Route::get('/students/{id}', function () {
+            return view('admin.students-record');
+        })->name('admin.students-record');
 });
 
 Route::prefix('teacher')->middleware(['auth', 'verified'])->group( function(){
     Route::get('/dashboard', function () {
         return view('teacher.dashboard');
     })->name('teacher.dashboard');
+    Route::get('/attendance', function () {
+        return view('teacher.attendance');
+    })->name('teacher.attendance');
 
 });
 

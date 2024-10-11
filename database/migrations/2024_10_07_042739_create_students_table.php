@@ -18,10 +18,9 @@ return new class extends Migration
             $table->string('lastname');
             $table->date('birthdate');
             $table->string('address');
-            $table->foreignId('grade_level_id');
-            $table->foreignId('section_id');
             $table->foreignId('user_id');
             $table->string('image_path')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

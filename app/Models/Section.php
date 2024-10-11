@@ -14,4 +14,16 @@ class Section extends Model
     {
         return $this->hasMany(Student::class);
     }
+
+    public function studentRecords(){
+        $this->hasMany(StudentRecord::class);
+    }
+
+    public function staff(){
+        return $this->belongsTo(Staff::class);
+    }
+
+    public function gradeLevel(){
+        return $this->belongsTo(GradeLevel::class);
+    }
 }

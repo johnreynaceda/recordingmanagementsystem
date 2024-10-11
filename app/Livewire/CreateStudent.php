@@ -6,6 +6,7 @@ use App\Models\GradeLevel;
 use App\Models\Post;
 use App\Models\Section;
 use App\Models\Student;
+use App\Models\StudentRecord;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
@@ -79,16 +80,22 @@ class CreateStudent extends Component implements HasForms
             'user_type' =>'student',
         ]);
         foreach ($this->student_picture as $key => $value) {
-            Student::create([
+        $student = Student::create([
                 'firstname' => $this->firstname,
                'middlename' => $this->middlename,
                'lastname' => $this->lastname,
                'birthdate' => $this->birthdate,
                'address' => $this->address,
-               'grade_level_id' => $this->grade_level,
-              'section_id' => $this->section,
+               
               'image_path' => $value->store('Student Profile', 'public'),
               'user_id' => $user->id
+            ]);
+
+            StudentRecord::create([
+                'student_id' => $student->id,
+                'grade_level_id' => $this->grade_level,
+              'section_id' => $this->section,
+              'is_active' => true,
             ]);
         }
         return redirect()->route('admin.students');

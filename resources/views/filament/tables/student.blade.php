@@ -8,8 +8,12 @@
         <h1 class="font-bold text-lg uppercase">
             {{ $getRecord()->lastname . ', ' . $getRecord()->firstname . ' ' . ($getRecord()->middlename == null ? '' : $getRecord()->middlename[0] . '.') }}
         </h1>
+
         <h1 class="font-semibold text-main ">
-            {{ $getRecord()->gradeLevel->name . ' - ' . $getRecord()->section->name }}
+            @php
+                $data = $getRecord()->studentRecords->where('is_active', true)->first();
+            @endphp
+            {{ $data->gradeLevel->name . ' - ' . $data->section->name }}
         </h1>
     </div>
 
