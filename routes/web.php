@@ -45,7 +45,7 @@ Route::prefix('administrator')->middleware(['auth', 'verified'])->group( functio
     Route::get('/students', function () {
         return view('admin.students');
     })->name('admin.students');
-   
+
     Route::get('/students/create', function () {
         return view('admin.students-create');
     })->name('admin.students-create');
@@ -53,6 +53,10 @@ Route::prefix('administrator')->middleware(['auth', 'verified'])->group( functio
         Route::get('/students/{id}', function () {
             return view('admin.students-record');
         })->name('admin.students-record');
+
+        Route::get('/request', function () {
+            return view('admin.request');
+        })->name('admin.request');
 });
 
 Route::prefix('teacher')->middleware(['auth', 'verified'])->group( function(){
@@ -69,6 +73,10 @@ Route::prefix('student')->middleware(['auth', 'verified'])->group( function(){
     Route::get('/dashboard', function () {
         return view('student.index');
     })->name('student.index');
+
+    Route::get('/request', function () {
+        return view('student.request');
+    })->name('student.request');
 
 
 

@@ -35,11 +35,11 @@
                     </div>
                     <div>
                         <span class="block text-sm font-semibold text-gray-500">Section:</span>
-                        <p class="text-lg font-medium">{{ $student->section->name ?? 'N/A' }}</p>
+                        <p class="text-lg font-medium">{{ $section }}</p>
                     </div>
                     <div>
                         <span class="block text-sm font-semibold text-gray-500">Grade Level:</span>
-                        <p class="text-lg font-medium">{{ $student->gradeLevel->name ?? 'N/A' }}</p>
+                        <p class="text-lg font-medium">{{ $gradeLevel }}</p>
                     </div>
                 </div>
             </div>

@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+
     <style>
         [x-cloak] {
             display: none !important;
@@ -24,7 +25,7 @@
 
 <body>
     <div class="flex flex-col h-screen overflow-hidden bg-gray-100">
-        <!-- Top Navigation Bar -->
+
 
 <div class="bg-gradient-to-bl from-red-500 to-main border-b border-main">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,7 +43,7 @@
                 <a href="" class="{{ request()->routeIs('grades') ? 'text-main bg-white' : 'text-white' }} px-4 py-2 rounded-lg hover:bg-white hover:text-main">Grades</a>
                 <a href="" class="{{ request()->routeIs('payments') ? 'text-main bg-white' : 'text-white' }} px-4 py-2 rounded-lg hover:bg-white hover:text-main">Payments</a>
                 <a href="" class="{{ request()->routeIs('billing.statement') ? 'text-main bg-white' : 'text-white' }} px-4 py-2 rounded-lg hover:bg-white hover:text-main">Billing Statement</a>
-                <a href="" class="{{ request()->routeIs('requests') ? 'text-main bg-white' : 'text-white' }} px-4 py-2 rounded-lg hover:bg-white hover:text-main">Requests</a>
+                <a href="{{route('student.request')}}" class="{{ request()->routeIs('requests') ? 'text-main bg-white' : 'text-white' }} px-4 py-2 rounded-lg hover:bg-white hover:text-main">Requests</a>
             </div>
 
             <div>

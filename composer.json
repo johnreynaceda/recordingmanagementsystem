@@ -9,6 +9,7 @@
         "filament/tables": "^3.2",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
+        "php-flasher/flasher-laravel": "^2.0",
         "tallstackui/tallstackui": "^1.35",
         "wireui/wireui": "^2.1"
     },
