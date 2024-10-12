@@ -17,6 +17,8 @@
             display: none !important;
         }
     </style>
+    @wireUiScripts
+
     <tallstackui:script />
     @filamentStyles
     @vite('resources/css/app.css')
@@ -42,7 +44,7 @@
 
                         <a href="" class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">Grades
                             Us</a>
-                        <a href="#_" class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">Profile
+                        <a href="{{route('teacher.dashboard')}}" class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">Profile
                         </a>
 
                     </nav>
