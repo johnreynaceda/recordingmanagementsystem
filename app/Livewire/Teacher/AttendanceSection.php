@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Teacher;
 
+use App\Models\AttendanceRecord;
 use App\Models\Section;
 use App\Models\StudentRecord;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -62,7 +63,11 @@ class AttendanceSection extends Component implements HasForms, HasTable
                     ->requiresConfirmation()
                     ->action(function (Collection $records) {
                         // Handle marking the student as present
-                        dd("Attendance marked.");
+                       foreach ($records as $key => $value) {
+                        AttendanceRecord::create([
+                            'student_record_id' => $value->id
+                        ]);
+                       }
                     }),
             ])
             ->emptyStateHeading('No Students Found')
