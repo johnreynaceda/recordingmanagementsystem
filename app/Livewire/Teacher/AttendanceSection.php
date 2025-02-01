@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
+use Flasher\SweetAlert\Prime\SweetAlertInterface;
 
 class AttendanceSection extends Component implements HasForms, HasTable
 {
@@ -41,9 +42,13 @@ class AttendanceSection extends Component implements HasForms, HasTable
                 TextColumn::make('student')
                     ->label('STUDENT NAME')
                     ->formatStateUsing(
-                        fn($record) => $record->student->firstname . ' ' . $record->student->lastname
+                        fn($record) => strtoupper($record->student->firstname . ' ' . $record->student->lastname)
                     )
                     ->searchable(),
+                TextColumn::make('section.name')
+                    ->label('SECTION')->formatStateUsing(
+                        fn($record) => strtoupper($record->section->name)
+                    )
             ])
             ->filters([
                 // SelectFilter::make('section_id')
@@ -62,13 +67,36 @@ class AttendanceSection extends Component implements HasForms, HasTable
                     ->label('Present Student')
                     ->requiresConfirmation()
                     ->action(function (Collection $records) {
-                        // Handle marking the student as present
-                       foreach ($records as $key => $value) {
-                        AttendanceRecord::create([
-                            'student_record_id' => $value->id
-                        ]);
-                       }
+                        $alreadyPresent = [];
+                        $addedAttendance = [];
+                
+                        foreach ($records as $record) {
+                            $existingAttendance = AttendanceRecord::where('student_record_id', $record->id)
+                                ->whereDate('created_at', now()->toDateString())
+                                ->exists();
+                
+                            if ($existingAttendance) {
+                                $alreadyPresent[] = strtoupper($record->student->firstname. ' '. $record->student->lastname); // Assuming 'name' exists in the $record
+                            } else {
+                                AttendanceRecord::create([
+                                    'student_record_id' => $record->id,
+                                ]);
+                                $addedAttendance[] = strtoupper($record->student->firstname. ' '. $record->student->lastname); // Track newly added attendance
+                            }
+                        }
+                
+                        if (!empty($alreadyPresent)) {
+                            $names = implode(', ', $alreadyPresent);
+                            sweetalert()->info("The following students already have attendance: $names");
+                        }
+                
+                        if (!empty($addedAttendance)) {
+                            sweetalert()->success('Attendance record added successfully.');
+                        }
+                
+                        return redirect()->route('teacher.attendance');
                     }),
+                
             ])
             ->emptyStateHeading('No Students Found')
             ->emptyStateDescription('Please select a section to view students.');

@@ -1,30 +1,34 @@
 <div>
-    <div class="flex space-x-3">
-        @forelse ($sections as $item)
-            <button wire:click="$set('section_id', {{ $item->id }})"
-                class="{{ $section_id == $item->id ? 'bg-main text-white' : 'text-gray-600' }} border px-2 py-1 border-main hover:bg-main hover:text-white hover:scale-95 hover:shadow rounded-xl flex space-x-2 ">
-                <span class="font-medium">{{ $item->name }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-user-round-pen">
-                    <path d="M2 21a8 8 0 0 1 10.821-7.487" />
-                    <path
-                        d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
-                    <circle cx="10" cy="8" r="5" />
-                </svg>
-            </button>
-        @empty
-            <p>No sections available.</p>
-        @endforelse
-    </div>
 
-    <div class="mt-5 border-t border-red-600 pt-5">
+
+    <div class="">
         <div class="bg-white p-5 rounded-xl shadow">
+
+            <div class="flex space-x-3">
+                @forelse ($sections as $item)
+                    <button wire:click="$set('section_id', {{ $item->id }})"
+                        class="{{ $section_id == $item->id ? 'bg-main text-white' : 'text-gray-600' }} border px-2 py-1 border-main hover:bg-main hover:text-white hover:scale-95 hover:shadow rounded-lg flex space-x-2 ">
+                        <span class="font-medium uppercase">{{ $item->name }}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-user-round-pen">
+                            <path d="M2 21a8 8 0 0 1 10.821-7.487" />
+                            <path
+                                d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+                            <circle cx="10" cy="8" r="5" />
+                        </svg>
+                    </button>
+                @empty
+                    <p>No sections available.</p>
+                @endforelse
+            </div>
             @if ($section_id)
-                {{ $this->table }}
+                <div class="mt-5">
+                    {{ $this->table }}
+                </div>
             @endif
             @if (!$section_id)
-                <div class="grid place-content-center">
+                <div class="grid place-content-center mt-5 border-t border-red-600 pt-5">
 
                     <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" class="h-96"
                         viewBox="0 0 677.85755 623.71162" xmlns:xlink="http://www.w3.org/1999/xlink">

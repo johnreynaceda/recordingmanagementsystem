@@ -1,4 +1,4 @@
-<div class="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
+{{-- <div class="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
 
 
     <div class="overflow-x-auto">
@@ -14,7 +14,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($requests as $request)
+                @foreach ($requests as $request)
                     <tr class="border-b hover:bg-gray-100">
                         <td class="py-3 px-4">{{ $request->email_address }}</td>
                         <td class="py-3 px-4">{{ $request->phone_number }}</td>
@@ -38,4 +38,7 @@
     <div class="mt-4">
         {{ $requests->links() }}
     </div>
+</div> --}}
+<div>
+    {{ $this->table }}
 </div>

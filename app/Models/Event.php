@@ -5,13 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AttendanceRecord extends Model
+class Event extends Model
 {
     use HasFactory;
-
     protected $guarded = [];
-
-    public function studentRecord(){
-        return $this->belongsTo(StudentRecord::class);
-    }
 }

@@ -57,6 +57,10 @@ Route::prefix('administrator')->middleware(['auth', 'verified'])->group( functio
         Route::get('/request', function () {
             return view('admin.request');
         })->name('admin.request');
+
+        Route::get('/calendar', function () {
+            return view('admin.calendar');
+        })->name('admin.calendar');
 });
 
 Route::prefix('teacher')->middleware(['auth', 'verified'])->group( function(){
@@ -66,6 +70,15 @@ Route::prefix('teacher')->middleware(['auth', 'verified'])->group( function(){
     Route::get('/attendance', function () {
         return view('teacher.attendance');
     })->name('teacher.attendance');
+    Route::get('/attendance/records', function () {
+        return view('teacher.view-records');
+    })->name('teacher.view-records');
+    Route::get('/grading', function () {
+        return view('teacher.grading');
+    })->name('teacher.grading');
+    Route::get('/calendar', function () {
+        return view('teacher.calendar');
+    })->name('teacher.calendar');
 
 });
 
@@ -77,6 +90,9 @@ Route::prefix('student')->middleware(['auth', 'verified'])->group( function(){
     Route::get('/request', function () {
         return view('student.request');
     })->name('student.request');
+    Route::get('/calendar', function () {
+        return view('student.calendar');
+    })->name('student.calendar');
 
 
 
