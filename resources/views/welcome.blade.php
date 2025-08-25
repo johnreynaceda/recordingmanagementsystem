@@ -1,50 +1,42 @@
 @section('title', 'Welcome')
 <x-home-layout>
     <div>
-        <section class="px-2 h-screen py-48 relative md:px-0">
-            <div class="container items-center max-w-6xl px-8 mx-auto xl:px-5">
-                <div class="flex flex-wrap items-center sm:-mx-3">
-                    <div class="w-full md:w-7/12 md:px-3">
-                        <div
-                            class="w-full pb-6 space-y-6 sm:max-w-md lg:max-w-lg md:space-y-4 lg:space-y-8 xl:space-y-9 sm:pr-5 lg:pr-0 md:pb-0">
-                            <h1 class="text-center">
-                                <span
-                                    class="block xl:inline text-4xl font-extrabold  tracking-tight text-main sm:text-5xl md:text-4xl lg:text-5xl xl:text-5xl">TRECE
-                                    MARTIRES CITY</span>
-                                <span class="block xl:inline text-2xl text-gray-700">National High School</span>
+        <section class="px-4 py-20 md:py-32 lg:py-48 relative">
+            <div class="container max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10 lg:gap-16">
+                
+                <!-- Left Content -->
+                <div class="w-full md:w-7/12 text-center md:text-left">
+                    <h1>
+                        <span class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-main">
+                            TRECE MARTIRES CITY
+                        </span>
+                        <span class="block text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-700">
+                            National High School
+                        </span>
+                    </h1>
 
-                            </h1>
+                    <p class="mt-6 mx-auto md:mx-0 text-base sm:text-lg lg:text-xl text-gray-600 max-w-md md:max-w-2xl">
+                        It's never been easier to build beautiful websites that convey your message and tell your story.
+                    </p>
 
-                            <p class="mx-auto text-base text-gray-600 sm:max-w-md lg:text-xl md:max-w-3xl">It's
-                                never
-                                been easier to build beautiful websites that convey your message and tell your
-                                story.
-                            </p>
-                            <div class="relative flex flex-col sm:flex-row sm:space-x-4 sm:justify-center">
-
-                                <a href="#_"
-                                    class="flex items-center px-6 py-3 text-main bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-600"
-                                    data-rounded="rounded-md">
-                                    Mission
-                                </a>
-                                <a href="#_"
-                                    class="flex items-center px-6 py-3 text-main bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-600"
-                                    data-rounded="rounded-md">
-                                    Vision
-                                </a>
-                                <a href="#_"
-                                    class="flex items-center px-6 py-3 text-main bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-600"
-                                    data-rounded="rounded-md">
-                                    Goal
-                                </a>
-                            </div>
-                        </div>
+                    <!-- Buttons -->
+                    <div class="mt-8 flex flex-col sm:flex-row sm:justify-center md:justify-start gap-4">
+                        <a href="#_" class="px-6 py-3 bg-gray-100 text-main rounded-md hover:bg-gray-200 hover:text-gray-600 transition">
+                            Mission
+                        </a>
+                        <a href="#_" class="px-6 py-3 bg-gray-100 text-main rounded-md hover:bg-gray-200 hover:text-gray-600 transition">
+                            Vision
+                        </a>
+                        <a href="#_" class="px-6 py-3 bg-gray-100 text-main rounded-md hover:bg-gray-200 hover:text-gray-600 transition">
+                            Goal
+                        </a>
                     </div>
-                    <div class="w-full md:w-5/12">
-                        <div class="w-full h-auto overflow-hidden " data-rounded="rounded-xl"
-                            data-rounded-max="rounded-full">
-                            <img src="{{ asset('images/tmcnhs_logo.png') }}">
-                        </div>
+                </div>
+
+                <!-- Right Logo -->
+                <div class="w-full md:w-5/12 flex justify-center md:justify-end">
+                    <div class="w-48 sm:w-60 md:w-72 lg:w-80 h-auto overflow-hidden rounded-xl">
+                        <img src="{{ asset('images/tmcnhs_logo.png') }}" alt="TMCNHS Logo" class="w-full h-auto object-contain">
                     </div>
                 </div>
             </div>

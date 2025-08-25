@@ -22,91 +22,88 @@
     @vite('resources/css/app.css')
 </head>
 
-<body
-    class="font-sans text-main antialiased {{ request()->routeIs('home') ? 'overflow-hidden' : '' }} bg-gray-300 h-screen relative">
-    <img src="{{ asset('images/bg.jpg') }}" class="fixed top-0 bottom-0 left-0 w-full h-full object-cover opacity-20"
-        alt="">
-    <div class="relative ">
+<body class="font-sans text-main antialiased {{ request()->routeIs('home') ? 'overflow-hidden' : '' }} bg-gray-300 min-h-screen relative">
 
+    <!-- Background -->
+    <img src="{{ asset('images/bg.jpg') }}" class="fixed top-0 bottom-0 left-0 w-full h-full object-cover opacity-20 -z-10"
+        alt="">
+
+    <div class="relative">
+
+        <!-- Top Contact Info -->
         <div class="bg-main relative">
-            <div class="mx-auto py-3 text-white max-w-7xl flex space-x-4 items-center">
-                <div class="flex space-x-2 items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-mail">
-                        <rect width="20" height="16" x="2" y="4" rx="2" />
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                    </svg>
+            <div class="mx-auto py-3 text-white max-w-7xl flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 items-center justify-center md:justify-start px-4">
+                <div class="flex space-x-2 items-center text-sm">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-at-sign-icon lucide-at-sign"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg>
                     <span>tmcnhs@gmail.com</span>
                 </div>
-                <div class="flex space-x-2 items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-phone">
-                        <path
-                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
+                <div class="flex space-x-2 items-center text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-icon lucide-phone"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg>
                     <span>4432-3524-6754</span>
                 </div>
-                <div class="flex space-x-2 items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-map-pin">
-                        <path
-                            d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-                        <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    <span>Trece Martires City National Highschool</span>
+                <div class="flex space-x-2 items-center text-sm text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span class="truncate">Trece Martires City National Highschool</span>
                 </div>
             </div>
         </div>
-        <section class="w-full px-8 relative sticky top-0 text-gray-700 border-b bg-white" {!! $attributes ?? '' !!}>
-            <div
-                class="container flex flex-col flex-wrap items-center justify-between py-2 mx-auto md:flex-row max-w-7xl">
-                <div class="relative flex flex-col md:flex-row">
-                    <a href="#_"
-                        class="flex items-center mb-5 font-medium text-main lg:w-auto lg:items-center lg:justify-center md:mb-0">
-                        <img src="{{ asset('images/tmcnhs_logo.png') }}" class="h-12" alt="">
-                    </a>
-                    <nav
-                        class="flex flex-wrap items-center mb-5 text-base md:mb-0 md:pl-8 md:ml-8 md:border-l md:border-gray-200">
-                        <a href="{{ route('home') }}"
-                            class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">Home</a>
 
-                        <a href="{{ route('about') }}"
-                            class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">About
-                            Us</a>
-                        <a href="#_" class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">How to
-                            Enroll</a>
-                        <a href="#_" class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">K-12
-                            Program</a>
-                    </nav>
-                </div>
+        <!-- Navbar -->
+        <section class="w-full px-4 md:px-8 relative sticky top-0 text-gray-700 border-b bg-white" {!! $attributes ?? '' !!}>
+            <div class="container flex flex-wrap items-center justify-between py-2 mx-auto max-w-7xl">
 
-                <div class="inline-flex items-center ml-5 space-x-6 lg:justify-end">
+                <!-- Logo -->
+                <a href="{{ route('home') }}"
+                    class="flex items-center 2xl:mb-3 :mb-0 font-medium text-main lg:w-auto lg:items-center lg:justify-center">
+                    <img src="{{ asset('images/tmcnhs_logo.png') }}" class="h-12" alt="">
+                </a>
 
-                    <a href="{{ route('login') }}"
-                        class="mr-5 flex space-x-2 font-medium leading-6 text-gray-600 hover:text-main">
-                        <span>
-                            Login
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="lucide lucide-log-in">
-                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                            <polyline points="10 17 15 12 10 7" />
-                            <line x1="15" x2="3" y1="12" y2="12" />
-                        </svg>
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden p-2 rounded-lg border border-gray-300" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex flex-wrap items-center text-base space-x-6">
+                    <a href="{{ route('home') }}" class="font-medium leading-6 text-gray-600 hover:text-main">Home</a>
+                    <a href="{{ route('about') }}" class="font-medium leading-6 text-gray-600 hover:text-main">About Us</a>
+                    <a href="#_" class="font-medium leading-6 text-gray-600 hover:text-main">How to Enroll</a>
+                    <a href="#_" class="font-medium leading-6 text-gray-600 hover:text-main">K-12 Program</a>
+                </nav>
+
+                <!-- Login -->
+                <div class="hidden md:flex items-center space-x-2">
+                    <a href="{{ route('login') }}" class="flex items-center font-medium leading-6 text-gray-600 hover:text-main">
+                        <span>Login</span>
+                       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in-icon lucide-log-in"><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>
                     </a>
                 </div>
             </div>
+
+            <!-- Mobile Nav -->
+            <div id="mobileMenu" class="hidden md:hidden flex flex-col space-y-3 mt-3 px-4 pb-4 border-t">
+                <a href="{{ route('home') }}" class="text-gray-600 hover:text-main">Home</a>
+                <a href="{{ route('about') }}" class="text-gray-600 hover:text-main">About Us</a>
+                <a href="#_" class="text-gray-600 hover:text-main">How to Enroll</a>
+                <a href="#_" class="text-gray-600 hover:text-main">K-12 Program</a>
+                <a href="{{ route('login') }}" class="text-gray-600 hover:text-main flex items-center space-x-1">
+                    <span>Login</span>
+                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in-icon lucide-log-in"><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>
+                </a>
+            </div>
         </section>
-        <main>
+
+        <!-- Main Content -->
+        <main class="p-4 md:p-6">
             {{ $slot }}
         </main>
 
-
     </div>
+
     @filamentScripts
     @vite('resources/js/app.js')
 </body>
