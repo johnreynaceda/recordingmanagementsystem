@@ -46,14 +46,7 @@ class GradeLevelList extends Component implements HasForms, HasTable
                EditAction::make('edit')->color('success')->action(
                 function($record, $data){
                     $record->update([
-                        'firstname' => $data['firstname'],
-                        'lastname' => $data['lastname'],
-                       'middlename' => $data['middlename'],
-                       'address' => $data['address'],
-                    ]);
-                    $record->user->update([
-                        'email' => $data['email'],
-                        'password' => $data['password'] ? bcrypt($data['password']) : '',
+                        'name' => $data['name'],
                     ]);
                 }
                )->form([
