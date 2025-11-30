@@ -21,4 +21,12 @@ class Student extends Model
     public function studentRecords(){
         return $this->hasMany(StudentRecord::class);
     }
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function studentGrades(){
+        return $this->hasMany(StudentGrade::class);
+    }
 }

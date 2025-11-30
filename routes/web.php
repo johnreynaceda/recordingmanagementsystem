@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Livewire\Student\MyGrade;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,7 +14,7 @@ Route::get('/about', function () {
 Route::get('/dashboard', function () {
     switch (auth()->user()->user_type) {
         case 'admin':
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('admin.staffs');
         case 'teacher':
             return redirect()->route('teacher.dashboard');
 
@@ -93,6 +94,7 @@ Route::prefix('student')->middleware(['auth', 'verified'])->group( function(){
     Route::get('/calendar', function () {
         return view('student.calendar');
     })->name('student.calendar');
+    Route::get('/grade', MyGrade::class)->name('student.grade');
 
 
 
