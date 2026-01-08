@@ -68,7 +68,7 @@ class Grading extends Component implements HasForms, HasTable
                     //     FileUpload::make('grade')
                     ])->modalWidth('xl'),
                     Action::make('view')->label('VIEW GRADES')->icon('heroicon-o-folder-open')->color('warning'),
-                ])
+                ])->color('black')
             ])
             ->bulkActions([
                 // ...

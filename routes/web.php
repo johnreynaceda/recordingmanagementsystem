@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Livewire\Student\MyGrade;
+use App\Livewire\Auth\ForgotPassword;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -99,6 +100,10 @@ Route::prefix('student')->middleware(['auth', 'verified'])->group( function(){
 
 
 });
+
+Route::get('/forgot-password', ForgotPassword::class)
+    ->middleware('guest')
+    ->name('password.request');
 
 
 Route::middleware('auth')->group(function () {

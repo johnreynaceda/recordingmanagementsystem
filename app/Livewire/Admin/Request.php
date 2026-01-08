@@ -1,8 +1,6 @@
 <?php
-
 namespace App\Livewire\Admin;
 
-use App\Models\Shop\Product;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\Action;
@@ -12,13 +10,14 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
+use App\Notifications\RequestApprovedNotification;
 use Livewire\Component;
 
-class Request extends Component  implements HasForms, HasTable
+class Request extends Component implements HasForms, HasTable
 {
     use InteractsWithTable;
     use InteractsWithForms;
-    
+
     public function table(Table $table): Table
     {
         return $table
@@ -30,10 +29,10 @@ class Request extends Component  implements HasForms, HasTable
                 TextColumn::make('option')->label('FORM')->searchable(),
                 TextColumn::make('additional_information')->words(3)->label('ADDITIONAL INFO')->searchable(),
                 TextColumn::make('created_at')->label('REQUESTED AT')->date(),
-                TextColumn::make('status')->label('STATUS')->badge()->color(fn (string $state): string => match ($state) {
+                TextColumn::make('status')->label('STATUS')->badge()->color(fn(string $state): string => match ($state) {
                     'approved' => 'success',
                     'declined' => 'danger',
-                })
+                }),
             ])
             ->filters([
                 // ...
@@ -41,23 +40,24 @@ class Request extends Component  implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     Action::make('approve')->color('success')->icon('heroicon-s-hand-thumb-up')->action(
-                        fn($record) => $record->update(['status' => 'approved'])
-                    ),
-                    Action::make('Decline')->color('danger')->icon('heroicon-s-hand-thumb-down')->action(
-                        fn($record) => $record->update(['status' => 'declined'])
-                    ),
-                ])->hidden(fn($record) => $record->status != null)
-            ])
-            ->bulkActions([
-                // ...
-            ]);
-    }
+                        function ($record) {
+                            $record->user->notify(new RequestApprovedNotification('Form '.$record->option));
+                                $record->update(['status' => 'approved']);
+                            }
+                        ),
+                        Action::make('Decline')->color('danger')->icon('heroicon-s-hand-thumb-down')->action(
+                            fn($record) => $record->update(['status' => 'declined'])
+                        ),
+                    ])->hidden(fn($record) => $record->status != null)
+                ])
+                    ->bulkActions([
+                        // ...
+                    ]);
+            }
 
-
-    public function render()
+            public function render()
     {
-       
 
-        return view('livewire.admin.request');
-    }
-}
+                return view('livewire.admin.request');
+            }
+        }

@@ -19,6 +19,8 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Password;
+use Carbon\Carbon;
 use Livewire\Component;
 
 class CreateStudent extends Component implements HasForms
@@ -36,10 +38,10 @@ class CreateStudent extends Component implements HasForms
                 FileUpload::make('student_picture'),
                 ViewField::make('rating')
                     ->view('filament.forms.blank')->columnSpan(2),
-                    TextInput::make('firstname')->required(),
-                    TextInput::make('middlename'),
-                    TextInput::make('lastname')->required(),
-                    DatePicker::make('birthdate')->required(),
+                    TextInput::make('firstname')->label('First Name')->required(),
+                    TextInput::make('middlename')->label('Middle Name'),
+                    TextInput::make('lastname')->label('Last Name')->required(),
+                    DatePicker::make('birthdate')->required()->reactive(),
                     TextInput::make('address')->required()->columnSpan(2),
                     Select::make('grade_level')->options(
                         GradeLevel::all()->pluck('name', 'id')
@@ -79,6 +81,7 @@ class CreateStudent extends Component implements HasForms
             'password' => bcrypt($this->password),
             'user_type' =>'student',
         ]);
+
         foreach ($this->student_picture as $key => $value) {
         $student = Student::create([
                 'firstname' => $this->firstname,
@@ -97,10 +100,30 @@ class CreateStudent extends Component implements HasForms
               'section_id' => $this->section,
               'is_active' => true,
             ]);
+
         }
+         Password::sendResetLink([
+            'email' => $user->email,
+        ]);
         return redirect()->route('admin.students');
         
     }
+
+   public function updatedBirthdate($value)
+{
+    $this->birthdate = $value;
+
+    if ($value) {
+        $age = Carbon::parse($value)->age;
+
+        if ($age < 12) {
+            $this->addError('birthdate', 'Age must be at least 12 years old.');
+            $this->birthdate = null; // optional: reset invalid value
+        } else {
+            $this->resetErrorBag('birthdate');
+        }
+    }
+}
 
     public function render()
     {

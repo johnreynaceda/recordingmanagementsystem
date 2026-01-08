@@ -29,4 +29,8 @@ class Student extends Model
     public function studentGrades(){
         return $this->hasMany(StudentGrade::class);
     }
+
+    public function requests(){
+        return $this->hasMany(request::class);
+    }
 }

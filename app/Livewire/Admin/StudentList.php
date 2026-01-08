@@ -79,7 +79,7 @@ class StudentList extends Component implements HasForms, HasTable
 
                       sweetalert()->success('Password changed successfully!');
                    }),
-                ]),
+                ])->color('black'),
             ])
             ->bulkActions([
                 // Add bulk actions if needed

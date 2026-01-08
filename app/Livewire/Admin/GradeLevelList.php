@@ -56,7 +56,7 @@ class GradeLevelList extends Component implements HasForms, HasTable
                ActionGroup::make([
                 Action::make('sections')->label('Manage Section')->color('danger')->icon('heroicon-o-arrow-right')->url(fn (GradeLevel $record): string => route('admin.section', $record)),
                 Action::make('subjects')->label('Assign Subjects')->color('success')->icon('heroicon-o-folder-plus')->url(fn (GradeLevel $record): string => route('admin.grade-level-subjects', $record))
-                ])
+                ])->color('black')
             ])
             ->bulkActions([
                 // ...

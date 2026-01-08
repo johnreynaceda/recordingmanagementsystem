@@ -81,7 +81,7 @@
                                                 <path d="M18 20a6 6 0 0 0-12 0" />
                                                 <circle cx="12" cy="10" r="4" />
                                                 <circle cx="12" cy="12" r="10" />
-                                            </svg> <span class="ml-4"> Staffs </span> </a> </li>
+                                            </svg> <span class="ml-4"> Teachers </span> </a> </li>
                                     <li> <a class="{{ request()->routeIs('admin.students') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
                                             href="{{ route('admin.students') }}"> <svg
                                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24"
