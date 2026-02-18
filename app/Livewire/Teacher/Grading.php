@@ -24,6 +24,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\Layout\Grid;
 use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Support\Facades\Storage;
 
 class Grading extends Component implements HasForms, HasTable
 {
@@ -36,23 +37,23 @@ class Grading extends Component implements HasForms, HasTable
     {
         return $table
             ->query(StudentRecord::query()->whereIn('section_id', auth()->user()->staff->sections->pluck('id')->toArray()))->columns([
-               
+
                 TextColumn::make('student')->label('NAME')->formatStateUsing(
-                    fn($record) => strtoupper($record->student->firstname. ' ' . $record->student->lastname)
+                    fn($record) => strtoupper($record->student->firstname . ' ' . $record->student->lastname)
                 )->searchable(),
                 TextColumn::make('section.name')->label('SECTION')->searchable(),
-              
-             
+
+
             ])
             ->filters([
                 SelectFilter::make('status')
-                ->options(Section::whereIn('id', auth()->user()->staff->sections->pluck('id')->toArray())->pluck('name', 'id'))
-                ->attribute('section_id')
+                    ->options(Section::whereIn('id', auth()->user()->staff->sections->pluck('id')->toArray())->pluck('name', 'id'))
+                    ->attribute('section_id')
             ])
             ->actions([
                 ActionGroup::make([
                     Action::make('upload')->label('UPLOAD')->icon('heroicon-o-arrow-up-on-square-stack')->color('success')->action(
-                        function($record,$data){
+                        function ($record, $data) {
                             foreach ($this->grade as $key => $value) {
                                 StudentGrade::create([
                                     'student_id' => $record->student_id,
@@ -60,14 +61,13 @@ class Grading extends Component implements HasForms, HasTable
                                     'file_path' => $value->store('Grade', 'public')
                                 ]);
                             }
-                            
                         }
                     )->form([
                         ViewField::make('grade')
-                        ->view('filament.forms.upload-grade')
-                    //     FileUpload::make('grade')
+                            ->view('filament.forms.upload-grade')
+                        //     FileUpload::make('grade')
                     ])->modalWidth('xl'),
-                    Action::make('view')->label('VIEW GRADES')->icon('heroicon-o-folder-open')->color('warning'),
+                    Action::make('view')->label('VIEW GRADES')->icon('heroicon-o-folder-open')->color('warning')->url(fn(StudentRecord $record): string => Storage::url(StudentGrade::where('student_id', $record->student_id)->first()->file_path))->openUrlInNewTab(),
                 ])->color('black')
             ])
             ->bulkActions([
@@ -77,7 +77,7 @@ class Grading extends Component implements HasForms, HasTable
 
     public function render()
     {
-        
+
         return view('livewire.teacher.grading');
     }
 }

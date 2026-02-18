@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('lastname');
             $table->date('birthdate');
             $table->string('address');
+            $table->string('contact_number')->nullable();
+            $table->string('lrn')->nullable();
             $table->foreignId('user_id');
             $table->string('image_path')->nullable();
             $table->string('status')->nullable();

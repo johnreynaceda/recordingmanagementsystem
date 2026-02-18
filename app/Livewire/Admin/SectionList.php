@@ -28,9 +28,10 @@ class SectionList extends Component implements HasForms, HasTable
     use InteractsWithForms;
 
     public $grade_level_id;
-    
 
-    public function mount(){
+
+    public function mount()
+    {
         $this->grade_level_id = request('id');
     }
 
@@ -38,50 +39,50 @@ class SectionList extends Component implements HasForms, HasTable
     {
         return $table
             ->query(Section::query()->where('grade_level_id', $this->grade_level_id))->headerActions([
-               CreateAction::make('section')->label('New Section')->icon('heroicon-o-plus')->iconPosition(IconPosition::After)->action(
-                function($data){
-                    Section::create([
-                        'grade_level_id' => $this->grade_level_id,
-                        'name' => $data['name'],
-                    ]);
-                }
-               )->form([
-                TextInput::make('name')->required()
-               ])->modalWidth('xl')->modalHeading('Create Section')
+                CreateAction::make('section')->label('New Section')->icon('heroicon-o-plus')->iconPosition(IconPosition::After)->action(
+                    function ($data) {
+                        Section::create([
+                            'grade_level_id' => $this->grade_level_id,
+                            'name' => $data['name'],
+                        ]);
+                    }
+                )->form([
+                    TextInput::make('name')->required()
+                ])->modalWidth('xl')->modalHeading('Create Section')
             ])
             ->columns([
-               
+
                 TextColumn::make('name')->label('NAME'),
                 TextColumn::make('staff')->label('TEACHER')->formatStateUsing(
-                    fn($record) => $record->staff->firstname. ' ' . $record->staff->lastname
+                    fn($record) => $record->staff->firstname . ' ' . $record->staff->lastname
                 ),
-             
+
             ])
             ->filters([
                 // ...
             ])
             ->actions([
-               Action::make('teacher')->label('Assign Teacher')->icon('heroicon-o-user-plus')->button()->color('success')->action(
-                function($record, $data){
-                    $record->update([
-                        'staff_id' => $data['staff'],
-                    ]);
-                }
-               )->form([
-                Select::make('staff')->label('Teacher')->options(Staff::all()->mapWithKeys(function($record){
-                    return [$record->id => $record->firstname. ' ' . $record->lastname];
-                }))->required()
-               ])->modalWidth('xl')->visible(fn($record) => $record->staff_id == null),
-               EditAction::make('edit')->color('success')->action(
-                function($record, $data){
-                   $record->update([
-                    'name' => $data['name'],
-                   ]);
-                }
-               )->form([
-                TextInput::make('name')->required()
-               ])->modalWidth('xl')->modalHeading('Edit Grade Level'),
-               DeleteAction::make('delete'),
+                Action::make('teacher')->label('Assign Teacher')->icon('heroicon-o-user-plus')->button()->color('success')->action(
+                    function ($record, $data) {
+                        $record->update([
+                            'staff_id' => $data['staff'],
+                        ]);
+                    }
+                )->form([
+                    Select::make('staff')->label('Teacher')->options(Staff::all()->mapWithKeys(function ($record) {
+                        return [$record->id => $record->firstname . ' ' . $record->lastname];
+                    }))->required()
+                ])->modalWidth('xl')->visible(fn($record) => $record->staff_id == null || $record->staff == null),
+                EditAction::make('edit')->color('success')->action(
+                    function ($record, $data) {
+                        $record->update([
+                            'name' => $data['name'],
+                        ]);
+                    }
+                )->form([
+                    TextInput::make('name')->required()
+                ])->modalWidth('xl')->modalHeading('Edit Grade Level'),
+                DeleteAction::make('delete'),
             ])
             ->bulkActions([
                 // ...
@@ -90,8 +91,8 @@ class SectionList extends Component implements HasForms, HasTable
 
     public function render()
     {
-        return view('livewire.admin.section-list',[
-            'name' => GradeLevel::where('id',$this->grade_level_id)->first()->name,
+        return view('livewire.admin.section-list', [
+            'name' => GradeLevel::where('id', $this->grade_level_id)->first()->name,
         ]);
     }
 }

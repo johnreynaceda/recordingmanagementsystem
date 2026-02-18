@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Livewire\Admin;
 
 use App\Models\Student;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
@@ -19,6 +21,7 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class StudentList extends Component implements HasForms, HasTable
@@ -42,7 +45,7 @@ class StudentList extends Component implements HasForms, HasTable
                     ->schema([
                         ViewColumn::make('firstname')
                             ->view('filament.tables.student'), // Ensure the view path is correct
-                                                           // Add more columns if needed, like:
+                        // Add more columns if needed, like:
 
                     ]),
             ])
@@ -56,29 +59,51 @@ class StudentList extends Component implements HasForms, HasTable
             ->actions([
                 EditAction::make('edit')->color('success')->form([
                     Fieldset::make("STUDENT'S INFORMATION")->schema([
-                       
+
                         TextInput::make('firstname')->required(),
                         TextInput::make('middlename'),
                         TextInput::make('lastname')->required(),
                         DatePicker::make('birthdate')->required(),
+                        TextInput::make('contact_number')->required(),
+
+                        TextInput::make('age')->required()->disabled()->formatStateUsing(function ($state, $record) {
+                            if (! $record?->birthdate) {
+                                return null;
+                            }
+
+                            return Carbon::parse($record->birthdate)->age;
+                        }),
                         TextInput::make('address')->required()->columnSpan(2),
 
                     ])->columns(3),
-                  
+
                 ]),
                 DeleteAction::make('delete'),
+                Action::make('grade')
+                    ->label('Grades')
+                    ->badge()
+                    ->color('info')
+                    ->url(function ($record) {
+                        $grade = $record->studentGrades->first();
+                        return $grade ? Storage::url($grade->file_path) : null;
+                    })
+                    ->openUrlInNewTab()
+                    ->visible(
+                        fn($record) =>
+                        optional($record->studentGrades->first())->file_path
+                    ),
                 ActionGroup::make([
                     Action::make('view')->label('View Record')->icon('heroicon-o-viewfinder-circle')->color('success')->url(fn(Student $record): string => route('admin.students-record', $record))
                         ->openUrlInNewTab(),
                     Action::make('change')->label('Change Password')->icon('heroicon-m-key')->form([
-                       TextInput::make('password')->password()->required()->revealable(),
-                   ])->modalWidth('lg')->action(function($record, $data){
-                      $record->user->update([
+                        TextInput::make('password')->password()->required()->revealable(),
+                    ])->modalWidth('lg')->action(function ($record, $data) {
+                        $record->user->update([
                             'password' => bcrypt($data['password'])
-                      ]);
+                        ]);
 
-                      sweetalert()->success('Password changed successfully!');
-                   }),
+                        sweetalert()->success('Password changed successfully!');
+                    }),
                 ])->color('black'),
             ])
             ->bulkActions([

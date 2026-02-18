@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\Admin;
 
 use App\Models\Staff;
@@ -27,44 +28,55 @@ class StaffList extends Component implements HasForms, HasTable
     {
         return $table
             ->query(Staff::query())->headerActions([
-            CreateAction::make('new_staff')->label('New Staff')->icon('heroicon-o-user-plus')->iconPosition(IconPosition::After)->action(
-                function ($data) {
-                    $user = User::create([
-                        'name'      => $data['firstname'] . ' ' . $data['lastname'],
-                        'email'     => $data['email'],
-                        'password'  => bcrypt($data['password']),
-                        'user_type' => 'teacher',
-                    ]);
+                CreateAction::make('new_staff')->label('New Staff')->icon('heroicon-o-user-plus')->iconPosition(IconPosition::After)->action(
+                    function ($data) {
+                        $user = User::create([
+                            'name'      => $data['firstname'] . ' ' . $data['lastname'],
+                            'email'     => $data['email'],
+                            'password'  => bcrypt($data['password']),
+                            'user_type' => 'teacher',
+                        ]);
 
-                    Staff::create([
-                        'firstname'  => $data['firstname'],
-                        'lastname'   => $data['lastname'],
-                        'middlename' => $data['middlename'],
-                        'address'    => $data['address'],
-                        'user_id'    => $user->id,
-                    ]);
+                        Staff::create([
+                            'firstname'  => $data['firstname'],
+                            'lastname'   => $data['lastname'],
+                            'middlename' => $data['middlename'],
+                            'address'    => $data['address'],
+                            'user_id'    => $user->id,
+                        ]);
+                    }
+                )->form([
+                    Grid::make([
+                        'default' => 2, // 2 columns on desktop
+                        'sm'      => 1, // 1 column on small screens
+                    ])->schema([
+                        Fieldset::make('INFORMATION')->schema([
+                            TextInput::make('firstname')->required()->live()
+                                ->afterStateUpdated(
+                                    fn($state, callable $set) =>
+                                    $set('firstname', ucwords(strtolower($state)))
+                                ),
+                            TextInput::make('middlename')->live()
+                                ->afterStateUpdated(
+                                    fn($state, callable $set) =>
+                                    $set('middlename', ucwords(strtolower($state)))
+                                ),
+                            TextInput::make('lastname')->required()->live()
+                                ->afterStateUpdated(
+                                    fn($state, callable $set) =>
+                                    $set('lastname', ucwords(strtolower($state)))
+                                ),
+                            TextInput::make('address')->columnSpanFull(),
+                        ]),
 
-                }
-            )->form([
-                Grid::make([
-                    'default' => 2, // 2 columns on desktop
-                    'sm'      => 1, // 1 column on small screens
-                ])->schema([
-                    Fieldset::make('INFORMATION')->schema([
-                        TextInput::make('firstname')->required(),
-                        TextInput::make('middlename'),
-                        TextInput::make('lastname')->required(),
-                        TextInput::make('address')->columnSpanFull(),
+                        Fieldset::make('ACCOUNT')->schema([
+                            TextInput::make('email')->email()->required(),
+                            TextInput::make('password')->password()->required()->revealable(),
+                            TextInput::make('confirm_password')->password()->required()->revealable()->same('password'),
+                        ]),
                     ]),
-
-                    Fieldset::make('ACCOUNT')->schema([
-                        TextInput::make('email')->email()->required(),
-                        TextInput::make('password')->password()->required(),
-                        TextInput::make('confirm_password')->password()->required(),
-                    ]),
-                ]),
-            ])->modalHeading('Create Staff')->modalWidth('2xl'),
-        ])
+                ])->modalHeading('Create Staff')->modalWidth('2xl'),
+            ])
             ->columns([
                 TextColumn::make('id')->label('FULLNAME')->formatStateUsing(
                     fn($record) => $record->firstname . ' ' . $record->lastname

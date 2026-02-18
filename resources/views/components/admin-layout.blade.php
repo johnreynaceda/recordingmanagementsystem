@@ -133,6 +133,22 @@
                                                 <path d="M7 14h.01" />
                                                 <path d="M17 18h.01" />
                                             </svg> <span class="ml-4"> Calendar </span> </a> </li>
+                                    <li> <a class="{{ request()->routeIs('admin.notification') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center group w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                            href="{{ route('admin.notification') }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-bell-ring-icon lucide-bell-ring">
+                                                <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+                                                <path d="M22 8c0-2.3-.8-4.3-2-6" />
+                                                <path
+                                                    d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+                                                <path d="M4 2C2.8 3.7 2 5.7 2 8" />
+                                            </svg>
+                                            <span class="ml-4"> Notifications </span>
+                                            <span>(<strong
+                                                    class="{{ request()->routeIs('admin.notification') ? 'text-red-600' : 'text-white group-hover:text-red-600' }}">{{ \App\Models\Notification::where('is_read', 0)->count() }}</strong>)</span>
+                                        </a> </li>
                                 </ul>
                                 <p class="px-4 pt-10 text-xs font-semibold text-gray-100 uppercase"> </p>
                                 <ul>
@@ -157,19 +173,18 @@
                                                 <path d="m11 13.73-4 6.93" />
                                             </svg> <span class="ml-4"> Settings </span> </a> </li>
                                     <li> --}}
-                                        <form method="POST" action="{{ route('logout') }}"> @csrf <a
-                                                href="route('logout')"
-                                                onclick="event.preventDefault(); this.closest('form').submit();"
-                                                class="inline-flex items-center w-full px-4 py-2 mt-1 text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                    class="lucide lucide-log-out">
-                                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                                    <polyline points="16 17 21 12 16 7" />
-                                                    <line x1="21" x2="9" y1="12"
-                                                        y2="12" />
-                                                </svg> <span class="ml-4"> Logout </span> </a> </form>
+                                    <form method="POST" action="{{ route('logout') }}"> @csrf <a
+                                            href="route('logout')"
+                                            onclick="event.preventDefault(); this.closest('form').submit();"
+                                            class="inline-flex items-center w-full px-4 py-2 mt-1 text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-log-out">
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                                <polyline points="16 17 21 12 16 7" />
+                                                <line x1="21" x2="9" y1="12" y2="12" />
+                                            </svg> <span class="ml-4"> Logout </span> </a> </form>
                                     </li>
                                 </ul>
                             </nav>

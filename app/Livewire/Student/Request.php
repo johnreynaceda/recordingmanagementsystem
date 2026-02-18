@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Student;
 
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Request as Requesst;
 use Livewire\Component;
@@ -41,12 +42,17 @@ class Request extends Component
 
 
         Requesst::create([
-            'name' =>$this->name,
+            'name' => $this->name,
             'user_id' => Auth::id(),
             'email_address' => $this->email_address,
             'phone_number' => $this->phone_number,
             'option' => $this->option,
             'additional_information' => $this->additional_information,
+        ]);
+
+        Notification::create([
+            'student_id' => auth()->user()->student->id,
+            'message' => $this->name . ' has submitted a new  request of ' . $this->option . '.',
         ]);
 
 
