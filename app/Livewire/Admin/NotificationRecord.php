@@ -20,7 +20,7 @@ class NotificationRecord extends Component  implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Notification::query()->orderByDesc(''))
+            ->query(Notification::query()->orderByDesc('created_at'))
             ->columns([
                 TextColumn::make('student.id')->label('Student Name')->formatStateUsing(
                     fn($state) => $state ? $state : 'N/A'
