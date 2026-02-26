@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Livewire\Admin;
 
+use App\Models\Notification;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\Action;
@@ -41,23 +43,25 @@ class Request extends Component implements HasForms, HasTable
                 ActionGroup::make([
                     Action::make('approve')->color('success')->icon('heroicon-s-hand-thumb-up')->action(
                         function ($record) {
-                            $record->user->notify(new RequestApprovedNotification('Form '.$record->option));
-                                $record->update(['status' => 'approved']);
-                            }
-                        ),
-                        Action::make('Decline')->color('danger')->icon('heroicon-s-hand-thumb-down')->action(
-                            fn($record) => $record->update(['status' => 'declined'])
-                        ),
-                    ])->hidden(fn($record) => $record->status != null)
-                ])
-                    ->bulkActions([
-                        // ...
-                    ]);
-            }
+                            $record->user->notify(new RequestApprovedNotification('Form ' . $record->option));
+                            $record->update(['status' => 'approved']);
+                        }
+                    ),
+                    Action::make('Decline')->color('danger')->icon('heroicon-s-hand-thumb-down')->action(
+                        fn($record) => $record->update(['status' => 'declined'])
+                    ),
+                ])->hidden(fn($record) => $record->status != null)
+            ])
+            ->bulkActions([
+                // ...
+            ]);
+    }
 
-            public function render()
+    public function render()
     {
+        $notif = Notification::where('is_read', 0)->get();
+        $notif->each->update(['is_read' => 1]);
 
-                return view('livewire.admin.request');
-            }
-        }
+        return view('livewire.admin.request');
+    }
+}
