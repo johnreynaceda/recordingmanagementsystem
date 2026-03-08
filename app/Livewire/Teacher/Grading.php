@@ -67,7 +67,18 @@ class Grading extends Component implements HasForms, HasTable
                             ->view('filament.forms.upload-grade')
                         //     FileUpload::make('grade')
                     ])->modalWidth('xl'),
-                    Action::make('view')->label('VIEW GRADES')->icon('heroicon-o-folder-open')->color('warning')->url(fn(StudentRecord $record): string => Storage::url(StudentGrade::where('student_id', $record->student_id)->first()->file_path))->openUrlInNewTab(),
+                    Action::make('view')
+                        ->label('VIEW GRADES')
+                        ->icon('heroicon-o-folder-open')
+                        ->color('warning')
+                        ->url(fn($record) => Storage::url(
+                            StudentGrade::where('student_id', $record->student_id)->first()?->file_path
+                        ))
+                        ->visible(
+                            fn($record) =>
+                            StudentGrade::where('student_id', $record->student_id)->exists()
+                        )
+                        ->openUrlInNewTab(),
                 ])->color('black')
             ])
             ->bulkActions([
