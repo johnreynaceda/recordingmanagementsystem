@@ -14,4 +14,8 @@ class StudentGrade extends Model
     public function student(){
         return $this->belongsTo(Student::class);
     }
+
+    public function academicYear(){
+        return $this->belongsTo(AcademicYear::class);
+    }
 }

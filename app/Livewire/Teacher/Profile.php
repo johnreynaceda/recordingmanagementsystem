@@ -15,14 +15,27 @@ class Profile extends Component
     public $lastname;
     public $address;
     public $showModal = false;
+    public $assignedSections = [];
+    public $assignedSubjects = [];
 
     public function mount()
     {
+        // Fetch teacher record with their sections and associated grade limits
+        $this->record = Staff::where('user_id', auth()->user()->id)
+            ->with(['sections.gradeLevel'])
+            ->first();
 
-        $this->record = Staff::where('user_id', auth()->user()->id)->first();
-        $this->firstname = $this->record->firstname;
-        $this->lastname = $this->record->lastname;
-        $this->address = $this->record->address;
+        if ($this->record) {
+            $this->firstname = $this->record->firstname;
+            $this->lastname = $this->record->lastname;
+            $this->address = $this->record->address;
+
+            $this->assignedSections = $this->record->sections;
+            $grade_levels = $this->assignedSections->pluck('grade_level_id')->unique()->toArray();
+            
+            // Get detailed subject rows
+            $this->assignedSubjects = \App\Models\GradeLevelSubject::whereIn('grade_level_id', $grade_levels)->get();
+        }
     }
 
     public function render()

@@ -71,6 +71,18 @@
                                     </li> --}}
                                 </ul>
 
+                                <p class="px-4 pt-6 text-xs font-semibold text-gray-100 uppercase">Academic</p>
+                                <ul>
+                                    <li> <a class="{{ request()->routeIs('admin.academic-year') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                            href="{{ route('admin.academic-year') }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar">
+                                                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                                                <line x1="16" x2="16" y1="2" y2="6" />
+                                                <line x1="8" x2="8" y1="2" y2="6" />
+                                                <line x1="3" x2="21" y1="10" y2="10" />
+                                            </svg> <span class="ml-4"> Academic Year </span> </a> </li>
+                                </ul>
+
                                 <p class="px-4 pt-6 text-xs font-semibold text-gray-100 uppercase">Manage</p>
                                 <ul>
                                     <li> <a class="{{ request()->routeIs('admin.staffs') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
@@ -82,11 +94,16 @@
                                                 <circle cx="12" cy="10" r="4" />
                                                 <circle cx="12" cy="12" r="10" />
                                             </svg> <span class="ml-4"> Teachers </span> </a> </li>
+                                    <li> <a class="{{ request()->routeIs('admin.record') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                            href="{{ route('admin.record') }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-search-corner-icon lucide-file-search-corner"><path d="M11.1 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.589 3.588A2.4 2.4 0 0 1 20 8v3.25"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="m21 22-2.88-2.88"/><circle cx="16" cy="17" r="3"/></svg>
+                                            <span class="ml-4"> Records </span> </a> </li>
+
                                     <li> <a class="{{ request()->routeIs('admin.students') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
                                             href="{{ route('admin.students') }}"> <svg
                                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                                 class="lucide lucide-user-round">
                                                 <circle cx="12" cy="8" r="5" />
                                                 <path d="M20 21a8 8 0 0 0-16 0" />
@@ -94,8 +111,8 @@
                                     <li> <a class="{{ request()->routeIs('admin.grade-level') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
                                             href="{{ route('admin.grade-level') }}"> <svg
                                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                                 class="lucide lucide-file-spreadsheet">
                                                 <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
                                                 <path d="M14 2v4a2 2 0 0 0 2 2h4" />
@@ -145,8 +162,8 @@
                                     <li> <a class="{{ request()->routeIs('admin.calendar') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
                                             href="{{ route('admin.calendar') }}"> <svg
                                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                                 class="lucide lucide-calendar-range">
                                                 <rect width="18" height="18" x="3" y="4" rx="2" />
 
@@ -158,6 +175,15 @@
                                                 <path d="M7 14h.01" />
                                                 <path d="M17 18h.01" />
                                             </svg> <span class="ml-4"> Calendar </span> </a> </li>
+                                    <li> <a class="{{ request()->routeIs('admin.announcements') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
+                                            href="{{ route('admin.announcements') }}"> <svg
+                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-megaphone">
+                                                <path d="m3 11 18-5v12L3 14v-3z" />
+                                                <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+                                            </svg> <span class="ml-4"> Announcements </span> </a> </li>
                                     {{-- <li> <a
                                             class="{{ request()->routeIs('admin.notification') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center group w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
                                             href="{{ route('admin.notification') }}">
@@ -202,18 +228,18 @@
                                                 <path d="m11 13.73-4 6.93" />
                                             </svg> <span class="ml-4"> Settings </span> </a> </li>
                                     <li> --}}
-                                        <form method="POST" action="{{ route('logout') }}"> @csrf <a
-                                                href="route('logout')"
-                                                onclick="event.preventDefault(); this.closest('form').submit();"
-                                                class="inline-flex items-center w-full px-4 py-2 mt-1 text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                    class="lucide lucide-log-out">
-                                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                                    <polyline points="16 17 21 12 16 7" />
-                                                    <line x1="21" x2="9" y1="12" y2="12" />
-                                                </svg> <span class="ml-4"> Logout </span> </a> </form>
+                                    <form method="POST" action="{{ route('logout') }}"> @csrf <a
+                                            href="route('logout')"
+                                            onclick="event.preventDefault(); this.closest('form').submit();"
+                                            class="inline-flex items-center w-full px-4 py-2 mt-1 text-white transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-log-out">
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                                <polyline points="16 17 21 12 16 7" />
+                                                <line x1="21" x2="9" y1="12" y2="12" />
+                                            </svg> <span class="ml-4"> Logout </span> </a> </form>
                                     </li>
                                 </ul>
                             </nav>

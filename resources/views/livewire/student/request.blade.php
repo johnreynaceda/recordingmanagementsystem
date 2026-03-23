@@ -1,5 +1,13 @@
 <div class="max-w-6xl mx-auto bg-white border rounded-lg shadow-lg p-6">
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-between items-center mb-4">
+        <div class="w-64">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Academic Year</label>
+            <select wire:model.live="selected_academic_year_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
+                @foreach($academic_years as $year)
+                    <option value="{{ $year->id }}">{{ $year->name }} {{ $year->is_active ? '(Active)' : '' }}</option>
+                @endforeach
+            </select>
+        </div>
         <button wire:click="$set('showModal', true)"
             class="flex items-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
@@ -8,7 +16,6 @@
             </svg>
             Add Request
         </button>
-
     </div>
 
     <div class="overflow-x-auto">
@@ -25,7 +32,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($requests as $request)
+                @forelse ($requests as $request)
                     <tr class="border-b hover:bg-gray-100">
                         <td class="py-3 px-4">{{ $request->name }}</td>
                         <td class="py-3 px-4">{{ $request->email_address }}</td>
@@ -33,9 +40,21 @@
                         <td class="py-3 px-4">{{ $request->option }}</td>
                         <td class="py-3 px-4">{{ $request->additional_information }}</td>
                         <td class="py-3 px-4">{{ $request->created_at->format('F j, Y, g:i a') }}</td>
-                        <td class="py-3 px-4">{{ $request->status }}</td>
+                        <td class="py-3 px-4">
+                            @if($request->status === 'approved')
+                                <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">Approved</span>
+                            @elseif($request->status === 'declined')
+                                <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">Declined</span>
+                            @else
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">Pending</span>
+                            @endif
+                        </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="7" class="py-4 text-center text-gray-500">No requests found for the selected academic year.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

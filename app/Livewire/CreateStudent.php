@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\AcademicYear;
 use App\Models\GradeLevel;
 use App\Models\Post;
 use App\Models\Section;
@@ -117,6 +118,7 @@ class CreateStudent extends Component implements HasForms
                 'grade_level_id' => $this->grade_level,
                 'section_id' => $this->section,
                 'is_active' => true,
+                'academic_year_id' => AcademicYear::getActiveYearId(),
             ]);
         }
         Password::sendResetLink([

@@ -14,4 +14,8 @@ class AttendanceRecord extends Model
     public function studentRecord(){
         return $this->belongsTo(StudentRecord::class);
     }
+
+    public function academicYear(){
+        return $this->belongsTo(AcademicYear::class);
+    }
 }

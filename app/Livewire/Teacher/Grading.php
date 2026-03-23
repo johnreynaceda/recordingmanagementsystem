@@ -2,93 +2,123 @@
 
 namespace App\Livewire\Teacher;
 
-use App\Models\Section;
-use App\Models\StudentGrade;
+use App\Models\AcademicYear;
+use App\Models\GradeLevelSubject;
 use App\Models\StudentRecord;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\ViewField;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\TermGrade;
 use Livewire\Component;
-use App\Models\Student;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Support\Enums\IconPosition;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\Layout\Grid;
-use Filament\Tables\Columns\ViewColumn;
-use Illuminate\Support\Facades\Storage;
 
-class Grading extends Component implements HasForms, HasTable
+class Grading extends Component
 {
-    use InteractsWithTable;
-    use InteractsWithForms;
+    public $selected_section_id = null;
+    public $selected_subject_id = null;
+    public $selected_academic_year_id;
+    public $termGrades = [];
 
-    public $grade = [];
-
-    public function table(Table $table): Table
+    public function mount()
     {
-        return $table
-            ->query(StudentRecord::query()->whereIn('section_id', auth()->user()->staff->sections->pluck('id')->toArray()))->columns([
+        $this->selected_academic_year_id = AcademicYear::getActiveYearId();
+    }
 
-                TextColumn::make('student')->label('NAME')->formatStateUsing(
-                    fn($record) => strtoupper($record->student->firstname . ' ' . $record->student->lastname)
-                )->searchable(),
-                TextColumn::make('section.name')->label('SECTION')->searchable(),
+    public function getSectionsProperty()
+    {
+        return auth()->user()->staff->sections()
+            ->where('academic_year_id', $this->selected_academic_year_id)
+            ->get();
+    }
 
+    public function getSubjectsProperty()
+    {
+        if (!$this->selected_section_id) {
+            return collect();
+        }
 
-            ])
-            ->filters([
-                SelectFilter::make('status')
-                    ->options(Section::whereIn('id', auth()->user()->staff->sections->pluck('id')->toArray())->pluck('name', 'id'))
-                    ->attribute('section_id')
-            ])
-            ->actions([
-                ActionGroup::make([
-                    Action::make('upload')->label('UPLOAD')->icon('heroicon-o-arrow-up-on-square-stack')->color('success')->action(
-                        function ($record, $data) {
-                            foreach ($this->grade as $key => $value) {
-                                StudentGrade::create([
-                                    'student_id' => $record->student_id,
-                                    'name' =>  $value->getClientOriginalName(),
-                                    'file_path' => $value->store('Grade', 'public')
-                                ]);
-                            }
-                        }
-                    )->form([
-                        ViewField::make('grade')
-                            ->view('filament.forms.upload-grade')
-                        //     FileUpload::make('grade')
-                    ])->modalWidth('xl'),
-                    Action::make('view')
-                        ->label('VIEW GRADES')
-                        ->icon('heroicon-o-folder-open')
-                        ->color('warning')
-                        ->url(fn($record) => Storage::url(
-                            StudentGrade::where('student_id', $record->student_id)->first()?->file_path
-                        ))
-                        ->visible(
-                            fn($record) =>
-                            StudentGrade::where('student_id', $record->student_id)->exists()
-                        )
-                        ->openUrlInNewTab(),
-                ])->color('black')
-            ])
-            ->bulkActions([
-                // ...
-            ])->emptyStateHeading('No Section yet')->emptyStateDescription('Once you add the first section, it will appear here.');
+        $staff = auth()->user()->staff;
+
+        $section = \App\Models\Section::find($this->selected_section_id);
+        if (!$section) return collect();
+
+        return GradeLevelSubject::where('grade_level_id', $section->grade_level_id)
+            ->where('teacher_id', $staff->id)
+            ->get();
+    }
+
+    public function getStudentsProperty()
+    {
+        if (!$this->selected_section_id || !$this->selected_subject_id) {
+            return [];
+        }
+        return StudentRecord::with(['student', 'section'])
+            ->where('section_id', $this->selected_section_id)
+            ->where('academic_year_id', $this->selected_academic_year_id)
+            ->get();
+    }
+
+    public function updatedSelectedSectionId($value)
+    {
+        $this->selected_subject_id = null;
+        $this->termGrades = [];
+    }
+
+    public function updatedSelectedSubjectId($value)
+    {
+        $this->termGrades = [];
+        if ($value && $this->selected_section_id) {
+            $grades = TermGrade::where('section_id', $this->selected_section_id)
+                ->where('subject_id', $value)
+                ->where('academic_year_id', $this->selected_academic_year_id)
+                ->get();
+            foreach ($grades as $grade) {
+                $this->termGrades[$grade->student_id] = [
+                    'first_grading'   => $grade->first_grading,
+                    'second_grading'  => $grade->second_grading,
+                    'third_grading'   => $grade->third_grading,
+                    'fourth_grading'  => $grade->fourth_grading,
+                    'remarks'         => $grade->remarks,
+                ];
+            }
+        }
+    }
+
+    public function saveGrades()
+    {
+        if (!$this->selected_section_id || !$this->selected_subject_id) {
+            return;
+        }
+
+        $activeYearId = AcademicYear::getActiveYearId();
+
+        foreach ($this->termGrades as $studentId => $data) {
+            if (isset($data['first_grading']) || isset($data['second_grading']) || isset($data['third_grading']) || isset($data['fourth_grading']) || isset($data['remarks'])) {
+                TermGrade::updateOrCreate(
+                    [
+                        'student_id' => $studentId,
+                        'section_id' => $this->selected_section_id,
+                        'subject_id' => $this->selected_subject_id,
+                        'academic_year_id' => $activeYearId,
+                    ],
+                    [
+                        'first_grading'  => $data['first_grading'] ?? null,
+                        'second_grading' => $data['second_grading'] ?? null,
+                        'third_grading'  => $data['third_grading'] ?? null,
+                        'fourth_grading' => $data['fourth_grading'] ?? null,
+                        'remarks'        => $data['remarks'] ?? null,
+                        'academic_year_id' => $activeYearId,
+                    ]
+                );
+            }
+        }
+
+        session()->flash('success', 'Grades have been saved successfully.');
     }
 
     public function render()
     {
-
-        return view('livewire.teacher.grading');
+        return view('livewire.teacher.grading', [
+            'sections' => $this->sections,
+            'subjects' => $this->subjects,
+            'students' => $this->students,
+            'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
+        ]);
     }
 }

@@ -2,13 +2,12 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\AcademicYear;
 use App\Models\Student;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ViewField;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\IconPosition;
@@ -20,6 +19,7 @@ use Filament\Tables\Columns\Layout\Grid;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -29,10 +29,22 @@ class StudentList extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
+    public $selected_academic_year_id;
+
+    public function mount()
+    {
+        $this->selected_academic_year_id = AcademicYear::getActiveYearId();
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(Student::query())
+            ->query(
+                Student::query()
+                    ->whereHas('studentRecords', function ($query) {
+                        $query->where('academic_year_id', $this->selected_academic_year_id);
+                    })
+            )
             ->headerActions([
                 Action::make('student')
                     ->label('New Student')
@@ -41,12 +53,10 @@ class StudentList extends Component implements HasForms, HasTable
                     ->url(fn(): string => route('admin.students-create')),
             ])
             ->columns([
-                Grid::make(1) // Define the number of columns in the grid
+                Grid::make(1)
                     ->schema([
                         ViewColumn::make('firstname')
-                            ->view('filament.tables.student'), // Ensure the view path is correct
-                        // Add more columns if needed, like:
-
+                            ->view('filament.tables.student'),
                     ]),
             ])
             ->contentGrid([
@@ -54,29 +64,34 @@ class StudentList extends Component implements HasForms, HasTable
                 '2xl' => 4,
             ])
             ->filters([
-                // Add filters if needed
+                SelectFilter::make('academic_year_id')
+                    ->label('Academic Year')
+                    ->options(AcademicYear::pluck('name', 'id')->toArray())
+                    ->default($this->selected_academic_year_id)
+                    ->query(function ($query, array $data) {
+                        if (filled($data['value'])) {
+                            $query->whereHas('studentRecords', function ($q) use ($data) {
+                                $q->where('academic_year_id', $data['value']);
+                            });
+                        }
+                    }),
             ])
             ->actions([
                 EditAction::make('edit')->color('success')->form([
                     Fieldset::make("STUDENT'S INFORMATION")->schema([
-
                         TextInput::make('firstname')->required(),
                         TextInput::make('middlename'),
                         TextInput::make('lastname')->required(),
                         DatePicker::make('birthdate')->required(),
                         TextInput::make('contact_number')->required(),
-
                         TextInput::make('age')->required()->disabled()->formatStateUsing(function ($state, $record) {
-                            if (! $record?->birthdate) {
+                            if (!$record?->birthdate) {
                                 return null;
                             }
-
                             return Carbon::parse($record->birthdate)->age;
                         }),
                         TextInput::make('address')->required()->columnSpan(2),
-
                     ])->columns(3),
-
                 ]),
                 DeleteAction::make('delete'),
                 Action::make('grade')
@@ -101,7 +116,6 @@ class StudentList extends Component implements HasForms, HasTable
                         $record->user->update([
                             'password' => bcrypt($data['password'])
                         ]);
-
                         sweetalert()->success('Password changed successfully!');
                     }),
                 ])->color('black'),
@@ -115,6 +129,8 @@ class StudentList extends Component implements HasForms, HasTable
 
     public function render()
     {
-        return view('livewire.admin.student-list');
+        return view('livewire.admin.student-list', [
+            'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
+        ]);
     }
 }

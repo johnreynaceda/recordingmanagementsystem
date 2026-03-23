@@ -94,6 +94,7 @@
                         Us</a>
                     <a href="#_" class="font-medium leading-6 text-gray-600 hover:text-main">How to Enroll</a>
                     <a href="#_" class="font-medium leading-6 text-gray-600 hover:text-main">K-12 Program</a>
+                    <a href="{{ route('announcements') }}" class="font-medium leading-6 text-gray-600 hover:text-main">Announcements</a>
                 </nav>
 
                 <!-- Login -->

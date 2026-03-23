@@ -26,4 +26,8 @@ class Section extends Model
     public function gradeLevel(){
         return $this->belongsTo(GradeLevel::class);
     }
+
+    public function academicYear(){
+        return $this->belongsTo(AcademicYear::class);
+    }
 }

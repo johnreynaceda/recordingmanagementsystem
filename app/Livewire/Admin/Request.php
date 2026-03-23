@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\AcademicYear;
 use App\Models\Notification;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -10,6 +11,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use App\Notifications\RequestApprovedNotification;
@@ -20,16 +22,26 @@ class Request extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
+    public $selected_academic_year_id;
+
+    public function mount()
+    {
+        $this->selected_academic_year_id = AcademicYear::getActiveYearId();
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(\App\Models\request::query()->orderByDesc('created_at'))
+            ->query(\App\Models\request::query()
+                ->where('academic_year_id', $this->selected_academic_year_id)
+                ->orderByDesc('created_at'))
             ->columns([
                 TextColumn::make('name')->label('NAME')->searchable(),
                 TextColumn::make('email_address')->label('EMAIL')->searchable(),
                 TextColumn::make('phone_number')->label('PHONE NUMBER')->searchable(),
                 TextColumn::make('option')->label('FORM')->searchable(),
                 TextColumn::make('additional_information')->words(3)->label('ADDITIONAL INFO')->searchable(),
+                TextColumn::make('academicYear.name')->label('ACADEMIC YEAR')->searchable(),
                 TextColumn::make('created_at')->label('REQUESTED AT')->date(),
                 TextColumn::make('status')->label('STATUS')->badge()->color(fn(string $state): string => match ($state) {
                     'approved' => 'success',
@@ -37,7 +49,15 @@ class Request extends Component implements HasForms, HasTable
                 }),
             ])
             ->filters([
-                // ...
+                SelectFilter::make('academic_year_id')
+                    ->label('Academic Year')
+                    ->options(AcademicYear::pluck('name', 'id')->toArray())
+                    ->default($this->selected_academic_year_id)
+                    ->query(function ($query, array $data) {
+                        if (filled($data['value'])) {
+                            $query->where('academic_year_id', $data['value']);
+                        }
+                    }),
             ])
             ->actions([
                 ActionGroup::make([

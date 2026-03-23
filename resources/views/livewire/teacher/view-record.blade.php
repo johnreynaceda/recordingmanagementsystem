@@ -11,6 +11,14 @@
         <div class="flex justify-between items-end">
             <div class="mt-3 flex space-x-3 items-end">
                 <div class="w-64">
+                    <x-native-select label="Academic Year" wire:model.live="selected_academic_year_id">
+                        <option value="">All Academic Years</option>
+                        @foreach($academic_years as $year)
+                            <option value="{{ $year->id }}">{{ $year->name }} {{ $year->is_active ? '(Active)' : '' }}</option>
+                        @endforeach
+                    </x-native-select>
+                </div>
+                <div class="w-64">
                     <x-datetime-picker wire:model.live="date" without-timezone without-time label="Select Date"
                         placeholder="Select Date" />
                 </div>

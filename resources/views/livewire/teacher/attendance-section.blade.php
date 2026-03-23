@@ -1,8 +1,16 @@
 <div>
 
-
+ 
     <div class="">
         <div class="bg-white p-5 rounded-xl shadow">
+            <div class="mb-4">
+                <x-native-select wire:model.live="selected_academic_year_id" label="Academic Year">
+                    <option value="">All Academic Years</option>
+                    @foreach($academic_years as $year)
+                        <option value="{{ $year->id }}">{{ $year->name }} {{ $year->is_active ? '(Active)' : '' }}</option>
+                    @endforeach
+                </x-native-select>
+            </div>
 
             <div class="flex space-x-3">
                 @forelse ($sections as $item)
@@ -19,7 +27,7 @@
                         </svg>
                     </button>
                 @empty
-                    <p>No sections available.</p>
+                    <p>No sections available for selected academic year.</p>
                 @endforelse
             </div>
             @if ($section_id)

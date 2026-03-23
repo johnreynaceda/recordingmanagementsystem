@@ -26,4 +26,8 @@ class StudentRecord extends Model
     public function attendanceRecords(){
         return $this->hasMany(AttendanceRecord::class);
     }
+
+    public function academicYear(){
+        return $this->belongsTo(AcademicYear::class);
+    }
 }
