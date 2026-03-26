@@ -21,13 +21,12 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class StudentList extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
     public $selected_academic_year_id;
 
@@ -60,7 +59,7 @@ class StudentList extends Component implements HasForms, HasTable
                     ]),
             ])
             ->contentGrid([
-                'md'  => 3,
+                'md' => 3,
                 '2xl' => 4,
             ])
             ->filters([
@@ -85,28 +84,17 @@ class StudentList extends Component implements HasForms, HasTable
                         DatePicker::make('birthdate')->required(),
                         TextInput::make('contact_number')->required(),
                         TextInput::make('age')->required()->disabled()->formatStateUsing(function ($state, $record) {
-                            if (!$record?->birthdate) {
+                            if (! $record?->birthdate) {
                                 return null;
                             }
+
                             return Carbon::parse($record->birthdate)->age;
                         }),
                         TextInput::make('address')->required()->columnSpan(2),
                     ])->columns(3),
                 ]),
                 DeleteAction::make('delete'),
-                Action::make('grade')
-                    ->label('Grades')
-                    ->badge()
-                    ->color('info')
-                    ->url(function ($record) {
-                        $grade = $record->studentGrades->first();
-                        return $grade ? Storage::url($grade->file_path) : null;
-                    })
-                    ->openUrlInNewTab()
-                    ->visible(
-                        fn($record) =>
-                        optional($record->studentGrades->first())->file_path
-                    ),
+
                 ActionGroup::make([
                     Action::make('view')->label('View Record')->icon('heroicon-o-viewfinder-circle')->color('success')->url(fn(Student $record): string => route('admin.students-record', $record))
                         ->openUrlInNewTab(),
@@ -114,10 +102,15 @@ class StudentList extends Component implements HasForms, HasTable
                         TextInput::make('password')->password()->required()->revealable(),
                     ])->modalWidth('lg')->action(function ($record, $data) {
                         $record->user->update([
-                            'password' => bcrypt($data['password'])
+                            'password' => bcrypt($data['password']),
                         ]);
                         sweetalert()->success('Password changed successfully!');
                     }),
+                    Action::make('grade')
+                        ->label('View Grades')
+                        ->icon('heroicon-o-document-chart-bar')
+                        ->color('info')
+                        ->url(fn(Student $record): string => route('admin.student-grades', $record->id)),
                 ])->color('black'),
             ])
             ->bulkActions([

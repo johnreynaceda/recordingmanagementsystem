@@ -4,63 +4,96 @@ namespace App\Livewire;
 
 use App\Models\AcademicYear;
 use App\Models\GradeLevel;
-use App\Models\Post;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentRecord;
 use App\Models\User;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Password;
-use Carbon\Carbon;
 use Livewire\Component;
 
 class CreateStudent extends Component implements HasForms
 {
     use InteractsWithForms;
 
-    public $firstname, $lastname, $middlename, $birthdate, $address, $grade_level, $email, $section, $student_picture = [], $lrn, $contact_number;
-    public $password, $confirm_password;
+    public $firstname;
+
+    public $lastname;
+
+    public $middlename;
+
+    public $birthdate;
+
+    public $address;
+
+    public $grade_level;
+
+    public $email;
+
+    public $section;
+
+    public $student_picture = [];
+
+    public $lrn;
+
+    public $contact_number;
+
+    public $password;
+
+    public $confirm_password;
+
+    public $sectionOptions = [];
+
+    protected function booted(): void
+    {
+        $this->form->bind('grade_level', fn () => $this->grade_level);
+    }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Fieldset::make("STUDENT'S INFORMATION")->schema([
-                    FileUpload::make('student_picture'),
+                    FileUpload::make('student_picture')->multiple(false)->image(),
                     ViewField::make('rating')
                         ->view('filament.forms.blank')->columnSpan(2),
                     TextInput::make('firstname')->label('First Name')->required()->live()
                         ->afterStateUpdated(
-                            fn($state, callable $set) =>
-                            $set('firstname', ucfirst(strtolower($state)))
+                            fn ($state, callable $set) => $set('firstname', ucfirst(strtolower($state)))
                         ),
                     TextInput::make('middlename')->label('Middle Name')->live()
                         ->afterStateUpdated(
-                            fn($state, callable $set) =>
-                            $set('middlename', ucfirst(strtolower($state)))
+                            fn ($state, callable $set) => $set('middlename', ucfirst(strtolower($state)))
                         ),
                     TextInput::make('lastname')->label('Last Name')->required()->live()
                         ->afterStateUpdated(
-                            fn($state, callable $set) =>
-                            $set('lastname', ucfirst(strtolower($state)))
+                            fn ($state, callable $set) => $set('lastname', ucfirst(strtolower($state)))
                         ),
                     DatePicker::make('birthdate')->required()->reactive(),
-                    Textinput::make('contact_number')->required(),
+                    TextInput::make('contact_number')->required(),
                     TextInput::make('address')->required()->columnSpan(2),
-                    Select::make('grade_level')->options(
-                        GradeLevel::all()->pluck('name', 'id')
-                    )->live()->searchable()->required(),
-                    Select::make('section')->options(Section::where('grade_level_id', $this->grade_level)->get()->pluck('name', 'id'))->required()
+                    Select::make('grade_level')
+                        ->options(GradeLevel::all()->pluck('name', 'id'))
+                        ->searchable()
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function ($state) {
+                            $this->sectionOptions = Section::where('grade_level_id', $state)->pluck('name', 'id')->toArray();
+                            $this->section = null;
+                        }),
+                    Select::make('section')
+                        ->options(fn () => $this->sectionOptions)
+                        ->required()
+                        ->reactive(),
 
                 ])->columns(3),
                 Fieldset::make("STUDENT'S ACCOUNT")->schema([
@@ -69,8 +102,7 @@ class CreateStudent extends Component implements HasForms
                     TextInput::make('password')->password()->required()->revealable(),
                     TextInput::make('confirm_password')->same('password')->password()->required()->revealable(),
 
-
-                ])->columns(3)
+                ])->columns(3),
             ]);
     }
 
@@ -100,30 +132,44 @@ class CreateStudent extends Component implements HasForms
             'user_type' => 'student',
         ]);
 
-        foreach ($this->student_picture as $key => $value) {
-            $student = Student::create([
-                'firstname' => $this->firstname,
-                'middlename' => $this->middlename,
-                'lastname' => $this->lastname,
-                'birthdate' => $this->birthdate,
-                'address' => $this->address,
-                'contact_number' => $this->contact_number,
-                'lrn' => $this->lrn,
-                'image_path' => $value->store('Student Profile', 'public'),
-                'user_id' => $user->id
-            ]);
+        $imagePath = isset($this->student_picture[0]) 
+            ? $this->student_picture[0]->store('Student Profile', 'public') 
+            : null;
 
-            StudentRecord::create([
-                'student_id' => $student->id,
-                'grade_level_id' => $this->grade_level,
-                'section_id' => $this->section,
-                'is_active' => true,
-                'academic_year_id' => AcademicYear::getActiveYearId(),
+        $student = Student::create([
+            'firstname' => $this->firstname,
+            'middlename' => $this->middlename,
+            'lastname' => $this->lastname,
+            'birthdate' => $this->birthdate,
+            'address' => $this->address,
+            'contact_number' => $this->contact_number,
+            'lrn' => $this->lrn,
+            'image_path' => $imagePath,
+            'user_id' => $user->id
+        ]);
+
+        StudentRecord::create([
+            'student_id' => $student->id,
+            'grade_level_id' => $this->grade_level,
+            'section_id' => $this->section,
+            'is_active' => true,
+            'academic_year_id' => AcademicYear::getActiveYearId(),
+        ]);
+
+        try {
+            Password::sendResetLink([
+                'email' => $user->email,
             ]);
+        } catch (\Exception $e) {
+            \Log::warning('Password reset email failed: ' . $e->getMessage());
         }
+
+        return redirect()->route('admin.students');
+    }
         Password::sendResetLink([
             'email' => $user->email,
         ]);
+
         return redirect()->route('admin.students');
     }
 
