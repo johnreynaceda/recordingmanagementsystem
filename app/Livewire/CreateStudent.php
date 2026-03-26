@@ -53,11 +53,6 @@ class CreateStudent extends Component implements HasForms
 
     public $sectionOptions = [];
 
-    protected function booted(): void
-    {
-        $this->form->bind('grade_level', fn () => $this->grade_level);
-    }
-
     public function form(Form $form): Form
     {
         return $form
@@ -124,16 +119,15 @@ class CreateStudent extends Component implements HasForms
             'contact_number' => ['required', 'string', 'max:20'],
         ]);
 
-
         $user = User::create([
-            'name' => $this->firstname . ' ' . $this->lastname,
+            'name' => $this->firstname.' '.$this->lastname,
             'email' => $this->email,
             'password' => bcrypt($this->password),
             'user_type' => 'student',
         ]);
 
-        $imagePath = isset($this->student_picture[0]) 
-            ? $this->student_picture[0]->store('Student Profile', 'public') 
+        $imagePath = isset($this->student_picture[0])
+            ? $this->student_picture[0]->store('Student Profile', 'public')
             : null;
 
         $student = Student::create([
@@ -145,7 +139,7 @@ class CreateStudent extends Component implements HasForms
             'contact_number' => $this->contact_number,
             'lrn' => $this->lrn,
             'image_path' => $imagePath,
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         StudentRecord::create([
@@ -161,14 +155,8 @@ class CreateStudent extends Component implements HasForms
                 'email' => $user->email,
             ]);
         } catch (\Exception $e) {
-            \Log::warning('Password reset email failed: ' . $e->getMessage());
+            \Log::warning('Password reset email failed: '.$e->getMessage());
         }
-
-        return redirect()->route('admin.students');
-    }
-        Password::sendResetLink([
-            'email' => $user->email,
-        ]);
 
         return redirect()->route('admin.students');
     }
