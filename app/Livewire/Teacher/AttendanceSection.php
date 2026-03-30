@@ -17,13 +17,13 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
-use Flasher\SweetAlert\Prime\SweetAlertInterface;
 
 class AttendanceSection extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable, InteractsWithForms;
+    use InteractsWithForms, InteractsWithTable;
 
     public $section_id;
+
     public $selected_academic_year_id;
 
     public function mount()
@@ -31,9 +31,6 @@ class AttendanceSection extends Component implements HasForms, HasTable
         $this->selected_academic_year_id = AcademicYear::getActiveYearId();
     }
 
-    /**
-     * Configures the table to display students for the selected section.
-     */
     public function table(Table $table): Table
     {
         return $table
@@ -49,15 +46,17 @@ class AttendanceSection extends Component implements HasForms, HasTable
                 TextColumn::make('student')
                     ->label('STUDENT NAME')
                     ->formatStateUsing(
-                        fn($record) => strtoupper($record->student->firstname . ' ' . $record->student->lastname)
+                        fn ($record) => strtoupper($record->student->lastname.', '.$record->student->firstname.' '.($record->student->middlename ? substr($record->student->middlename, 0, 1).'.' : ''))
                     )
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('student.lrn')
+                    ->label('LRN')
+                    ->sortable(),
                 TextColumn::make('section.name')
-                    ->label('SECTION')->formatStateUsing(
-                        fn($record) => strtoupper($record->section->name)
-                    ),
-                TextColumn::make('academicYear.name')
-                    ->label('ACADEMIC YEAR'),
+                    ->label('SECTION')
+                    ->formatStateUsing(fn ($record) => strtoupper($record->section->name))
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('academic_year_id')
@@ -75,99 +74,60 @@ class AttendanceSection extends Component implements HasForms, HasTable
                 BulkAction::make('present')
                     ->color('success')
                     ->icon('heroicon-o-document-check')
-                    ->label('Present Student')
+                    ->label('Mark as Present')
                     ->requiresConfirmation()
+                    ->modalHeading('Mark Attendance')
+                    ->modalDescription('Are you sure you want to mark the selected students as present?')
+                    ->modalSubmitActionLabel('Yes, Mark Present')
                     ->action(function (Collection $records) {
                         $alreadyPresent = [];
                         $addedAttendance = [];
                         $activeYearId = AcademicYear::getActiveYearId();
-                
+
                         foreach ($records as $record) {
                             $existingAttendance = AttendanceRecord::where('student_record_id', $record->id)
                                 ->whereDate('created_at', now()->toDateString())
                                 ->exists();
-                
+
                             if ($existingAttendance) {
-                                $alreadyPresent[] = strtoupper($record->student->firstname. ' '. $record->student->lastname);
+                                $alreadyPresent[] = strtoupper($record->student->lastname.', '.$record->student->firstname);
                             } else {
                                 AttendanceRecord::create([
                                     'student_record_id' => $record->id,
                                     'academic_year_id' => $activeYearId,
                                 ]);
-                                $addedAttendance[] = strtoupper($record->student->firstname. ' '. $record->student->lastname);
+                                $addedAttendance[] = strtoupper($record->student->lastname.', '.$record->student->firstname);
                             }
                         }
-                
-                        if (!empty($alreadyPresent)) {
-                            $names = implode(', ', $alreadyPresent);
-                            sweetalert()->info("The following students already have attendance: $names");
-                        }
-                
-                        if (!empty($addedAttendance)) {
-                            sweetalert()->success('Attendance record added successfully.');
-                        }
-                
-                        return redirect()->route('teacher.attendance');
-                    }),
 
+                        $messages = [];
+                        if (! empty($alreadyPresent)) {
+                            $messages[] = count($alreadyPresent).' student(s) already marked present: '.implode(', ', $alreadyPresent);
+                        }
+                        if (! empty($addedAttendance)) {
+                            $messages[] = count($addedAttendance).' student(s) marked present: '.implode(', ', $addedAttendance);
+                        }
+
+                        session()->flash('attendance_message', implode(' | ', $messages));
+                        $this->resetTable();
+                    }),
             ])
             ->emptyStateHeading('No Students Found')
-            ->emptyStateDescription('Please select a section to view students.');
+            ->emptyStateDescription('Select a section to view students.');
     }
 
-    /**
-     * Watches for changes to section_id and updates the table accordingly.
-     */
     public function updatedSectionId()
     {
         $this->resetTable();
     }
 
-    /**
-     * Render the component view.
-     */
     public function render(): View
     {
         return view('livewire.teacher.attendance-section', [
-            'sections' => Section::where('staff_id', auth()->user()->staff->id)->get(),
+            'sections' => Section::where('staff_id', auth()->user()->staff->id)
+                ->where('academic_year_id', $this->selected_academic_year_id)
+                ->get(),
             'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
-        ]);
-    }
-}
-                        }
-                
-                        if (!empty($alreadyPresent)) {
-                            $names = implode(', ', $alreadyPresent);
-                            sweetalert()->info("The following students already have attendance: $names");
-                        }
-                
-                        if (!empty($addedAttendance)) {
-                            sweetalert()->success('Attendance record added successfully.');
-                        }
-                
-                        return redirect()->route('teacher.attendance');
-                    }),
-                
-            ])
-            ->emptyStateHeading('No Students Found')
-            ->emptyStateDescription('Please select a section to view students.');
-    }
-
-    /**
-     * Watches for changes to section_id and updates the table accordingly.
-     */
-    public function updatedSectionId()
-    {
-        $this->resetTable(); // Reset and refresh the table when section_id changes
-    }
-
-    /**
-     * Render the component view.
-     */
-    public function render(): View
-    {
-        return view('livewire.teacher.attendance-section', [
-            'sections' => Section::where('staff_id', auth()->user()->staff->id)->get(),
         ]);
     }
 }
