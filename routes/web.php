@@ -113,24 +113,22 @@ Route::prefix('administrator')->middleware(['auth', 'verified'])->group(function
 Route::prefix('teacher')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('teacher.dashboard');
-    }
-    )->name('teacher.dashboard');
-    Route::get('/attendance', function () {
-        return view('teacher.attendance');
-    }
-    )->name('teacher.attendance');
+    })->name('teacher.dashboard');
+
+    Route::get('/attendance-and-grading', function () {
+        return view('teacher.attendance-and-grading');
+    })->name('teacher.attendance-and-grading');
+
     Route::get('/attendance/records', function () {
         return view('teacher.view-records');
-    }
-    )->name('teacher.view-records');
-    Route::get('/grading', function () {
-        return view('teacher.grading');
-    }
-    )->name('teacher.grading');
+    })->name('teacher.view-records');
+
+    Route::redirect('/attendance', '/teacher/attendance-and-grading');
+    Route::redirect('/grading', '/teacher/attendance-and-grading');
+
     Route::get('/calendar', function () {
         return view('teacher.calendar');
-    }
-    )->name('teacher.calendar');
+    })->name('teacher.calendar');
 });
 
 Route::prefix('student')->middleware(['auth', 'verified'])->group(function () {

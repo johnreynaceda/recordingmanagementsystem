@@ -50,6 +50,16 @@
                                 </label>
                                 <input type="file" id="photo-upload" wire:model="new_image" class="hidden" accept="image/*">
                             </div>
+
+                            <label for="photo-upload" class="mt-5 inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-red-200 bg-white text-sm font-bold text-red-600 shadow-sm hover:bg-red-50 cursor-pointer transition-all duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                Upload Profile Picture
+                            </label>
+
+                            @if ($new_image)
+                                <p class="mt-3 text-sm font-medium text-gray-600">New photo selected.</p>
+                            @endif
+
                             @error('new_image') <span class="text-red-500 text-sm mt-3 font-medium bg-red-50 px-3 py-1 rounded-full">{{ $message }}</span> @enderror
                             
                             <div wire:loading wire:target="new_image" class="mt-4 text-red-600 font-medium animate-pulse text-sm">
@@ -106,6 +116,18 @@
                                     <label class="block text-sm font-semibold text-gray-700">Contact Number</label>
                                     <input type="text" wire:model="contact_number" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
                                     @error('contact_number') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div class="space-y-1">
+                                    <label class="block text-sm font-semibold text-gray-700">Parent Name</label>
+                                    <input type="text" wire:model="parent_name" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
+                                    @error('parent_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div class="space-y-1">
+                                    <label class="block text-sm font-semibold text-gray-700">Parent Contact</label>
+                                    <input type="text" wire:model="parent_contact" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
+                                    @error('parent_contact') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="space-y-1">
@@ -181,6 +203,22 @@
                                     Contact Number
                                 </p>
                                 <p class="text-xl font-semibold text-gray-800">{{ $student->contact_number ?: 'Not provided' }}</p>
+                            </div>
+
+                            <div class="group">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center">
+                                    <svg class="w-4 h-4 mr-1.5 text-gray-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-2.13a4 4 0 10-8 0 4 4 0 008 0zm8-2a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    Parent Name
+                                </p>
+                                <p class="text-xl font-semibold text-gray-800">{{ $student->parent_name ?: 'Not provided' }}</p>
+                            </div>
+
+                            <div class="group">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center">
+                                    <svg class="w-4 h-4 mr-1.5 text-gray-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                    Parent Contact
+                                </p>
+                                <p class="text-xl font-semibold text-gray-800">{{ $student->parent_contact ?: 'Not provided' }}</p>
                             </div>
 
                             <div class="group">

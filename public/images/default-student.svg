@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Default student profile image">
+  <rect width="128" height="128" rx="64" fill="#f3f4f6"/>
+  <circle cx="64" cy="48" r="24" fill="#d1d5db"/>
+  <path fill="#9ca3af" d="M24 112c5-23 21-36 40-36s35 13 40 36H24z"/>
+  <path fill="#b91c1c" d="M36 34 64 22l28 12-28 12-28-12z"/>
+  <path fill="#7f1d1d" d="M48 41v12c0 8 7 15 16 15s16-7 16-15V41L64 48 48 41z"/>
+</svg>

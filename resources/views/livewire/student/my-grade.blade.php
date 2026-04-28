@@ -12,17 +12,6 @@
             @endif
         </div>
         <div class="flex items-center gap-4">
-            <div>
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Academic
-                    Year</label>
-                <select wire:model.live="selected_academic_year_id"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
-                    @foreach ($academic_years as $year)
-                        <option value="{{ $year->id }}">{{ $year->name }} {{ $year->is_active ? '(Active)' : '' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
             <div class="hidden md:flex items-center justify-center bg-blue-50 rounded-2xl p-4">
                 <svg class="w-14 h-14 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -31,6 +20,36 @@
             </div>
         </div>
     </div>
+
+    @if ($academic_years->count() > 0)
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 px-4">
+            <div class="flex border-b border-gray-200 overflow-x-auto">
+                @foreach ($academic_years as $year)
+                    @php
+                        $yearRecord = $student_records_by_academic_year->get($year->id);
+                    @endphp
+                    <button type="button"
+                        wire:click="selectAcademicYear({{ $year->id }})"
+                        class="whitespace-nowrap py-3 px-6 font-medium text-sm border-b-2 transition-colors {{ (int) $selected_academic_year_id === (int) $year->id ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        <span class="flex items-center">
+                            <svg class="w-5 h-5 inline-block mr-2 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            {{ $year->name }}
+                            @if ($year->is_active)
+                                <span class="ml-1 text-xs font-semibold">(Active)</span>
+                            @endif
+                        </span>
+                        <span class="mt-1 block text-xs font-medium text-gray-400">
+                            {{ $yearRecord?->gradeLevel?->name ?? 'No Grade Level' }}{{ $yearRecord?->section ? ' - ' . $yearRecord->section->name : '' }}
+                        </span>
+                    </button>
+                @endforeach
+            </div>
+        </div>
+    @else
+        <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-5 text-sm font-medium text-gray-500">
+            No academic year records found.
+        </div>
+    @endif
 
     {{-- ===== GRADES TABLE ===== --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">

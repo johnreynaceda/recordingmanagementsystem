@@ -19,11 +19,16 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Arr;
 use Livewire\Component;
 
 class CreateStudent extends Component implements HasForms
 {
     use InteractsWithForms;
+
+    private const MAX_PROFILE_IMAGE_SIZE_KB = 2048;
+
+    private const MAX_PASSWORD_LENGTH = 8;
 
     public $firstname;
 
@@ -58,13 +63,14 @@ class CreateStudent extends Component implements HasForms
         return $form
             ->schema([
                 Fieldset::make("STUDENT'S INFORMATION")->schema([
-                    FileUpload::make('student_picture')->multiple(false)->image(),
+                    FileUpload::make('student_picture')
+                        ->multiple(false)
+                        ->image()
+                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                        ->maxSize(self::MAX_PROFILE_IMAGE_SIZE_KB),
                     ViewField::make('rating')
                         ->view('filament.forms.blank')->columnSpan(2),
-                    TextInput::make('firstname')->label('First Name')->required()->live()
-                        ->afterStateUpdated(
-                            fn ($state, callable $set) => $set('firstname', ucfirst(strtolower($state)))
-                        ),
+                    TextInput::make('firstname')->label('First Name')->required(),
                     TextInput::make('middlename')->label('Middle Name')->live()
                         ->afterStateUpdated(
                             fn ($state, callable $set) => $set('middlename', ucfirst(strtolower($state)))
@@ -94,8 +100,17 @@ class CreateStudent extends Component implements HasForms
                 Fieldset::make("STUDENT'S ACCOUNT")->schema([
                     TextInput::make('lrn')->label('LRN')->required(),
                     TextInput::make('email')->email()->required(),
-                    TextInput::make('password')->password()->required()->revealable(),
-                    TextInput::make('confirm_password')->same('password')->password()->required()->revealable(),
+                    TextInput::make('password')
+                        ->password()
+                        ->required()
+                        ->maxLength(self::MAX_PASSWORD_LENGTH)
+                        ->revealable(),
+                    TextInput::make('confirm_password')
+                        ->same('password')
+                        ->password()
+                        ->required()
+                        ->maxLength(self::MAX_PASSWORD_LENGTH)
+                        ->revealable(),
 
                 ])->columns(3),
             ]);
@@ -103,6 +118,10 @@ class CreateStudent extends Component implements HasForms
 
     public function submitRecord()
     {
+        $this->firstname = $this->normalizeName($this->firstname);
+        $this->middlename = $this->normalizeName($this->middlename);
+        $this->lastname = $this->normalizeName($this->lastname);
+
         $this->validate([
             'firstname' => ['required', 'string', 'max:50'],
             'middlename' => ['nullable', 'string', 'max:50'],
@@ -112,9 +131,10 @@ class CreateStudent extends Component implements HasForms
             'grade_level' => ['required'],
             'section' => ['required'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required'],
-            'confirm_password' => ['required', 'same:password'],
-            'student_picture' => ['required'],
+            'password' => ['required', 'string', 'max:'.self::MAX_PASSWORD_LENGTH],
+            'confirm_password' => ['required', 'string', 'max:'.self::MAX_PASSWORD_LENGTH, 'same:password'],
+            'student_picture' => ['nullable'],
+            'student_picture.*' => ['image', 'max:'.self::MAX_PROFILE_IMAGE_SIZE_KB],
             'lrn' => ['required', 'string', 'max:50'],
             'contact_number' => ['required', 'string', 'max:20'],
         ]);
@@ -126,8 +146,10 @@ class CreateStudent extends Component implements HasForms
             'user_type' => 'student',
         ]);
 
-        $imagePath = isset($this->student_picture[0])
-            ? $this->student_picture[0]->store('Student Profile', 'public')
+        $uploadedImage = Arr::first($this->student_picture);
+
+        $imagePath = $uploadedImage
+            ? $uploadedImage->store('Student Profile', 'public')
             : null;
 
         $student = Student::create([
@@ -159,6 +181,17 @@ class CreateStudent extends Component implements HasForms
         }
 
         return redirect()->route('admin.students');
+    }
+
+    private function normalizeName(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = preg_replace('/\s+/', ' ', trim($value));
+
+        return $value === '' ? null : ucwords(strtolower($value));
     }
 
     public function updatedBirthdate($value)

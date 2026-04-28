@@ -40,12 +40,8 @@
                     </a>
                     <nav
                         class="flex flex-wrap items-center mb-5 text-base md:mb-0 md:pl-8 md:ml-8 md:border-l md:border-gray-200">
-                        <a href="{{ route('teacher.attendance') }}"
-                            class="{{ request()->routeIs('teacher.attendance') ? 'text-main' : '' }} mr-5 font-medium leading-6 text-gray-600 hover:text-main">Attendance</a>
-
-                        <a href="{{ route('teacher.grading') }}"
-                            class="{{ request()->routeIs('teacher.grading') ? 'text-main' : '' }} mr-5 font-medium leading-6 text-gray-600 hover:text-main">Grades
-                            Us</a>
+                        <a href="{{ route('teacher.attendance-and-grading') }}"
+                            class="{{ request()->routeIs('teacher.attendance-and-grading') ? 'text-main' : '' }} mr-5 font-medium leading-6 text-gray-600 hover:text-main">Attendance & Grades</a>
                         <a href="{{ route('teacher.dashboard') }}"
                             class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">Profile
                         </a>

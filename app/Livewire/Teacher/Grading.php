@@ -24,10 +24,14 @@ class Grading extends Component
         $this->selected_academic_year_id = AcademicYear::getActiveYearId();
     }
 
+    public function updatedSelectedAcademicYearId($value)
+    {
+        $this->selected_academic_year_id = AcademicYear::where('id', $value)->first()->id;
+    }
+
     public function getSectionsProperty()
     {
         return auth()->user()->staff->sections()
-            ->where('academic_year_id', $this->selected_academic_year_id)
             ->get();
     }
 
@@ -37,13 +41,10 @@ class Grading extends Component
             return collect();
         }
 
-        $staff = auth()->user()->staff;
-
         $section = \App\Models\Section::find($this->selected_section_id);
         if (!$section) return collect();
 
         return GradeLevelSubject::where('grade_level_id', $section->grade_level_id)
-            ->where('teacher_id', $staff->id)
             ->get();
     }
 
@@ -53,8 +54,11 @@ class Grading extends Component
             return [];
         }
         return StudentRecord::with(['student', 'section'])
-            ->where('section_id', $this->selected_section_id)
-            ->where('academic_year_id', $this->selected_academic_year_id)
+            ->join('students', 'students.id', '=', 'student_records.student_id')
+            ->where('student_records.section_id', $this->selected_section_id)
+            ->where('student_records.academic_year_id', $this->selected_academic_year_id)
+            ->orderBy('students.lastname', 'asc')
+            ->select('student_records.*')
             ->get();
     }
 
@@ -78,6 +82,7 @@ class Grading extends Component
                     'second_grading'  => $grade->second_grading,
                     'third_grading'   => $grade->third_grading,
                     'fourth_grading'  => $grade->fourth_grading,
+                    'final_rating'    => $grade->final_rating,
                     'remarks'         => $grade->remarks,
                 ];
             }
@@ -86,29 +91,30 @@ class Grading extends Component
 
     public function saveGrades()
     {
-        if (!$this->selected_section_id || !$this->selected_subject_id) {
+        if (!$this->selected_section_id || !$this->selected_subject_id || !$this->selected_academic_year_id) {
             return;
         }
 
-        $activeYearId = AcademicYear::getActiveYearId();
+        $academicYearId = $this->selected_academic_year_id;
 
         foreach ($this->termGrades as $studentId => $data) {
-            if (isset($data['first_grading']) || isset($data['second_grading']) || isset($data['third_grading']) || isset($data['fourth_grading']) || isset($data['remarks'])) {
+            if (isset($data['first_grading']) || isset($data['second_grading']) || isset($data['third_grading']) || isset($data['fourth_grading']) || isset($data['final_rating']) || isset($data['remarks'])) {
                 TermGrade::where('student_id', $studentId)
                     ->where('section_id', $this->selected_section_id)
                     ->where('subject_id', $this->selected_subject_id)
-                    ->where('academic_year_id', $activeYearId)
+                    ->where('academic_year_id', $academicYearId)
                     ->delete();
 
                 TermGrade::create([
                     'student_id' => $studentId,
                     'section_id' => $this->selected_section_id,
                     'subject_id' => $this->selected_subject_id,
-                    'academic_year_id' => $activeYearId,
+                    'academic_year_id' => $academicYearId,
                     'first_grading'  => $data['first_grading'] ?? null,
                     'second_grading' => $data['second_grading'] ?? null,
                     'third_grading'  => $data['third_grading'] ?? null,
                     'fourth_grading' => $data['fourth_grading'] ?? null,
+                    'final_rating'   => $data['final_rating'] ?? null,
                     'remarks'        => $data['remarks'] ?? null,
                 ]);
             }
@@ -125,7 +131,7 @@ class Grading extends Component
 
         $subject = $this->subjects->firstWhere('id', $this->selected_subject_id);
         $section = $this->sections->firstWhere('id', $this->selected_section_id);
-        
+
         $sectionName = $section ? $section->name : 'Section';
         $subjectName = $subject ? $subject->subject_name : 'Subject';
 
@@ -136,14 +142,14 @@ class Grading extends Component
 
         return response()->streamDownload(function () use ($students, $termGrades) {
             $file = fopen('php://output', 'w');
-            
-            $columns = ['#', 'Name', 'Student LRN', '1st Grading', '2nd Grading', '3rd Grading', '4th Grading', 'Remarks'];
+
+            $columns = ['#', 'Name', 'Student LRN', '1st Grading', '2nd Grading', '3rd Grading', '4th Grading', 'Final Average', 'Remarks'];
             fputcsv($file, $columns);
-            
+
             foreach ($students as $index => $record) {
                 $studentId = $record->student_id;
                 $gradeData = $termGrades[$studentId] ?? [];
-                
+
                 $row = [
                     $index + 1,
                     strtoupper($record->student->lastname) . ' , ' . strtoupper($record->student->firstname) . ' ' . strtoupper($record->student->middlename),
@@ -152,6 +158,7 @@ class Grading extends Component
                     $gradeData['second_grading'] ?? '',
                     $gradeData['third_grading'] ?? '',
                     $gradeData['fourth_grading'] ?? '',
+                    $gradeData['final_rating'] ?? '',
                     $gradeData['remarks'] ?? '',
                 ];
 
@@ -161,6 +168,8 @@ class Grading extends Component
             fclose($file);
         }, $fileName);
     }
+
+
 
     public function updatedGradeFile()
     {
@@ -188,7 +197,7 @@ class Grading extends Component
                 if (count($row) >= 8) {
                     $name = $row[1];
                     $lrn = $row[2];
-                    
+
                     $studentId = null;
                     if ($lrn && $lrn !== 'N/A' && isset($lrnMap[$lrn])) {
                         $studentId = $lrnMap[$lrn];
@@ -202,7 +211,10 @@ class Grading extends Component
                             'second_grading' => $row[4] !== '' ? $row[4] : null,
                             'third_grading' => $row[5] !== '' ? $row[5] : null,
                             'fourth_grading' => $row[6] !== '' ? $row[6] : null,
-                            'remarks' => $row[7] !== '' ? $row[7] : null,
+                            'final_rating' => isset($row[8]) && $row[7] !== '' ? $row[7] : null,
+                            'remarks' => isset($row[8])
+                                ? ($row[8] !== '' ? $row[8] : null)
+                                : ($row[7] !== '' ? $row[7] : null),
                         ];
                     }
                 }

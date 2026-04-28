@@ -31,13 +31,39 @@ class MyGrade extends Component
 
     public function mount()
     {
-        $this->selected_academic_year_id = AcademicYear::getActiveYearId();
+        $studentId = auth()->user()->student?->id;
+
+        $this->selected_academic_year_id = StudentRecord::where('student_id', $studentId)
+            ->where('academic_year_id', AcademicYear::getActiveYearId())
+            ->value('academic_year_id');
+
+        if (! $this->selected_academic_year_id) {
+            $this->selected_academic_year_id = StudentRecord::where('student_id', $studentId)
+                ->latest('academic_year_id')
+                ->value('academic_year_id');
+        }
+
+        $this->loadData();
+    }
+
+    public function selectAcademicYear($academicYearId)
+    {
+        $this->selected_academic_year_id = $academicYearId;
         $this->loadData();
     }
 
     public function loadData()
     {
         $student = auth()->user()->student;
+
+        if (! $student || ! $this->selected_academic_year_id) {
+            $this->studentFiles = [];
+            $this->termGrades = [];
+            $this->attendance = [];
+            $this->studentGradeLevel = null;
+
+            return;
+        }
 
         // Get student's grade level for the selected academic year
         $studentRecord = StudentRecord::where('student_id', $student->id)
@@ -69,9 +95,11 @@ class MyGrade extends Component
                 $first->fourth_grading,
             ], fn($v) => $v !== null && $v !== '');
 
-            $final = count($grades) > 0
-                ? round(array_sum($grades) / count($grades), 0)
-                : null;
+            $final = $first->final_rating !== null && $first->final_rating !== ''
+                ? $first->final_rating
+                : (count($grades) > 0
+                    ? round(array_sum($grades) / count($grades), 0)
+                    : null);
 
             return [
                 'subject_name'    => $first->subject->subject_name ?? 'Unknown',
@@ -139,8 +167,25 @@ class MyGrade extends Component
 
     public function render()
     {
+        $studentId = auth()->user()->student?->id;
+        $studentRecords = StudentRecord::where('student_id', $studentId)
+            ->with(['academicYear', 'gradeLevel', 'section'])
+            ->get();
+
+        $academicYearIds = $studentRecords
+            ->pluck('academic_year_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $studentRecordsByAcademicYear = $studentRecords->keyBy('academic_year_id');
+
         return view('livewire.student.my-grade', [
-            'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
+            'academic_years' => AcademicYear::whereIn('id', $academicYearIds)
+                ->orderByDesc('is_active')
+                ->orderBy('name', 'desc')
+                ->get(),
+            'student_records_by_academic_year' => $studentRecordsByAcademicYear,
         ])->layout('components.student-layout');
     }
 }

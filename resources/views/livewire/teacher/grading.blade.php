@@ -87,6 +87,7 @@
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">2nd Grading</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">3rd Grading</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">4th Grading</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Final Average</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
                             </tr>
                         </thead>
@@ -113,6 +114,9 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <input type="text" wire:model="termGrades.{{ $record->student_id }}.fourth_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="text" wire:model="termGrades.{{ $record->student_id }}.final_rating" class="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <input type="text" wire:model="termGrades.{{ $record->student_id }}.remarks" class="mt-1 block w-full min-w-[120px] rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border">

@@ -16,7 +16,7 @@ class Section extends Model
     }
 
     public function studentRecords(){
-        $this->hasMany(StudentRecord::class);
+        return $this->hasMany(StudentRecord::class);
     }
 
     public function staff(){
@@ -25,9 +25,5 @@ class Section extends Model
 
     public function gradeLevel(){
         return $this->belongsTo(GradeLevel::class);
-    }
-
-    public function academicYear(){
-        return $this->belongsTo(AcademicYear::class);
     }
 }

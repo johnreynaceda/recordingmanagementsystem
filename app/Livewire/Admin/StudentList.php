@@ -21,6 +21,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class StudentList extends Component implements HasForms, HasTable
@@ -40,6 +41,7 @@ class StudentList extends Component implements HasForms, HasTable
         return $table
             ->query(
                 Student::query()
+                    ->with(['studentRecords.gradeLevel', 'studentRecords.section', 'studentRecords.academicYear'])
                     ->whereHas('studentRecords', function ($query) {
                         $query->where('academic_year_id', $this->selected_academic_year_id);
                     })
@@ -76,23 +78,48 @@ class StudentList extends Component implements HasForms, HasTable
                     }),
             ])
             ->actions([
-                EditAction::make('edit')->color('success')->form([
-                    Fieldset::make("STUDENT'S INFORMATION")->schema([
-                        TextInput::make('firstname')->required(),
-                        TextInput::make('middlename'),
-                        TextInput::make('lastname')->required(),
-                        DatePicker::make('birthdate')->required(),
-                        TextInput::make('contact_number')->required(),
-                        TextInput::make('age')->required()->disabled()->formatStateUsing(function ($state, $record) {
-                            if (! $record?->birthdate) {
-                                return null;
-                            }
+                EditAction::make('edit')
+                    ->color('success')
+                    ->mutateRecordDataUsing(function (array $data, Student $record): array {
+                        $data['email'] = $record->user?->email;
 
-                            return Carbon::parse($record->birthdate)->age;
-                        }),
-                        TextInput::make('address')->required()->columnSpan(2),
-                    ])->columns(3),
-                ]),
+                        return $data;
+                    })
+                    ->using(function (Student $record, array $data): Student {
+                        $email = $data['email'];
+                        unset($data['email'], $data['age']);
+
+                        $record->update($data);
+                        $record->user?->update([
+                            'name' => $record->firstname.' '.$record->lastname,
+                            'email' => $email,
+                        ]);
+
+                        return $record;
+                    })
+                    ->form([
+                        Fieldset::make("STUDENT'S INFORMATION")->schema([
+                            TextInput::make('firstname')->required(),
+                            TextInput::make('middlename'),
+                            TextInput::make('lastname')->required(),
+                            TextInput::make('email')
+                                ->email()
+                                ->required()
+                                ->rules(fn (Student $record): array => [
+                                    Rule::unique('users', 'email')->ignore($record->user_id),
+                                ]),
+                            DatePicker::make('birthdate')->required(),
+                            TextInput::make('contact_number')->required(),
+                            TextInput::make('age')->required()->disabled()->formatStateUsing(function ($state, $record) {
+                                if (! $record?->birthdate) {
+                                    return null;
+                                }
+
+                                return Carbon::parse($record->birthdate)->age;
+                            }),
+                            TextInput::make('address')->required()->columnSpan(2),
+                        ])->columns(3),
+                    ]),
                 DeleteAction::make('delete'),
 
                 ActionGroup::make([

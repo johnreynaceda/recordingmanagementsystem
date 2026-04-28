@@ -22,6 +22,8 @@ class Profile extends Component
     public $middlename;
     public $lastname;
     public $contact_number;
+    public $parent_name;
+    public $parent_contact;
     public $birthdate;
     public $address;
     
@@ -63,6 +65,8 @@ class Profile extends Component
         $this->middlename = $student->middlename;
         $this->lastname = $student->lastname;
         $this->contact_number = $student->contact_number;
+        $this->parent_name = $student->parent_name;
+        $this->parent_contact = $student->parent_contact;
         $this->birthdate = $student->birthdate;
         $this->address = $student->address;
         $this->new_image = null;
@@ -85,6 +89,8 @@ class Profile extends Component
             'middlename' => 'nullable|string|max:255',
             'lastname' => 'required|string|max:255',
             'contact_number' => 'nullable|string|max:20',
+            'parent_name' => 'nullable|string|max:255',
+            'parent_contact' => 'nullable|string|max:20',
             'birthdate' => 'required|date',
             'address' => 'required|string|max:500',
             'new_image' => 'nullable|image|max:2048', // 2MB Max
@@ -106,6 +112,8 @@ class Profile extends Component
             'middlename' => $this->middlename,
             'lastname' => $this->lastname,
             'contact_number' => $this->contact_number,
+            'parent_name' => $this->parent_name,
+            'parent_contact' => $this->parent_contact,
             'birthdate' => $this->birthdate,
             'address' => $this->address,
         ]);

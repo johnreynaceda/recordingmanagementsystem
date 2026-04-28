@@ -40,13 +40,13 @@ class AttendanceSection extends Component implements HasForms, HasTable
                     ->where('academic_year_id', $this->selected_academic_year_id)
                     ->when($this->section_id, function ($query) {
                         $query->where('section_id', $this->section_id);
-                    })
+                    })->orderBy('lastname', 'asc')
             )
             ->columns([
                 TextColumn::make('student')
                     ->label('STUDENT NAME')
                     ->formatStateUsing(
-                        fn ($record) => strtoupper($record->student->lastname.', '.$record->student->firstname.' '.($record->student->middlename ? substr($record->student->middlename, 0, 1).'.' : ''))
+                        fn($record) => strtoupper($record->student->lastname . ', ' . $record->student->firstname . ' ' . ($record->student->middlename ? substr($record->student->middlename, 0, 1) . '.' : ''))
                     )
                     ->searchable()
                     ->sortable(),
@@ -55,7 +55,7 @@ class AttendanceSection extends Component implements HasForms, HasTable
                     ->sortable(),
                 TextColumn::make('section.name')
                     ->label('SECTION')
-                    ->formatStateUsing(fn ($record) => strtoupper($record->section->name))
+                    ->formatStateUsing(fn($record) => strtoupper($record->section->name))
                     ->sortable(),
             ])
             ->filters([
@@ -90,22 +90,22 @@ class AttendanceSection extends Component implements HasForms, HasTable
                                 ->exists();
 
                             if ($existingAttendance) {
-                                $alreadyPresent[] = strtoupper($record->student->lastname.', '.$record->student->firstname);
+                                $alreadyPresent[] = strtoupper($record->student->lastname . ', ' . $record->student->firstname);
                             } else {
                                 AttendanceRecord::create([
                                     'student_record_id' => $record->id,
                                     'academic_year_id' => $activeYearId,
                                 ]);
-                                $addedAttendance[] = strtoupper($record->student->lastname.', '.$record->student->firstname);
+                                $addedAttendance[] = strtoupper($record->student->lastname . ', ' . $record->student->firstname);
                             }
                         }
 
                         $messages = [];
                         if (! empty($alreadyPresent)) {
-                            $messages[] = count($alreadyPresent).' student(s) already marked present: '.implode(', ', $alreadyPresent);
+                            $messages[] = count($alreadyPresent) . ' student(s) already marked present: ' . implode(', ', $alreadyPresent);
                         }
                         if (! empty($addedAttendance)) {
-                            $messages[] = count($addedAttendance).' student(s) marked present: '.implode(', ', $addedAttendance);
+                            $messages[] = count($addedAttendance) . ' student(s) marked present: ' . implode(', ', $addedAttendance);
                         }
 
                         session()->flash('attendance_message', implode(' | ', $messages));
@@ -125,7 +125,6 @@ class AttendanceSection extends Component implements HasForms, HasTable
     {
         return view('livewire.teacher.attendance-section', [
             'sections' => Section::where('staff_id', auth()->user()->staff->id)
-                ->where('academic_year_id', $this->selected_academic_year_id)
                 ->get(),
             'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
         ]);

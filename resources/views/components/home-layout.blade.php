@@ -42,7 +42,7 @@
                         <circle cx="12" cy="12" r="4" />
                         <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8" />
                     </svg>
-                    <span>tmcnhs@gmail.com</span>
+                    <span>301222@deped.gov.ph</span>
                 </div>
                 <div class="flex space-x-2 items-center text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
@@ -61,7 +61,7 @@
                             d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
                         <circle cx="12" cy="10" r="3" />
                     </svg>
-                    <span class="truncate">Trece Martires City National Highschool</span>
+                    <span class="truncate">Brgy. San Agustin, Trece Martires City Cavite</span>
                 </div>
             </div>
         </div>
@@ -100,8 +100,12 @@
                 <!-- Login -->
                 <div class="hidden md:flex items-center space-x-2">
                     {{-- <a href="{{ route('login') }}" class="flex items-center font-medium leading-6 text-gray-600 hover:text-main">
-                        <span>Login</span>
-                       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in-icon lucide-log-in"><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>
+                    <span>Login</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in-icon lucide-log-in">
+                        <path d="m10 17 5-5-5-5" />
+                        <path d="M15 12H3" />
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    </svg>
                     </a> --}}
                 </div>
             </div>

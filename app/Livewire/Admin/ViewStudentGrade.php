@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\AcademicYear;
 use App\Models\AttendanceRecord;
+use App\Models\GradeLevel;
 use App\Models\Student;
 use App\Models\StudentGrade;
 use App\Models\StudentRecord;
@@ -123,9 +124,11 @@ class ViewStudentGrade extends Component
                 $first->fourth_grading,
             ], fn ($v) => $v !== null && $v !== '');
 
-            $final = count($grades) > 0
-                ? round(array_sum($grades) / count($grades), 0)
-                : null;
+            $final = $first->final_rating !== null && $first->final_rating !== ''
+                ? $first->final_rating
+                : (count($grades) > 0
+                    ? round(array_sum($grades) / count($grades), 0)
+                    : null);
 
             return [
                 'subject_name' => $first->subject->subject_name ?? 'Unknown',
@@ -137,13 +140,13 @@ class ViewStudentGrade extends Component
             ];
         })->values()->toArray();
 
-        $enrollmentRecord = StudentRecord::where('student_id', $studentId)
+        $enrollmentRecords = StudentRecord::where('student_id', $studentId)
             ->where('academic_year_id', $this->selected_academic_year_id)
-            ->first();
+            ->get();
         $this->attendance = [];
-        if ($enrollmentRecord) {
-            $records = AttendanceRecord::where('student_record_id', $enrollmentRecord->id)
-                ->where('academic_year_id', $this->selected_academic_year_id)
+        if ($enrollmentRecords->count() > 0) {
+            $recordIds = $enrollmentRecords->pluck('id');
+            $records = AttendanceRecord::whereIn('student_record_id', $recordIds)
                 ->get()
                 ->groupBy(fn ($r) => Carbon::parse($r->created_at)->format('Y-m'));
 
@@ -173,6 +176,154 @@ class ViewStudentGrade extends Component
     public function updatedSelectedAcademicYearId()
     {
         $this->loadData();
+    }
+
+    public function promoteStudent()
+    {
+        if (!$this->currentStudent || !$this->selected_academic_year_id) {
+            sweetalert()->error('Please select a student and academic year first.');
+            return;
+        }
+
+        $currentRecord = StudentRecord::where('student_id', $this->currentStudent->id)
+            ->where('academic_year_id', $this->selected_academic_year_id)
+            ->first();
+
+        if (!$currentRecord) {
+            sweetalert()->error('No enrollment record found for this student in the selected academic year.');
+            return;
+        }
+
+        $nextGradeLevel = GradeLevel::where('id', '>', $currentRecord->grade_level_id)
+            ->orderBy('id')
+            ->first();
+
+        if (!$nextGradeLevel) {
+            $this->currentStudent->status = 'Graduated';
+            $this->currentStudent->save();
+            sweetalert()->success('Student has been marked as Graduated!');
+            $this->loadStudent();
+            $this->loadData();
+            return;
+        }
+
+        $currentAcademicYear = AcademicYear::find($this->selected_academic_year_id);
+
+        $nextAcademicYear = AcademicYear::where('start_date', '>', $currentAcademicYear->start_date)
+            ->orderBy('start_date')
+            ->first();
+
+        if (!$nextAcademicYear) {
+            sweetalert()->error('No next academic year configured. Please create one first.');
+            return;
+        }
+
+        $existingRecord = StudentRecord::where('student_id', $this->currentStudent->id)
+            ->where('grade_level_id', $nextGradeLevel->id)
+            ->where('academic_year_id', $nextAcademicYear->id)
+            ->first();
+
+        if ($existingRecord) {
+            sweetalert()->error('Student already has a record for the next grade level and academic year.');
+            return;
+        }
+
+        StudentRecord::create([
+            'student_id' => $this->currentStudent->id,
+            'grade_level_id' => $nextGradeLevel->id,
+            'section_id' => null,
+            'academic_year_id' => $nextAcademicYear->id,
+            'is_active' => true,
+        ]);
+
+        $currentRecord->update(['is_active' => false]);
+
+        sweetalert()->success('Student promoted to ' . $nextGradeLevel->name . ' for ' . $nextAcademicYear->name . '!');
+        $this->loadData();
+    }
+
+    public function getCanPromoteProperty()
+    {
+        if (!$this->currentStudent || !$this->selected_academic_year_id) {
+            return false;
+        }
+
+        if ($this->currentStudent->status === 'Graduated') {
+            return false;
+        }
+
+        $currentRecord = StudentRecord::where('student_id', $this->currentStudent->id)
+            ->where('academic_year_id', $this->selected_academic_year_id)
+            ->first();
+
+        if (!$currentRecord) {
+            return false;
+        }
+
+        $nextGradeLevel = GradeLevel::where('id', '>', $currentRecord->grade_level_id)
+            ->orderBy('id')
+            ->first();
+
+        if (!$nextGradeLevel) {
+            return true;
+        }
+
+        $currentAcademicYear = AcademicYear::find($this->selected_academic_year_id);
+
+        $nextAcademicYear = AcademicYear::where('start_date', '>', $currentAcademicYear->start_date)
+            ->orderBy('start_date')
+            ->first();
+
+        if (!$nextAcademicYear) {
+            return false;
+        }
+
+        $existingRecord = StudentRecord::where('student_id', $this->currentStudent->id)
+            ->where('grade_level_id', $nextGradeLevel->id)
+            ->where('academic_year_id', $nextAcademicYear->id)
+            ->exists();
+
+        return !$existingRecord;
+    }
+
+    public function getIsPromotedProperty()
+    {
+        if (!$this->currentStudent || !$this->selected_academic_year_id) {
+            return false;
+        }
+
+        $currentRecord = StudentRecord::where('student_id', $this->currentStudent->id)
+            ->where('academic_year_id', $this->selected_academic_year_id)
+            ->first();
+
+        if (!$currentRecord) {
+            return false;
+        }
+
+        $currentAcademicYear = AcademicYear::find($this->selected_academic_year_id);
+
+        $nextAcademicYear = AcademicYear::where('start_date', '>', $currentAcademicYear->start_date)
+            ->orderBy('start_date')
+            ->first();
+
+        if (!$nextAcademicYear) {
+            return false;
+        }
+
+        $nextGradeLevel = GradeLevel::where('id', '>', $currentRecord->grade_level_id)
+            ->orderBy('id')
+            ->first();
+
+        if (!$nextGradeLevel) {
+            return StudentRecord::where('student_id', $this->currentStudent->id)
+                ->where('academic_year_id', $nextAcademicYear->id)
+                ->exists();
+        }
+
+        return StudentRecord::where('student_id', $this->currentStudent->id)
+            ->where('grade_level_id', $nextGradeLevel->id)
+            ->where('academic_year_id', $nextAcademicYear->id)
+            ->exists();
     }
 
     private function getSchoolDays(Carbon $date)

@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\AcademicYear;
 use App\Models\GradeLevel;
 use App\Models\Section;
 use App\Models\Staff;
@@ -18,7 +17,6 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Livewire\Component;
 
@@ -28,12 +26,10 @@ class SectionList extends Component implements HasForms, HasTable
     use InteractsWithForms;
 
     public $grade_level_id;
-    public $selected_academic_year_id;
 
     public function mount()
     {
         $this->grade_level_id = request('id');
-        $this->selected_academic_year_id = AcademicYear::getActiveYearId();
     }
 
     public function table(Table $table): Table
@@ -42,7 +38,6 @@ class SectionList extends Component implements HasForms, HasTable
             ->query(
                 Section::query()
                     ->where('grade_level_id', $this->grade_level_id)
-                    ->where('academic_year_id', $this->selected_academic_year_id)
             )
             ->headerActions([
                 CreateAction::make('section')
@@ -53,7 +48,6 @@ class SectionList extends Component implements HasForms, HasTable
                         Section::create([
                             'grade_level_id' => $this->grade_level_id,
                             'name' => $data['name'],
-                            'academic_year_id' => $this->selected_academic_year_id,
                         ]);
                     })
                     ->form([
@@ -67,19 +61,6 @@ class SectionList extends Component implements HasForms, HasTable
                 TextColumn::make('staff')
                     ->label('TEACHER')
                     ->formatStateUsing(fn($record) => $record->staff ? $record->staff->firstname . ' ' . $record->staff->lastname : 'Not Assigned'),
-                TextColumn::make('academicYear.name')
-                    ->label('ACADEMIC YEAR'),
-            ])
-            ->filters([
-                SelectFilter::make('academic_year_id')
-                    ->label('Academic Year')
-                    ->options(AcademicYear::pluck('name', 'id')->toArray())
-                    ->default($this->selected_academic_year_id)
-                    ->query(function ($query, array $data) {
-                        if (filled($data['value'])) {
-                            $query->where('academic_year_id', $data['value']);
-                        }
-                    }),
             ])
             ->actions([
                 Action::make('teacher')
@@ -127,7 +108,6 @@ class SectionList extends Component implements HasForms, HasTable
     {
         return view('livewire.admin.section-list', [
             'name' => GradeLevel::where('id', $this->grade_level_id)->first()->name,
-            'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
         ]);
     }
 }
