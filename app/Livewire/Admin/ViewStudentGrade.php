@@ -25,6 +25,8 @@ class ViewStudentGrade extends Component
 
     public $studentGradeLevel = null;
 
+    public $studentRecordInfo = null;
+
     public $selectedStudentId;
 
     public $studentInfo = null;
@@ -91,6 +93,7 @@ class ViewStudentGrade extends Component
             $this->termGrades = [];
             $this->attendance = [];
             $this->studentGradeLevel = null;
+            $this->studentRecordInfo = null;
 
             return;
         }
@@ -99,10 +102,15 @@ class ViewStudentGrade extends Component
 
         $studentRecord = StudentRecord::where('student_id', $studentId)
             ->where('academic_year_id', $this->selected_academic_year_id)
-            ->with('gradeLevel')
+            ->with(['academicYear', 'gradeLevel', 'section'])
             ->first();
 
         $this->studentGradeLevel = $studentRecord?->gradeLevel?->name ?? null;
+        $this->studentRecordInfo = $studentRecord ? [
+            'academic_year' => $studentRecord->academicYear->name ?? 'N/A',
+            'grade_level' => $studentRecord->gradeLevel->name ?? 'N/A',
+            'section' => $studentRecord->section->name ?? 'N/A',
+        ] : null;
 
         $this->studentFiles = StudentGrade::where('student_id', $studentId)
             ->where('academic_year_id', $this->selected_academic_year_id)
@@ -171,6 +179,75 @@ class ViewStudentGrade extends Component
                 ];
             })->values()->toArray();
         }
+    }
+
+    public function exportGrades()
+    {
+        $this->ensureCurrentExportData();
+
+        $rows = [
+            ['Student Grades'],
+            ['Student Name', $this->studentInfo['name'] ?? 'N/A'],
+            ['LRN', $this->studentInfo['lrn'] ?? 'N/A'],
+            ['Academic Year', $this->studentRecordInfo['academic_year'] ?? 'N/A'],
+            ['Grade Level', $this->studentRecordInfo['grade_level'] ?? $this->studentGradeLevel ?? 'N/A'],
+            ['Section', $this->studentRecordInfo['section'] ?? 'N/A'],
+            [],
+            ['Learning Area', '1st Grading', '2nd Grading', '3rd Grading', '4th Grading', 'Final Rating'],
+        ];
+
+        foreach ($this->termGrades as $row) {
+            $rows[] = [
+                $row['subject_name'] ?? '',
+                $row['first_grading'] ?? '',
+                $row['second_grading'] ?? '',
+                $row['third_grading'] ?? '',
+                $row['fourth_grading'] ?? '',
+                $row['final_rating'] ?? '',
+            ];
+        }
+
+        $finals = array_filter(array_column($this->termGrades, 'final_rating'), fn ($value) => $value !== null && $value !== '');
+        $generalAverage = count($finals) > 0 ? round(array_sum($finals) / count($finals), 0) : '';
+        $rows[] = [];
+        $rows[] = ['General Average', '', '', '', '', $generalAverage];
+
+        return $this->downloadCsv($this->exportFilename('student-grades'), $rows);
+    }
+
+    public function exportAttendance()
+    {
+        $this->ensureCurrentExportData();
+
+        $rows = [
+            ['Student Attendance'],
+            ['Student Name', $this->studentInfo['name'] ?? 'N/A'],
+            ['LRN', $this->studentInfo['lrn'] ?? 'N/A'],
+            ['Academic Year', $this->studentRecordInfo['academic_year'] ?? 'N/A'],
+            ['Grade Level', $this->studentRecordInfo['grade_level'] ?? $this->studentGradeLevel ?? 'N/A'],
+            ['Section', $this->studentRecordInfo['section'] ?? 'N/A'],
+            [],
+            ['Month', 'School Days', 'Present', 'Absent', '% Attendance'],
+        ];
+
+        foreach ($this->attendance as $row) {
+            $rows[] = [
+                trim(($row['month'] ?? '').' '.($row['year'] ?? '')),
+                $row['school_days'] ?? 0,
+                $row['present'] ?? 0,
+                $row['absent'] ?? 0,
+                isset($row['rate']) ? $row['rate'].'%' : '0%',
+            ];
+        }
+
+        $totalSchoolDays = array_sum(array_column($this->attendance, 'school_days'));
+        $totalPresent = array_sum(array_column($this->attendance, 'present'));
+        $totalAbsent = array_sum(array_column($this->attendance, 'absent'));
+        $overallRate = $totalSchoolDays > 0 ? round(($totalPresent / $totalSchoolDays) * 100, 1) : 0;
+        $rows[] = [];
+        $rows[] = ['Overall', $totalSchoolDays, $totalPresent, $totalAbsent, $overallRate.'%'];
+
+        return $this->downloadCsv($this->exportFilename('student-attendance'), $rows);
     }
 
     public function updatedSelectedAcademicYearId()
@@ -340,6 +417,38 @@ class ViewStudentGrade extends Component
         }
 
         return $days;
+    }
+
+    private function ensureCurrentExportData()
+    {
+        if (! $this->currentStudent && $this->selectedStudentId) {
+            $this->loadStudent();
+        }
+
+        $this->loadData();
+    }
+
+    private function exportFilename(string $prefix): string
+    {
+        $studentName = $this->studentInfo['name'] ?? 'student';
+        $safeName = str($studentName)->lower()->replaceMatches('/[^a-z0-9]+/', '-')->trim('-');
+
+        return $prefix.'-'.$safeName.'.csv';
+    }
+
+    private function downloadCsv(string $filename, array $rows)
+    {
+        return response()->streamDownload(function () use ($rows) {
+            $handle = fopen('php://output', 'w');
+
+            foreach ($rows as $row) {
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 
     public function render()
