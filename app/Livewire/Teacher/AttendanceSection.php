@@ -16,6 +16,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Livewire\Component;
 
 class AttendanceSection extends Component implements HasForms, HasTable
@@ -26,9 +27,12 @@ class AttendanceSection extends Component implements HasForms, HasTable
 
     public $selected_academic_year_id;
 
+    public $selected_date;
+
     public function mount()
     {
         $this->selected_academic_year_id = AcademicYear::getActiveYearId();
+        $this->selected_date = now()->toDateString();
     }
 
     public function table(Table $table): Table
@@ -80,13 +84,19 @@ class AttendanceSection extends Component implements HasForms, HasTable
                     ->modalDescription('Are you sure you want to mark the selected students as present?')
                     ->modalSubmitActionLabel('Yes, Mark Present')
                     ->action(function (Collection $records) {
+                        $this->validate([
+                            'selected_date' => ['required', 'date'],
+                        ]);
+
                         $alreadyPresent = [];
                         $addedAttendance = [];
                         $activeYearId = AcademicYear::getActiveYearId();
+                        $attendanceDate = Carbon::parse($this->selected_date);
+                        $attendanceTimestamp = $attendanceDate->copy()->setTimeFrom(now());
 
                         foreach ($records as $record) {
                             $existingAttendance = AttendanceRecord::where('student_record_id', $record->id)
-                                ->whereDate('created_at', now()->toDateString())
+                                ->whereDate('created_at', $attendanceDate->toDateString())
                                 ->exists();
 
                             if ($existingAttendance) {
@@ -95,6 +105,8 @@ class AttendanceSection extends Component implements HasForms, HasTable
                                 AttendanceRecord::create([
                                     'student_record_id' => $record->id,
                                     'academic_year_id' => $activeYearId,
+                                    'created_at' => $attendanceTimestamp,
+                                    'updated_at' => $attendanceTimestamp,
                                 ]);
                                 $addedAttendance[] = strtoupper($record->student->lastname . ', ' . $record->student->firstname);
                             }

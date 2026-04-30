@@ -28,7 +28,7 @@ class CreateStudent extends Component implements HasForms
 
     private const MAX_PROFILE_IMAGE_SIZE_KB = 2048;
 
-    private const MAX_PASSWORD_LENGTH = 8;
+    private const MAX_PASSWORD_LENGTH = 16;
 
     public $firstname;
 
@@ -70,14 +70,17 @@ class CreateStudent extends Component implements HasForms
                         ->maxSize(self::MAX_PROFILE_IMAGE_SIZE_KB),
                     ViewField::make('rating')
                         ->view('filament.forms.blank')->columnSpan(2),
-                    TextInput::make('firstname')->label('First Name')->required(),
+                    TextInput::make('firstname')->label('First Name')->required()->live()
+                        ->afterStateUpdated(
+                            fn ($state, callable $set) => $set('firstname', $this->capitalizeNameWhileTyping($state))
+                        ),
                     TextInput::make('middlename')->label('Middle Name')->live()
                         ->afterStateUpdated(
-                            fn ($state, callable $set) => $set('middlename', ucfirst(strtolower($state)))
+                            fn ($state, callable $set) => $set('middlename', $this->capitalizeNameWhileTyping($state))
                         ),
                     TextInput::make('lastname')->label('Last Name')->required()->live()
                         ->afterStateUpdated(
-                            fn ($state, callable $set) => $set('lastname', ucfirst(strtolower($state)))
+                            fn ($state, callable $set) => $set('lastname', $this->capitalizeNameWhileTyping($state))
                         ),
                     DatePicker::make('birthdate')->required()->reactive(),
                     TextInput::make('contact_number')->required(),
@@ -192,6 +195,11 @@ class CreateStudent extends Component implements HasForms
         $value = preg_replace('/\s+/', ' ', trim($value));
 
         return $value === '' ? null : ucwords(strtolower($value));
+    }
+
+    private function capitalizeNameWhileTyping(?string $value): string
+    {
+        return ucwords(strtolower($value ?? ''));
     }
 
     public function updatedBirthdate($value)

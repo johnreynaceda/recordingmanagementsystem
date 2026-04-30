@@ -104,19 +104,19 @@
                                         <input type="text" readonly class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm bg-gray-50 sm:text-sm py-2 px-3 focus:outline-none focus:ring-0 focus:border-gray-300 min-w-[140px]" value="{{ $record->student->lrn ?? 'N/A' }}">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="text" wire:model="termGrades.{{ $record->student_id }}.first_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.first_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="text" wire:model="termGrades.{{ $record->student_id }}.second_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.second_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="text" wire:model="termGrades.{{ $record->student_id }}.third_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.third_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="text" wire:model="termGrades.{{ $record->student_id }}.fourth_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.fourth_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="text" wire:model="termGrades.{{ $record->student_id }}.final_rating" class="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.final_rating" class="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <input type="text" wire:model="termGrades.{{ $record->student_id }}.remarks" class="mt-1 block w-full min-w-[120px] rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border">

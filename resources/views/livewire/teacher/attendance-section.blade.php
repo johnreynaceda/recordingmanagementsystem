@@ -24,7 +24,7 @@
             </svg>
             Filters
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Academic Year</label>
                 <select wire:model.live="selected_academic_year_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border">
@@ -42,6 +42,14 @@
                         <option value="{{ $section->id }}">{{ $section->name }}</option>
                     @endforeach
                 </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Attendance Date</label>
+                <input type="date" wire:model.live="selected_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border">
+                @error('selected_date')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
             </div>
         </div>
     </div>

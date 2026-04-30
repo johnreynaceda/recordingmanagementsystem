@@ -3,6 +3,8 @@
 namespace App\Livewire\Admin;
 
 use App\Models\AcademicYear;
+use App\Models\GradeLevel;
+use App\Models\Section;
 use App\Models\Student;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
@@ -21,6 +23,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -36,15 +39,58 @@ class StudentList extends Component implements HasForms, HasTable
         $this->selected_academic_year_id = AcademicYear::getActiveYearId();
     }
 
+    private function studentRecordFilters(array $overrides = []): array
+    {
+        $filters = [
+            'academic_year_id' => $this->getTableFilterState('academic_year_id')['value'] ?? $this->selected_academic_year_id,
+            'grade_level_id' => $this->getTableFilterState('grade_level_id')['value'] ?? null,
+            'section_id' => $this->getTableFilterState('section_id')['value'] ?? null,
+        ];
+
+        foreach ($overrides as $key => $value) {
+            $filters[$key] = $value;
+        }
+
+        return $filters;
+    }
+
+    private function applyStudentRecordConstraints($query, array $filters)
+    {
+        return $query
+            ->when(filled($filters['academic_year_id']), function ($query) use ($filters) {
+                $query->where('academic_year_id', $filters['academic_year_id']);
+            })
+            ->when(filled($filters['grade_level_id']), function ($query) use ($filters) {
+                $query->where('grade_level_id', $filters['grade_level_id']);
+            })
+            ->when(filled($filters['section_id']), function ($query) use ($filters) {
+                $query->where('section_id', $filters['section_id']);
+            });
+    }
+
+    private function applyStudentRecordFilters(Builder $query, array $overrides = []): Builder
+    {
+        $filters = $this->studentRecordFilters($overrides);
+
+        return $query->whereHas('studentRecords', function (Builder $query) use ($filters) {
+            $this->applyStudentRecordConstraints($query, $filters);
+        });
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->query(
                 Student::query()
-                    ->with(['studentRecords.gradeLevel', 'studentRecords.section', 'studentRecords.academicYear'])
-                    ->whereHas('studentRecords', function ($query) {
-                        $query->where('academic_year_id', $this->selected_academic_year_id);
-                    })
+                    ->with([
+                        'studentRecords' => function ($query) {
+                            $this->applyStudentRecordConstraints($query, $this->studentRecordFilters());
+                        },
+                        'studentRecords.gradeLevel',
+                        'studentRecords.section',
+                        'studentRecords.academicYear',
+                    ])
+                    ->orderBy('lastname', 'asc')
             )
             ->headerActions([
                 Action::make('student')
@@ -57,6 +103,7 @@ class StudentList extends Component implements HasForms, HasTable
                 Grid::make(1)
                     ->schema([
                         ViewColumn::make('firstname')
+                            ->searchable(['firstname', 'middlename', 'lastname', 'lrn'])
                             ->view('filament.tables.student'),
                     ]),
             ])
@@ -64,17 +111,34 @@ class StudentList extends Component implements HasForms, HasTable
                 'md' => 3,
                 '2xl' => 4,
             ])
+            ->searchPlaceholder('Search name or LRN')
             ->filters([
                 SelectFilter::make('academic_year_id')
                     ->label('Academic Year')
                     ->options(AcademicYear::pluck('name', 'id')->toArray())
                     ->default($this->selected_academic_year_id)
                     ->query(function ($query, array $data) {
-                        if (filled($data['value'])) {
-                            $query->whereHas('studentRecords', function ($q) use ($data) {
-                                $q->where('academic_year_id', $data['value']);
-                            });
-                        }
+                        $this->applyStudentRecordFilters($query, [
+                            'academic_year_id' => $data['value'] ?? null,
+                        ]);
+                    }),
+                SelectFilter::make('grade_level_id')
+                    ->label('Grade Level')
+                    ->options(GradeLevel::pluck('name', 'id')->toArray())
+                    ->searchable()
+                    ->query(function ($query, array $data) {
+                        $this->applyStudentRecordFilters($query, [
+                            'grade_level_id' => $data['value'] ?? null,
+                        ]);
+                    }),
+                SelectFilter::make('section_id')
+                    ->label('Section')
+                    ->options(Section::orderBy('name')->pluck('name', 'id')->toArray())
+                    ->searchable()
+                    ->query(function ($query, array $data) {
+                        $this->applyStudentRecordFilters($query, [
+                            'section_id' => $data['value'] ?? null,
+                        ]);
                     }),
             ])
             ->actions([

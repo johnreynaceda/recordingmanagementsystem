@@ -32,6 +32,13 @@ class SectionList extends Component implements HasForms, HasTable
         $this->grade_level_id = request('id');
     }
 
+    private function teacherOptions(): array
+    {
+        return Staff::with('user')->get()->mapWithKeys(function ($staff) {
+            return [$staff->id => $staff->firstname . ' ' . $staff->lastname];
+        })->toArray();
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -76,9 +83,8 @@ class SectionList extends Component implements HasForms, HasTable
                     ->form([
                         Select::make('staff')
                             ->label('Teacher')
-                            ->options(Staff::all()->mapWithKeys(function ($record) {
-                                return [$record->id => $record->firstname . ' ' . $record->lastname];
-                            }))
+                            ->options($this->teacherOptions())
+                            ->searchable()
                             ->required(),
                     ])
                     ->modalWidth('xl')
@@ -88,10 +94,17 @@ class SectionList extends Component implements HasForms, HasTable
                     ->action(function ($record, $data) {
                         $record->update([
                             'name' => $data['name'],
+                            'staff_id' => $data['staff_id'] ?? null,
                         ]);
                     })
                     ->form([
                         TextInput::make('name')->required(),
+                        Select::make('staff_id')
+                            ->label('Teacher')
+                            ->options($this->teacherOptions())
+                            ->searchable()
+                            ->placeholder('Select a teacher')
+                            ->nullable(),
                     ])
                     ->modalWidth('xl')
                     ->modalHeading('Edit Section'),
