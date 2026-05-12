@@ -21,6 +21,7 @@ use Filament\Tables\Columns\Layout\Grid;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -96,7 +97,8 @@ class StudentList extends Component implements HasForms, HasTable
                 Action::make('student')
                     ->label('New Student')
                     ->icon('heroicon-o-user-plus')
-                    ->iconPosition(IconPosition::After)
+                    ->iconPosition(IconPosition::Before)
+                    ->color('danger')
                     ->url(fn(): string => route('admin.students-create')),
             ])
             ->columns([
@@ -108,41 +110,64 @@ class StudentList extends Component implements HasForms, HasTable
                     ]),
             ])
             ->contentGrid([
-                'md' => 3,
+                'sm' => 2,
+                'xl' => 3,
                 '2xl' => 4,
             ])
-            ->searchPlaceholder('Search name or LRN')
+            ->searchPlaceholder('Search students by name or LRN')
             ->filters([
                 SelectFilter::make('academic_year_id')
                     ->label('Academic Year')
-                    ->options(AcademicYear::pluck('name', 'id')->toArray())
+                    ->placeholder('All school years')
+                    ->options(fn (): array => AcademicYear::orderByDesc('is_active')
+                        ->orderBy('name', 'desc')
+                        ->pluck('name', 'id')
+                        ->toArray())
                     ->default($this->selected_academic_year_id)
-                    ->query(function ($query, array $data) {
-                        $this->applyStudentRecordFilters($query, [
+                    ->searchable()
+                    ->preload()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $this->applyStudentRecordFilters($query, [
                             'academic_year_id' => $data['value'] ?? null,
                         ]);
                     }),
                 SelectFilter::make('grade_level_id')
                     ->label('Grade Level')
-                    ->options(GradeLevel::pluck('name', 'id')->toArray())
+                    ->placeholder('All grade levels')
+                    ->options(fn (): array => GradeLevel::orderBy('name')
+                        ->pluck('name', 'id')
+                        ->toArray())
                     ->searchable()
-                    ->query(function ($query, array $data) {
-                        $this->applyStudentRecordFilters($query, [
+                    ->preload()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $this->applyStudentRecordFilters($query, [
                             'grade_level_id' => $data['value'] ?? null,
                         ]);
                     }),
                 SelectFilter::make('section_id')
                     ->label('Section')
-                    ->options(Section::orderBy('name')->pluck('name', 'id')->toArray())
+                    ->placeholder('All sections')
+                    ->options(fn (): array => Section::query()
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->toArray())
                     ->searchable()
-                    ->query(function ($query, array $data) {
-                        $this->applyStudentRecordFilters($query, [
+                    ->preload()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $this->applyStudentRecordFilters($query, [
                             'section_id' => $data['value'] ?? null,
                         ]);
                     }),
+            ], layout: FiltersLayout::AboveContentCollapsible)
+            ->filtersFormColumns([
+                'default' => 1,
+                'md' => 3,
             ])
+            ->persistFiltersInSession()
             ->actions([
                 EditAction::make('edit')
+                    ->label('Edit Info')
+                    ->icon('heroicon-o-pencil-square')
                     ->color('success')
                     ->mutateRecordDataUsing(function (array $data, Student $record): array {
                         $data['email'] = $record->user?->email;
@@ -184,7 +209,8 @@ class StudentList extends Component implements HasForms, HasTable
                             TextInput::make('address')->required()->columnSpan(2),
                         ])->columns(3),
                     ]),
-                DeleteAction::make('delete'),
+                DeleteAction::make('delete')
+                    ->icon('heroicon-o-trash'),
 
                 ActionGroup::make([
                     Action::make('view')->label('View Record')->icon('heroicon-o-viewfinder-circle')->color('success')->url(fn(Student $record): string => route('admin.students-record', $record))
@@ -202,19 +228,36 @@ class StudentList extends Component implements HasForms, HasTable
                         ->icon('heroicon-o-document-chart-bar')
                         ->color('info')
                         ->url(fn(Student $record): string => route('admin.student-grades', $record->id)),
-                ])->color('black'),
+                ])
+                    ->label('More')
+                    ->icon('heroicon-o-ellipsis-horizontal-circle')
+                    ->color('gray'),
             ])
             ->bulkActions([
                 // Add bulk actions if needed
             ])
-            ->emptyStateHeading('No Student yet')
-            ->emptyStateDescription('Once you add the first student, it will appear here.');
+            ->emptyStateIcon('heroicon-o-academic-cap')
+            ->emptyStateHeading('No students found')
+            ->emptyStateDescription('Add a student or adjust the filters to see matching records.')
+            ->emptyStateActions([
+                Action::make('create_student')
+                    ->label('New Student')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('danger')
+                    ->url(fn(): string => route('admin.students-create')),
+            ]);
     }
 
     public function render()
     {
         return view('livewire.admin.student-list', [
             'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
+            'total_students' => Student::count(),
+            'active_students' => Student::where(function (Builder $query) {
+                $query->whereNull('status')
+                    ->orWhere('status', '!=', 'Graduated');
+            })->count(),
+            'graduated_students' => Student::where('status', 'Graduated')->count(),
         ]);
     }
 }

@@ -28,8 +28,11 @@ class StaffList extends Component implements HasForms, HasTable
     {
         return $table
             ->query(Staff::query())->headerActions([
-                CreateAction::make('new_staff')->label('New Staff')->icon('heroicon-o-user-plus')->iconPosition(IconPosition::After)->action(
-                    function ($data) {
+                CreateAction::make('new_staff')
+                    ->label('New Staff')
+                    ->icon('heroicon-o-user-plus')
+                    ->iconPosition(IconPosition::After)
+                    ->using(function (array $data): Staff {
                         $user = User::create([
                             'name'      => $data['firstname'] . ' ' . $data['lastname'],
                             'email'     => $data['email'],
@@ -37,7 +40,7 @@ class StaffList extends Component implements HasForms, HasTable
                             'user_type' => 'teacher',
                         ]);
 
-                        Staff::create([
+                        return Staff::create([
                             'firstname'  => $data['firstname'],
                             'lastname'   => $data['lastname'],
                             'middlename' => $data['middlename'],

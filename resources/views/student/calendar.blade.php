@@ -1,6 +1,6 @@
-@section('title', 'Index')
+@section('title', 'Calendar')
 <x-student-layout>
-    <div>
-        <livewire:admin.calendar-schedule />
+    <div class="space-y-6">
+        <livewire:admin.calendar-schedule audience="student" />
     </div>
 </x-student-layout>

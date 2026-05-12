@@ -2,3 +2,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .calendar-shell .fc {
+        @apply text-slate-800;
+    }
+
+    .calendar-shell .fc .fc-toolbar {
+        @apply flex-col items-stretch gap-3 sm:flex-row sm:items-center;
+    }
+
+    .calendar-shell .fc .fc-toolbar-title {
+        @apply text-xl font-bold text-slate-950;
+    }
+
+    .calendar-shell .fc .fc-button {
+        @apply rounded-lg border-0 bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 shadow-none transition hover:bg-red-50 hover:text-main focus:shadow-none focus:ring-2 focus:ring-red-100;
+    }
+
+    .calendar-shell .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .calendar-shell .fc .fc-button-primary:not(:disabled):active {
+        @apply bg-main text-white;
+    }
+
+    .calendar-shell .fc .fc-daygrid-day-number,
+    .calendar-shell .fc .fc-col-header-cell-cushion {
+        @apply text-sm font-bold text-slate-700 no-underline;
+    }
+
+    .calendar-shell .fc .fc-day-today {
+        @apply bg-red-50;
+    }
+
+    .calendar-shell .fc-theme-standard td,
+    .calendar-shell .fc-theme-standard th,
+    .calendar-shell .fc-theme-standard .fc-scrollgrid {
+        @apply border-slate-200;
+    }
+
+    .calendar-shell .school-calendar-event {
+        @apply cursor-pointer rounded-md border-0 bg-main px-1.5 py-1 text-xs font-bold text-white shadow-sm;
+    }
+
+    .calendar-tooltip {
+        @apply pointer-events-none absolute z-50 max-w-xs rounded-xl border border-red-100 bg-white p-3 text-sm shadow-xl;
+    }
+}

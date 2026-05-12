@@ -55,13 +55,11 @@ class SubjectList extends Component implements HasForms, HasTable
                     ->label('New Subject')
                     ->icon('heroicon-o-plus')
                     ->iconPosition(IconPosition::After)
-                    ->action(function ($data) {
-                        GradeLevelSubject::create([
-                            'grade_level_id' => $this->grade_level_id,
-                            'subject_name' => $data['subject_name'],
-                            'teacher_id' => $data['teacher_id'] ?? null,
-                            'academic_year_id' => $this->selected_academic_year_id,
-                        ]);
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['grade_level_id'] = $this->grade_level_id;
+                        $data['academic_year_id'] = $this->selected_academic_year_id;
+
+                        return $data;
                     })
                     ->form([
                         TextInput::make('subject_name')->required(),

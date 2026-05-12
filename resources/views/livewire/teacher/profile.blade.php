@@ -49,7 +49,10 @@
                         </path>
                     </svg>
                 </div>
-                <h3 class="text-lg font-bold text-gray-800">Assigned Sections</h3>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">Assigned Sections</h3>
+                    <p class="text-xs font-medium text-gray-500">{{ $activeAcademicYearName ?? 'Active school year' }}</p>
+                </div>
             </div>
             <div class="p-6">
                 @if (count($assignedSections) > 0)
@@ -60,7 +63,7 @@
                                 <div>
                                     <p class="font-bold text-gray-800">{{ $section->name ?? 'Unnamed Section' }}</p>
                                     <p class="text-sm text-gray-500">Grade Level:
-                                        {{ auth()->user()->staff->sections()->first()->name ?? 'N/A' }}
+                                        {{ $section->gradeLevel->name ?? 'N/A' }}
                                     </p>
                                 </div>
                             </li>
@@ -74,7 +77,7 @@
                                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
                             </path>
                         </svg>
-                        <p class="mt-2 text-sm">No sections assigned to you yet.</p>
+                        <p class="mt-2 text-sm">No sections assigned to you for the active school year.</p>
                     </div>
                 @endif
             </div>
@@ -98,7 +101,7 @@
                         @foreach ($assignedSubjects as $subject)
                             <div
                                 class="bg-gray-100 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
-                                {{ $subject->subject_name }}
+                                {{ $subject->subject_name }} {{ preg_replace('/^Grade\s+/i', '', $subject->gradeLevel->name ?? '') }}
                             </div>
                         @endforeach
                     </div>

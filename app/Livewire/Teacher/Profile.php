@@ -2,7 +2,10 @@
 
 namespace App\Livewire\Teacher;
 
+use App\Models\AcademicYear;
+use App\Models\GradeLevelSubject;
 use App\Models\Staff;
+use App\Models\StudentRecord;
 use Livewire\Component;
 use WireUi\Traits\WireUiActions;
 
@@ -17,10 +20,13 @@ class Profile extends Component
     public $showModal = false;
     public $assignedSections = [];
     public $assignedSubjects = [];
+    public $activeAcademicYearName;
 
     public function mount()
     {
-        // Fetch teacher record with their sections and associated grade limits
+        $activeAcademicYearId = AcademicYear::getActiveYearId();
+        $this->activeAcademicYearName = AcademicYear::whereKey($activeAcademicYearId)->value('name');
+
         $this->record = Staff::where('user_id', auth()->user()->id)
             ->with(['sections.gradeLevel'])
             ->first();
@@ -30,11 +36,20 @@ class Profile extends Component
             $this->lastname = $this->record->lastname;
             $this->address = $this->record->address;
 
-            $this->assignedSections = $this->record->sections;
-            $grade_levels = $this->assignedSections->pluck('grade_level_id')->unique()->toArray();
-            
-            // Get detailed subject rows
-            $this->assignedSubjects = \App\Models\GradeLevelSubject::whereIn('grade_level_id', $grade_levels)->get();
+            $activeSectionIds = StudentRecord::query()
+                ->where('academic_year_id', $activeAcademicYearId)
+                ->whereIn('section_id', $this->record->sections->pluck('id'))
+                ->pluck('section_id')
+                ->unique();
+
+            $this->assignedSections = $this->record->sections
+                ->whereIn('id', $activeSectionIds)
+                ->values();
+
+            $this->assignedSubjects = GradeLevelSubject::query()
+                ->where('teacher_id', $this->record->id)
+                ->with(['academicYear', 'gradeLevel'])
+                ->get();
         }
     }
 

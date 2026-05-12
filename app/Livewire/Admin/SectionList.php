@@ -51,11 +51,10 @@ class SectionList extends Component implements HasForms, HasTable
                     ->label('New Section')
                     ->icon('heroicon-o-plus')
                     ->iconPosition(IconPosition::After)
-                    ->action(function ($data) {
-                        Section::create([
-                            'grade_level_id' => $this->grade_level_id,
-                            'name' => $data['name'],
-                        ]);
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['grade_level_id'] = $this->grade_level_id;
+
+                        return $data;
                     })
                     ->form([
                         TextInput::make('name')->required(),

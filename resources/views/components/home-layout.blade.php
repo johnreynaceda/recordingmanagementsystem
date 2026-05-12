@@ -51,7 +51,7 @@
                         <path
                             d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
                     </svg>
-                    <span>4432-3524-6754</span>
+                    <span>046-6931</span>
                 </div>
                 <div class="flex space-x-2 items-center text-sm text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
@@ -94,7 +94,8 @@
                         Us</a>
                     <a href="#_" class="font-medium leading-6 text-gray-600 hover:text-main">How to Enroll</a>
                     <a href="#_" class="font-medium leading-6 text-gray-600 hover:text-main">K-12 Program</a>
-                    <a href="{{ route('announcements') }}" class="font-medium leading-6 text-gray-600 hover:text-main">Announcements</a>
+                    <a href="{{ route('announcements') }}"
+                        class="font-medium leading-6 text-gray-600 hover:text-main">Announcements</a>
                 </nav>
 
                 <!-- Login -->

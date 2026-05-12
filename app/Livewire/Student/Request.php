@@ -21,6 +21,8 @@ class Request extends Component
     public function mount()
     {
         $this->selected_academic_year_id = AcademicYear::getActiveYearId();
+        $this->name = Auth::user()->name;
+        $this->email_address = Auth::user()->email;
     }
 
     public function updatedSelectedAcademicYearId()
@@ -40,6 +42,9 @@ class Request extends Component
         return view('livewire.student.request', [
             'requests' => $requests,
             'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
+            'total_requests' => $requests->count(),
+            'pending_requests' => $requests->whereNotIn('status', ['approved', 'declined'])->count(),
+            'approved_requests' => $requests->where('status', 'approved')->count(),
         ]);
     }
 
@@ -72,6 +77,8 @@ class Request extends Component
 
         flash()->success('Your request has been submitted successfully!');
 
-        $this->reset();
+        $this->reset(['phone_number', 'option', 'additional_information', 'showModal']);
+        $this->name = Auth::user()->name;
+        $this->email_address = Auth::user()->email;
     }
 }
