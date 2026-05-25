@@ -75,8 +75,12 @@
                                 <ul>
                                     <li> <a class="{{ request()->routeIs('admin.academic-year') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
                                             href="{{ route('admin.academic-year') }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar">
-                                                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-calendar">
+                                                <rect width="18" height="18" x="3" y="4" rx="2"
+                                                    ry="2" />
                                                 <line x1="16" x2="16" y1="2" y2="6" />
                                                 <line x1="8" x2="8" y1="2" y2="6" />
                                                 <line x1="3" x2="21" y1="10" y2="10" />
@@ -96,7 +100,16 @@
                                             </svg> <span class="ml-4"> Teachers </span> </a> </li>
                                     <li> <a class="{{ request()->routeIs('admin.record') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
                                             href="{{ route('admin.record') }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-search-corner-icon lucide-file-search-corner"><path d="M11.1 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.589 3.588A2.4 2.4 0 0 1 20 8v3.25"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="m21 22-2.88-2.88"/><circle cx="16" cy="17" r="3"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-file-search-corner-icon lucide-file-search-corner">
+                                                <path
+                                                    d="M11.1 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.589 3.588A2.4 2.4 0 0 1 20 8v3.25" />
+                                                <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                                                <path d="m21 22-2.88-2.88" />
+                                                <circle cx="16" cy="17" r="3" />
+                                            </svg>
                                             <span class="ml-4"> Records </span> </a> </li>
 
                                     <li> <a class="{{ request()->routeIs('admin.students') ? 'bg-white text-main' : 'text-white' }} inline-flex items-center w-full px-4 py-2 mt-1 transition duration-200 ease-in-out transform rounded-lg focus:shadow-outline hover:bg-white hover:scale-95 hover:text-main"
@@ -299,7 +312,24 @@
                             class="absolute inset-0 w-full h-full object-cover opacity-20 rounded-3xl" alt="">
                         <div class="flex justify-between items-center relative">
                             <div class="text-lg md:text-xl">Hello {{ auth()->user()->name ?? '' }},</div>
-                            <div class="text-sm md:text-lg">{{ now()->format('F d, Y') }}</div>
+                            <div x-data="{
+                                time: '',
+                                updateTime() {
+                                    this.time = new Date().toLocaleTimeString('en-US', {
+                                        hour: 'numeric',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                        hour12: true
+                                    });
+                                },
+                                init() {
+                                    this.updateTime();
+                                    setInterval(() => this.updateTime(), 1000);
+                                }
+                            }" class="text-sm md:text-lg flex items-center text-right">
+                                <div>{{ now()->format('F d, Y') }} | </div>
+                                <div x-text="time" class="pl-2 "></div>
+                            </div>
                         </div>
                     </div>
 
