@@ -119,7 +119,7 @@ class CreateStudent extends Component implements HasForms
             ]);
     }
 
-    public function submitRecord()
+    public function submitRecord(bool $createAnother = false)
     {
         $this->firstname = $this->normalizeName($this->firstname);
         $this->middlename = $this->normalizeName($this->middlename);
@@ -183,7 +183,40 @@ class CreateStudent extends Component implements HasForms
             \Log::warning('Password reset email failed: '.$e->getMessage());
         }
 
+        if ($createAnother) {
+            $this->resetForm();
+
+            session()->flash('success', 'Student created successfully. You can now add another student.');
+
+            return null;
+        }
+
         return redirect()->route('admin.students');
+    }
+
+    private function resetForm(): void
+    {
+        $this->reset([
+            'firstname',
+            'lastname',
+            'middlename',
+            'birthdate',
+            'address',
+            'grade_level',
+            'email',
+            'section',
+            'student_picture',
+            'lrn',
+            'contact_number',
+            'password',
+            'confirm_password',
+            'sectionOptions',
+        ]);
+
+        $this->student_picture = [];
+        $this->sectionOptions = [];
+
+        $this->resetValidation();
     }
 
     private function normalizeName(?string $value): ?string

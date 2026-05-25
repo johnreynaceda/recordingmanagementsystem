@@ -14,6 +14,10 @@ Route::get('/about', function () {
     return view('pages.about');
 })->name('about');
 
+Route::get('/how-to-enroll', function () {
+    return view('pages.how-to-enroll');
+})->name('how-to-enroll');
+
 Route::get('/announcements', function () {
     return view('pages.announcements');
 })->name('announcements');

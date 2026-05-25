@@ -92,7 +92,7 @@
                     <a href="{{ route('home') }}" class="font-medium leading-6 text-gray-600 hover:text-main">Home</a>
                     <a href="{{ route('about') }}" class="font-medium leading-6 text-gray-600 hover:text-main">About
                         Us</a>
-                    <a href="#_" class="font-medium leading-6 text-gray-600 hover:text-main">How to Enroll</a>
+                    <a href="{{ route('how-to-enroll') }}" class="font-medium leading-6 text-gray-600 hover:text-main">How to Enroll</a>
                     <a href="#_" class="font-medium leading-6 text-gray-600 hover:text-main">K-12 Program</a>
                     <a href="{{ route('announcements') }}"
                         class="font-medium leading-6 text-gray-600 hover:text-main">Announcements</a>
@@ -115,7 +115,7 @@
             <div id="mobileMenu" class="hidden md:hidden flex flex-col space-y-3 mt-3 px-4 pb-4 border-t">
                 <a href="{{ route('home') }}" class="text-gray-600 hover:text-main">Home</a>
                 <a href="{{ route('about') }}" class="text-gray-600 hover:text-main">About Us</a>
-                <a href="#_" class="text-gray-600 hover:text-main">How to Enroll</a>
+                <a href="{{ route('how-to-enroll') }}" class="text-gray-600 hover:text-main">How to Enroll</a>
                 <a href="#_" class="text-gray-600 hover:text-main">K-12 Program</a>
                 <a href="{{ route('login') }}" class="text-gray-600 hover:text-main flex items-center space-x-1">
                     <span>Login</span>

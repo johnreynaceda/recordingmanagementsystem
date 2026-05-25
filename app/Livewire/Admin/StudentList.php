@@ -105,7 +105,23 @@ class StudentList extends Component implements HasForms, HasTable
                 Grid::make(1)
                     ->schema([
                         ViewColumn::make('firstname')
-                            ->searchable(['firstname', 'middlename', 'lastname', 'lrn'])
+                            ->searchable(query: function (Builder $query, string $search): Builder {
+                                $search = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $search).'%';
+
+                                return $query->where(function (Builder $query) use ($search) {
+                                    $query
+                                        ->where('firstname', 'like', $search)
+                                        ->orWhere('middlename', 'like', $search)
+                                        ->orWhere('lastname', 'like', $search)
+                                        ->orWhere('lrn', 'like', $search)
+                                        ->orWhereHas('studentRecords', function (Builder $query) use ($search) {
+                                            $this->applyStudentRecordConstraints($query, $this->studentRecordFilters())
+                                                ->whereHas('section', function (Builder $query) use ($search) {
+                                                    $query->where('name', 'like', $search);
+                                                });
+                                        });
+                                });
+                            })
                             ->view('filament.tables.student'),
                     ]),
             ])
@@ -114,7 +130,7 @@ class StudentList extends Component implements HasForms, HasTable
                 'xl' => 3,
                 '2xl' => 4,
             ])
-            ->searchPlaceholder('Search students by name or LRN')
+            ->searchPlaceholder('Search students by name, LRN, or section')
             ->filters([
                 SelectFilter::make('academic_year_id')
                     ->label('Academic Year')
