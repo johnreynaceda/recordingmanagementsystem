@@ -175,6 +175,7 @@ class StudentList extends Component implements HasForms, HasTable
                         ]);
                     }),
             ], layout: FiltersLayout::AboveContentCollapsible)
+            ->filtersTriggerAction(fn (Action $action): Action => $action->button()->icon(null))
             ->filtersFormColumns([
                 'default' => 1,
                 'md' => 3,
