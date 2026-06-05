@@ -24,7 +24,7 @@
                 </div>
                 <div class="w-64">
                     <x-native-select label="Section" wire:model.live="section_id">
-                        <option>Select an Option</option>
+                        <option value="">Select an Option</option>
                         @foreach ($sections as $item)
                             <option value="{{ $item->id }}">{{ strtoupper($item->name) }}</option>
                         @endforeach
@@ -33,13 +33,18 @@
                 </div>
             </div>
             <div>
-                <x-button label="PRINT" class="font-semibold" icon="printer" slate
-                    @click="printOut($refs.printContainer.outerHTML);" />
+                @if ($section_id)
+                    <x-button label="PRINT" class="font-semibold" icon="printer" slate
+                        @click="printOut($refs.printContainer.outerHTML);" />
+                @endif
             </div>
         </div>
     </div>
     <div class="mt-5 bg-white p-5">
         @if ($section_id)
+            @php
+                $selectedSection = $sections->firstWhere('id', (int) $section_id);
+            @endphp
             <div x-ref="printContainer">
                 <div class=" mt-5">
                     <div class="flex justify-between items-center">
@@ -47,12 +52,14 @@
                     </div>
                     <div class="flex justify-between items-center mt-3">
                         <h1 class="text-sm font-semibold uppercase text-gray-600">Section:
-                            {{ $sections[$section_id]->name }}</h1>
+                            {{ $selectedSection ? strtoupper($selectedSection->name) : 'N/A' }}</h1>
                     </div>
-                    <div class="flex justify-between items-center mt-3">
-                        <h1 class="text-sm font-semibold uppercase text-gray-600">Date:
-                            {{ \Carbon\Carbon::parse($date)->format('F d, Y') }}</h1>
-                    </div>
+                    @if ($date)
+                        <div class="flex justify-between items-center mt-3">
+                            <h1 class="text-sm font-semibold uppercase text-gray-600">Date:
+                                {{ \Carbon\Carbon::parse($date)->format('F d, Y') }}</h1>
+                        </div>
+                    @endif
                 </div>
                 <table id="example" class="table-auto " style="width:100%">
                     <thead class="font-normal">
@@ -86,6 +93,10 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        @else
+            <div class="rounded-lg border border-dashed border-gray-300 p-8 text-center">
+                <p class="text-sm font-medium text-gray-700">Select a section to view attendance records.</p>
             </div>
         @endif
     </div>

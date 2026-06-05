@@ -2,7 +2,7 @@
 <x-teacher-layout>
     <div>
         <div class="flex space-x-3 items-end">
-            <x-button label="Back" sm slate icon="arrow-left" href="{{ route('teacher.attendance') }}" />
+            <x-button label="Back" sm slate icon="arrow-left" href="{{ route('teacher.attendance-and-grading') }}" />
             <h1 class="text-2xl font-semibold uppercase text-main">Attendance Records</h1>
         </div>
         <div class="mt-10">
@@ -27,5 +27,5 @@
                 }
             </script>
         </div>
-
+    </div>
 </x-teacher-layout>

@@ -19,8 +19,18 @@ class ViewRecord extends Component
 
     public function render()
     {
+        $sections = Section::where('staff_id', auth()->user()->staff->id)->get();
+        $sectionIds = $sections->pluck('id');
+
         $query = AttendanceRecord::query()
-            ->where('academic_year_id', $this->selected_academic_year_id);
+            ->with(['studentRecord.student', 'studentRecord.section'])
+            ->whereHas('studentRecord', function ($student) use ($sectionIds) {
+                $student->whereIn('section_id', $sectionIds);
+            });
+
+        if ($this->selected_academic_year_id) {
+            $query->where('academic_year_id', $this->selected_academic_year_id);
+        }
 
         if ($this->date) {
             $query->whereDate('created_at', $this->date);
@@ -33,9 +43,9 @@ class ViewRecord extends Component
         }
 
         return view('livewire.teacher.view-record',[
-           'sections' => Section::where('staff_id', auth()->user()->staff->id)->get(),
+           'sections' => $sections,
            'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
-           'attendances' => $query->get(),
+           'attendances' => $query->latest('created_at')->get(),
         ]);
     }
 }
