@@ -81,8 +81,11 @@ class Grading extends Component
                     'first_grading'   => $grade->first_grading,
                     'second_grading'  => $grade->second_grading,
                     'third_grading'   => $grade->third_grading,
-                    'fourth_grading'  => $grade->fourth_grading,
-                    'final_rating'    => $grade->final_rating,
+                    'final_rating'    => $this->calculateFinalAverage([
+                        'first_grading' => $grade->first_grading,
+                        'second_grading' => $grade->second_grading,
+                        'third_grading' => $grade->third_grading,
+                    ]),
                     'remarks'         => $grade->remarks,
                 ];
             }
@@ -98,7 +101,9 @@ class Grading extends Component
         $academicYearId = $this->selected_academic_year_id;
 
         foreach ($this->termGrades as $studentId => $data) {
-            if (isset($data['first_grading']) || isset($data['second_grading']) || isset($data['third_grading']) || isset($data['fourth_grading']) || isset($data['final_rating']) || isset($data['remarks'])) {
+            if (isset($data['first_grading']) || isset($data['second_grading']) || isset($data['third_grading']) || isset($data['remarks'])) {
+                $finalAverage = $this->calculateFinalAverage($data);
+
                 TermGrade::where('student_id', $studentId)
                     ->where('section_id', $this->selected_section_id)
                     ->where('subject_id', $this->selected_subject_id)
@@ -113,10 +118,12 @@ class Grading extends Component
                     'first_grading'  => $data['first_grading'] ?? null,
                     'second_grading' => $data['second_grading'] ?? null,
                     'third_grading'  => $data['third_grading'] ?? null,
-                    'fourth_grading' => $data['fourth_grading'] ?? null,
-                    'final_rating'   => $data['final_rating'] ?? null,
+                    'fourth_grading' => null,
+                    'final_rating'   => $finalAverage,
                     'remarks'        => $data['remarks'] ?? null,
                 ]);
+
+                $this->termGrades[$studentId]['final_rating'] = $finalAverage;
             }
         }
 
@@ -143,7 +150,7 @@ class Grading extends Component
         return response()->streamDownload(function () use ($students, $termGrades) {
             $file = fopen('php://output', 'w');
 
-            $columns = ['#', 'Name', 'Student LRN', '1st Grading', '2nd Grading', '3rd Grading', '4th Grading', 'Final Average', 'Remarks'];
+            $columns = ['#', 'Name', 'Student LRN', '1st Term', '2nd Term', '3rd Term', 'Final Average', 'Remarks'];
             fputcsv($file, $columns);
 
             foreach ($students as $index => $record) {
@@ -157,8 +164,7 @@ class Grading extends Component
                     $gradeData['first_grading'] ?? '',
                     $gradeData['second_grading'] ?? '',
                     $gradeData['third_grading'] ?? '',
-                    $gradeData['fourth_grading'] ?? '',
-                    $gradeData['final_rating'] ?? '',
+                    $this->calculateFinalAverage($gradeData) ?? '',
                     $gradeData['remarks'] ?? '',
                 ];
 
@@ -180,6 +186,7 @@ class Grading extends Component
         $path = $this->gradeFile->getRealPath();
         if (($file = fopen($path, 'r')) !== false) {
             $header = fgetcsv($file); // Skip header
+            $remarksIndex = count($header ?? []) >= 9 ? 8 : 7;
 
             $lrnMap = [];
             $nameMap = [];
@@ -194,7 +201,7 @@ class Grading extends Component
             }
 
             while (($row = fgetcsv($file)) !== false) {
-                if (count($row) >= 8) {
+                if (count($row) >= 6) {
                     $name = $row[1];
                     $lrn = $row[2];
 
@@ -210,11 +217,14 @@ class Grading extends Component
                             'first_grading' => $row[3] !== '' ? $row[3] : null,
                             'second_grading' => $row[4] !== '' ? $row[4] : null,
                             'third_grading' => $row[5] !== '' ? $row[5] : null,
-                            'fourth_grading' => $row[6] !== '' ? $row[6] : null,
-                            'final_rating' => isset($row[8]) && $row[7] !== '' ? $row[7] : null,
-                            'remarks' => isset($row[8])
-                                ? ($row[8] !== '' ? $row[8] : null)
-                                : ($row[7] !== '' ? $row[7] : null),
+                            'final_rating' => $this->calculateFinalAverage([
+                                'first_grading' => $row[3] !== '' ? $row[3] : null,
+                                'second_grading' => $row[4] !== '' ? $row[4] : null,
+                                'third_grading' => $row[5] !== '' ? $row[5] : null,
+                            ]),
+                            'remarks' => isset($row[$remarksIndex]) && $row[$remarksIndex] !== ''
+                                ? $row[$remarksIndex]
+                                : null,
                         ];
                     }
                 }
@@ -224,6 +234,21 @@ class Grading extends Component
 
         $this->gradeFile = null;
         sweetalert()->success('Grades imported from file. Please review and click "Save Grades" to apply changes.');
+    }
+
+    public function calculateFinalAverage(array $data): ?int
+    {
+        $grades = array_filter([
+            $data['first_grading'] ?? null,
+            $data['second_grading'] ?? null,
+            $data['third_grading'] ?? null,
+        ], fn($value) => is_numeric($value));
+
+        if (count($grades) === 0) {
+            return null;
+        }
+
+        return (int) round(array_sum($grades) / count($grades), 0);
     }
 
     public function render()

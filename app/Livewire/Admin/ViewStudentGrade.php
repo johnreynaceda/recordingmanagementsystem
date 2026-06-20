@@ -129,7 +129,6 @@ class ViewStudentGrade extends Component
                 $first->first_grading,
                 $first->second_grading,
                 $first->third_grading,
-                $first->fourth_grading,
             ], fn ($v) => $v !== null && $v !== '');
 
             $final = $first->final_rating !== null && $first->final_rating !== ''
@@ -143,8 +142,8 @@ class ViewStudentGrade extends Component
                 'first_grading' => $first->first_grading,
                 'second_grading' => $first->second_grading,
                 'third_grading' => $first->third_grading,
-                'fourth_grading' => $first->fourth_grading,
                 'final_rating' => $final,
+                'remarks' => $first->remarks,
             ];
         })->values()->toArray();
 
@@ -193,7 +192,7 @@ class ViewStudentGrade extends Component
             ['Grade Level', $this->studentRecordInfo['grade_level'] ?? $this->studentGradeLevel ?? 'N/A'],
             ['Section', $this->studentRecordInfo['section'] ?? 'N/A'],
             [],
-            ['Learning Area', '1st Grading', '2nd Grading', '3rd Grading', '4th Grading', 'Final Rating'],
+            ['Learning Area', '1st Term', '2nd Term', '3rd Term', 'Final Average', 'Remarks'],
         ];
 
         foreach ($this->termGrades as $row) {
@@ -202,15 +201,15 @@ class ViewStudentGrade extends Component
                 $row['first_grading'] ?? '',
                 $row['second_grading'] ?? '',
                 $row['third_grading'] ?? '',
-                $row['fourth_grading'] ?? '',
                 $row['final_rating'] ?? '',
+                $row['remarks'] ?? '',
             ];
         }
 
         $finals = array_filter(array_column($this->termGrades, 'final_rating'), fn ($value) => $value !== null && $value !== '');
         $generalAverage = count($finals) > 0 ? round(array_sum($finals) / count($finals), 0) : '';
         $rows[] = [];
-        $rows[] = ['General Average', '', '', '', '', $generalAverage];
+        $rows[] = ['General Average', '', '', '', $generalAverage, ''];
 
         return $this->downloadCsv($this->exportFilename('student-grades'), $rows);
     }

@@ -296,7 +296,7 @@ class StudentRecord extends Component
             fputcsv($file, [$studentName]);
             fputcsv($file, []);
 
-            $columns = ['#', 'Learning Area', '1st Grading', '2nd Grading', '3rd Grading', '4th Grading', 'Final Rating', 'Remarks'];
+            $columns = ['#', 'Learning Area', '1st Term', '2nd Term', '3rd Term', 'Final Average', 'Remarks'];
             fputcsv($file, $columns);
 
             foreach ($termGrades as $index => $row) {
@@ -306,7 +306,6 @@ class StudentRecord extends Component
                     $row->first_grading ?? '',
                     $row->second_grading ?? '',
                     $row->third_grading ?? '',
-                    $row->fourth_grading ?? '',
                     $row->final_rating ?? '',
                     $row->remarks ?? '',
                 ]);
@@ -316,7 +315,7 @@ class StudentRecord extends Component
             $generalAverage = count($allFinals) > 0 ? round(array_sum($allFinals) / count($allFinals), 0) : null;
 
             fputcsv($file, []);
-            fputcsv($file, ['', 'General Average', '', '', '', '', $generalAverage ?? '']);
+            fputcsv($file, ['', 'General Average', '', '', '', $generalAverage ?? '', '']);
 
             fclose($file);
         }, $fileName);

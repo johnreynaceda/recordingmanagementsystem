@@ -92,7 +92,6 @@ class MyGrade extends Component
                 $first->first_grading,
                 $first->second_grading,
                 $first->third_grading,
-                $first->fourth_grading,
             ], fn($v) => $v !== null && $v !== '');
 
             $final = $first->final_rating !== null && $first->final_rating !== ''
@@ -106,8 +105,8 @@ class MyGrade extends Component
                 'first_grading'   => $first->first_grading,
                 'second_grading'  => $first->second_grading,
                 'third_grading'   => $first->third_grading,
-                'fourth_grading'  => $first->fourth_grading,
                 'final_rating'    => $final,
+                'remarks'         => $first->remarks,
             ];
         })->values()->toArray();
 

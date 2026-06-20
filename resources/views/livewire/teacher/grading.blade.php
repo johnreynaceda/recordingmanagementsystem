@@ -83,10 +83,9 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student LRN</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">1st Grading</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">2nd Grading</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">3rd Grading</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">4th Grading</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">1st Term</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">2nd Term</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">3rd Term</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Final Average</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
                             </tr>
@@ -104,19 +103,19 @@
                                         <input type="text" readonly class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm bg-gray-50 sm:text-sm py-2 px-3 focus:outline-none focus:ring-0 focus:border-gray-300 min-w-[140px]" value="{{ $record->student->lrn ?? 'N/A' }}">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.first_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model.live="termGrades.{{ $record->student_id }}.first_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.second_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model.live="termGrades.{{ $record->student_id }}.second_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.third_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model.live="termGrades.{{ $record->student_id }}.third_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.fourth_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model="termGrades.{{ $record->student_id }}.final_rating" class="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        @php
+                                            $finalAverage = $this->calculateFinalAverage($termGrades[$record->student_id] ?? []);
+                                        @endphp
+                                        <input type="number" readonly class="mt-1 block w-24 rounded-md border border-gray-300 shadow-sm bg-gray-50 sm:text-sm py-2 px-3 text-center focus:outline-none focus:ring-0 focus:border-gray-300" value="{{ $finalAverage }}">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <input type="text" wire:model="termGrades.{{ $record->student_id }}.remarks" class="mt-1 block w-full min-w-[120px] rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border">

@@ -261,14 +261,17 @@
                                                     class="grid grid-cols-12 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-widest">
                                                     <div class="col-span-5 px-6 py-4 flex items-center">Learning Area
                                                     </div>
-                                                    @foreach (['1st', '2nd', '3rd', '4th'] as $q)
+                                                    @foreach (['1st Term', '2nd Term', '3rd Term'] as $q)
                                                         <div
                                                             class="col-span-1 px-2 py-4 text-center flex items-center justify-center">
                                                             {{ $q }}</div>
                                                     @endforeach
                                                     <div
-                                                        class="col-span-3 px-4 py-4 text-center flex items-center justify-center">
-                                                        Final Rating</div>
+                                                        class="col-span-2 px-4 py-4 text-center flex items-center justify-center">
+                                                        Final Average</div>
+                                                    <div
+                                                        class="col-span-2 px-4 py-4 text-left flex items-center">
+                                                        Remarks</div>
                                                 </div>
 
                                                 @foreach ($termGrades as $index => $row)
@@ -284,7 +287,7 @@
                                                                 class="font-semibold text-gray-700 text-sm">{{ $row->subject->subject_name ?? '' }}</span>
                                                         </div>
 
-                                                        @foreach (['first_grading', 'second_grading', 'third_grading', 'fourth_grading'] as $period)
+                                                        @foreach (['first_grading', 'second_grading', 'third_grading'] as $period)
                                                             <div class="col-span-1 px-2 py-4 text-center">
                                                                 @if (!empty($row->$period))
                                                                     <span
@@ -298,7 +301,7 @@
                                                             </div>
                                                         @endforeach
 
-                                                        <div class="col-span-3 px-4 py-4 text-center">
+                                                        <div class="col-span-2 px-4 py-4 text-center">
                                                             @if (!empty($row->final_rating))
                                                                 <span
                                                                     class="inline-flex items-center justify-center w-14 h-10 rounded-xl text-base font-extrabold shadow-sm {{ (float) $row->final_rating >= 75 ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}">
@@ -307,6 +310,9 @@
                                                             @else
                                                                 <span class="text-gray-300 text-lg">—</span>
                                                             @endif
+                                                        </div>
+                                                        <div class="col-span-2 px-4 py-4 text-sm text-gray-600">
+                                                            {{ $row->remarks ?: '—' }}
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -325,10 +331,10 @@
                                                 @endphp
                                                 <div class="grid grid-cols-12 items-center bg-blue-100 text-blue-800">
                                                     <div
-                                                        class="col-span-9 px-6 py-5 font-bold text-sm uppercase tracking-wider">
+                                                        class="col-span-8 px-6 py-5 font-bold text-sm uppercase tracking-wider">
                                                         General Average
                                                     </div>
-                                                    <div class="col-span-3 px-4 py-5 text-center">
+                                                    <div class="col-span-2 px-4 py-5 text-center">
                                                         @if ($generalAverage)
                                                             <span
                                                                 class="inline-flex items-center justify-center w-16 h-10 rounded-xl text-lg font-extrabold shadow {{ $generalAverage >= 75 ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}">
@@ -338,6 +344,7 @@
                                                             <span class="text-gray-400">—</span>
                                                         @endif
                                                     </div>
+                                                    <div class="col-span-2 px-4 py-5"></div>
                                                 </div>
                                             </div>
                                         @else

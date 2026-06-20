@@ -8,7 +8,7 @@
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-red-200">Document Requests</p>
                     <h1 class="mt-2 text-2xl font-bold sm:text-3xl">Request school records</h1>
                     <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-                        Submit a request for Form 137 or Form 138 and track its review status by academic year.
+                        Submit a request for SF 10 or SF 9 and track its review status by academic year.
                     </p>
                 </div>
 
@@ -68,14 +68,18 @@
                             <tr class="transition hover:bg-slate-50">
                                 <td class="px-4 py-4">
                                     <p class="font-bold text-slate-900">{{ $request->name }}</p>
-                                    <p class="mt-1 text-sm font-semibold text-main">Form {{ $request->option }}</p>
+                                    <p class="mt-1 text-sm font-semibold text-main">{{ $request->option }}</p>
                                 </td>
                                 <td class="px-4 py-4 text-sm text-slate-600">
                                     <p class="font-medium text-slate-800">{{ $request->email_address }}</p>
                                     <p class="mt-1">{{ $request->phone_number }}</p>
                                 </td>
                                 <td class="max-w-md px-4 py-4 text-sm text-slate-600">
+                                    <p><span class="font-semibold text-slate-800">Last Year Attended:</span> {{ $request->lastYearAttended->name ?? 'N/A' }}</p>
+                                    <p class="mt-1"><span class="font-semibold text-slate-800">Section:</span> {{ $request->section->name ?? 'N/A' }}</p>
+                                    <p class="mt-2">
                                     {{ $request->additional_information ?: 'No additional information provided.' }}
+                                    </p>
                                 </td>
                                 <td class="px-4 py-4 text-sm font-medium text-slate-700">
                                     {{ $request->created_at->format('M d, Y') }}
@@ -108,7 +112,7 @@
                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                         <div class="flex items-start justify-between gap-3">
                             <div>
-                                <p class="font-bold text-slate-950">Form {{ $request->option }}</p>
+                                <p class="font-bold text-slate-950">{{ $request->option }}</p>
                                 <p class="mt-1 text-sm text-slate-500">{{ $request->created_at->format('M d, Y, g:i A') }}</p>
                             </div>
 
@@ -124,6 +128,8 @@
                         <div class="mt-4 grid gap-3 text-sm text-slate-600">
                             <p><span class="font-semibold text-slate-800">Email:</span> {{ $request->email_address }}</p>
                             <p><span class="font-semibold text-slate-800">Phone:</span> {{ $request->phone_number }}</p>
+                            <p><span class="font-semibold text-slate-800">Last Year Attended:</span> {{ $request->lastYearAttended->name ?? 'N/A' }}</p>
+                            <p><span class="font-semibold text-slate-800">Section:</span> {{ $request->section->name ?? 'N/A' }}</p>
                             <p><span class="font-semibold text-slate-800">Details:</span> {{ $request->additional_information ?: 'No additional information provided.' }}</p>
                         </div>
                     </div>
@@ -200,10 +206,40 @@
                         class="mt-2 block w-full rounded-lg border-slate-200 shadow-sm focus:border-main focus:ring-main"
                         required>
                         <option value="">Select a document</option>
-                        <option value="137">Form 137</option>
-                        <option value="138">Form 138</option>
+                        <option value="SF 10 (Permanent Record)">SF 10 (Permanent Record)</option>
+                        <option value="SF 9 (Report Card)">SF 9 (Report Card)</option>
                     </select>
                     @error('option')
+                        <span class="mt-1 block text-sm text-red-600">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="last_year_attended" class="block text-sm font-semibold text-slate-700">Last Year Attended</label>
+                    <select id="last_year_attended" wire:model.live="last_year_attended_id"
+                        class="mt-2 block w-full rounded-lg border-slate-200 shadow-sm focus:border-main focus:ring-main"
+                        required>
+                        <option value="">Select academic year</option>
+                        @foreach ($request_academic_years as $year)
+                            <option value="{{ $year->id }}">{{ $year->name }} {{ $year->is_active ? '(Active)' : '' }}</option>
+                        @endforeach
+                    </select>
+                    @error('last_year_attended_id')
+                        <span class="mt-1 block text-sm text-red-600">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="section_id" class="block text-sm font-semibold text-slate-700">Section</label>
+                    <select id="section_id" wire:model="section_id"
+                        class="mt-2 block w-full rounded-lg border-slate-200 shadow-sm focus:border-main focus:ring-main"
+                        required>
+                        <option value="">Select section</option>
+                        @foreach ($sections as $section)
+                            <option value="{{ $section->id }}">{{ $section->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('section_id')
                         <span class="mt-1 block text-sm text-red-600">{{ $message }}</span>
                     @enderror
                 </div>

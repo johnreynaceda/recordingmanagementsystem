@@ -17,4 +17,12 @@ class request extends Model
     public function academicYear(){
         return $this->belongsTo(AcademicYear::class);
     }
+
+    public function lastYearAttended(){
+        return $this->belongsTo(AcademicYear::class, 'last_year_attended_id');
+    }
+
+    public function section(){
+        return $this->belongsTo(Section::class);
+    }
 }

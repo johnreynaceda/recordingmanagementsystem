@@ -33,13 +33,16 @@ class Request extends Component implements HasForms, HasTable
     {
         return $table
             ->query(\App\Models\request::query()
+                ->with(['academicYear', 'lastYearAttended', 'section', 'user'])
                 ->where('academic_year_id', $this->selected_academic_year_id)
                 ->orderByDesc('created_at'))
             ->columns([
                 TextColumn::make('name')->label('NAME')->searchable(),
                 TextColumn::make('email_address')->label('EMAIL')->searchable(),
                 TextColumn::make('phone_number')->label('PHONE NUMBER')->searchable(),
-                TextColumn::make('option')->label('FORM')->searchable(),
+                TextColumn::make('option')->label('DOCUMENT TYPE')->searchable(),
+                TextColumn::make('lastYearAttended.name')->label('LAST YEAR ATTENDED')->searchable(),
+                TextColumn::make('section.name')->label('SECTION')->searchable(),
                 TextColumn::make('additional_information')->words(3)->label('ADDITIONAL INFO')->searchable(),
                 TextColumn::make('academicYear.name')->label('ACADEMIC YEAR')->searchable(),
                 TextColumn::make('created_at')->label('REQUESTED AT')->date(),
@@ -63,7 +66,7 @@ class Request extends Component implements HasForms, HasTable
                 ActionGroup::make([
                     Action::make('approve')->color('success')->icon('heroicon-s-hand-thumb-up')->action(
                         function ($record) {
-                            $record->user->notify(new RequestApprovedNotification('Form ' . $record->option));
+                            $record->user->notify(new RequestApprovedNotification($record->option));
                             $record->update(['status' => 'approved']);
                         }
                     ),
