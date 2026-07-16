@@ -34,7 +34,7 @@ class AcademicYear extends Model
 
     public function requests(): HasMany
     {
-        return $this->hasMany(request::class);
+        return $this->hasMany(Request::class);
     }
 
     public function scopeActive($query)

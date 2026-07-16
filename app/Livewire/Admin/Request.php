@@ -32,7 +32,7 @@ class Request extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(\App\Models\request::query()
+            ->query(\App\Models\Request::query()
                 ->with(['academicYear', 'lastYearAttended', 'section', 'user'])
                 ->where('academic_year_id', $this->selected_academic_year_id)
                 ->orderByDesc('created_at'))

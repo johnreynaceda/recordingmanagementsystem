@@ -42,7 +42,7 @@ class Student extends Model
 
     public function requests()
     {
-        return $this->hasMany(request::class);
+        return $this->hasMany(Request::class);
     }
 
     public function notification()
