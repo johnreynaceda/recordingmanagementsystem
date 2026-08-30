@@ -32,17 +32,29 @@
         <div class="grid gap-6 bg-slate-50 p-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:p-6">
             @if (auth()->user()->user_type == 'admin')
                 <aside class="space-y-4">
+                    @if (session('calendar_message'))
+                        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+                            {{ session('calendar_message') }}
+                        </div>
+                    @endif
+
                     <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                         <div class="mb-4">
-                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-main">Create Event</p>
-                            <h3 class="mt-1 text-lg font-bold text-slate-950">Add a schedule</h3>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-main">
+                                {{ $editingEventId ? 'Edit Event' : 'Create Event' }}
+                            </p>
+                            <h3 class="mt-1 text-lg font-bold text-slate-950">
+                                {{ $editingEventId ? 'Update this schedule' : 'Add a schedule' }}
+                            </h3>
                         </div>
 
                         {{ $this->form }}
 
                         <button type="button" wire:click="saveEvent" wire:loading.attr="disabled" wire:target="saveEvent"
                             class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-main px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-600 disabled:cursor-wait disabled:opacity-70">
-                            <span wire:loading.remove wire:target="saveEvent">Save Event</span>
+                            <span wire:loading.remove wire:target="saveEvent">
+                                {{ $editingEventId ? 'Update Event' : 'Save Event' }}
+                            </span>
                             <span wire:loading wire:target="saveEvent">Saving...</span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -50,6 +62,21 @@
                                 <path d="m12 5 7 7-7 7" />
                             </svg>
                         </button>
+
+                        @if ($editingEventId)
+                            <div class="mt-3 grid grid-cols-2 gap-2">
+                                <button type="button" wire:click="cancelEdit"
+                                    class="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    Cancel
+                                </button>
+                                <button type="button" wire:click="deleteEvent({{ $editingEventId }})"
+                                    wire:confirm="Are you sure you want to delete this event?"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100">
+                                    <x-heroicon-o-trash class="h-4 w-4" />
+                                    Delete
+                                </button>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -71,14 +98,30 @@
 
                         <div class="space-y-3">
                             @forelse ($upcoming_events as $event)
-                                <div class="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                                    <p class="line-clamp-2 text-sm font-bold text-slate-900">{{ $event->title }}</p>
-                                    <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        {{ \Carbon\Carbon::parse($event->start_date)->format('M d, Y') }}
-                                        @if ($event->start_date !== $event->end_date)
-                                            - {{ \Carbon\Carbon::parse($event->end_date)->format('M d, Y') }}
-                                        @endif
-                                    </p>
+                                <div class="group rounded-lg border border-slate-100 bg-slate-50 p-3 transition hover:border-red-200 hover:bg-red-50/50">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <p class="line-clamp-2 text-sm font-bold text-slate-900">{{ $event->title }}</p>
+                                            <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                {{ \Carbon\Carbon::parse($event->start_date)->format('M d, Y') }}
+                                                @if ($event->start_date !== $event->end_date)
+                                                    - {{ \Carbon\Carbon::parse($event->end_date)->format('M d, Y') }}
+                                                @endif
+                                            </p>
+                                        </div>
+                                        <div class="flex shrink-0 items-center gap-1">
+                                            <button type="button" wire:click="editEvent({{ $event->id }})"
+                                                title="Edit event"
+                                                class="rounded-md p-1.5 text-slate-400 transition hover:bg-white hover:text-blue-600 hover:shadow-sm">
+                                                <x-heroicon-o-pencil-square class="h-4 w-4" />
+                                            </button>
+                                            <button type="button" wire:click="deleteEvent({{ $event->id }})"
+                                                wire:confirm="Are you sure you want to delete this event?" title="Delete event"
+                                                class="rounded-md p-1.5 text-slate-400 transition hover:bg-white hover:text-red-600 hover:shadow-sm">
+                                                <x-heroicon-o-trash class="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             @empty
                                 <div class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
@@ -92,7 +135,7 @@
 
             <section
                 class="{{ auth()->user()->user_type != 'admin' ? 'lg:col-span-2' : '' }} calendar-shell rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5"
-                x-data="calendarComponent(@entangle('events'))">
+                x-data="calendarComponent(@entangle('events'), @js(auth()->user()->user_type === 'admin'))">
                 <div id="calendar" wire:ignore></div>
             </section>
         </div>
@@ -102,8 +145,9 @@
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
         <script>
             document.addEventListener('alpine:init', () => {
-                Alpine.data('calendarComponent', (events) => ({
+                Alpine.data('calendarComponent', (events, canManage) => ({
                     events,
+                    canManage,
                     calendar: null,
                     tooltip: null,
 
@@ -126,6 +170,12 @@
                                 list: 'List',
                             },
                             eventClassNames: 'school-calendar-event',
+                            eventClick: (info) => {
+                                if (this.canManage) {
+                                    this.hideTooltip();
+                                    this.$wire.editEvent(Number(info.event.id));
+                                }
+                            },
                             eventMouseEnter: (info) => this.showTooltip(info),
                             eventMouseLeave: () => this.hideTooltip(),
                         });

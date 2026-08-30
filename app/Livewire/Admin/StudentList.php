@@ -99,7 +99,7 @@ class StudentList extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-user-plus')
                     ->iconPosition(IconPosition::Before)
                     ->color('danger')
-                    ->url(fn(): string => route('admin.students-create')),
+                    ->url(fn (): string => route('admin.students-create')),
             ])
             ->columns([
                 Grid::make(1)
@@ -230,7 +230,7 @@ class StudentList extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-trash'),
 
                 ActionGroup::make([
-                    Action::make('view')->label('View Record')->icon('heroicon-o-viewfinder-circle')->color('success')->url(fn(Student $record): string => route('admin.students-record', $record))
+                    Action::make('view')->label('View Record')->icon('heroicon-o-viewfinder-circle')->color('success')->url(fn (Student $record): string => route('admin.students-record', $record))
                         ->openUrlInNewTab(),
                     Action::make('change')->label('Change Password')->icon('heroicon-m-key')->form([
                         TextInput::make('password')->password()->required()->revealable(),
@@ -244,7 +244,50 @@ class StudentList extends Component implements HasForms, HasTable
                         ->label('View Grades')
                         ->icon('heroicon-o-document-chart-bar')
                         ->color('info')
-                        ->url(fn(Student $record): string => route('admin.student-grades', $record->id)),
+                        ->url(fn (Student $record): string => route('admin.student-grades', $record->id)),
+                    Action::make('attendance')
+                        ->label('View Attendance')
+                        ->icon('heroicon-o-document-chart-bar')
+                        ->color('info')
+                        ->url(fn (Student $record): string => route('admin.student-attendance', $record->id)),
+                    // ActionGroup::make([
+                    //     Action::make('attendance_report')
+                    //         ->label('Attendance Report')
+                    //         ->icon('heroicon-o-calendar-days')
+                    //         ->color('info')
+                    //         ->url(fn (Student $record): string => route('admin.student-attendance', [
+                    //             'student' => $record,
+                    //             'academic_year_id' => $this->studentRecordFilters()['academic_year_id'],
+                    //         ])),
+                    //     ActionGroup::make([
+                    //         Action::make('attendance_pdf')
+                    //             ->label('Export as PDF')
+                    //             ->icon('heroicon-o-document-arrow-down')
+                    //             ->color('danger')
+                    //             ->url(fn (Student $record): string => route('admin.student-attendance.export', [
+                    //                 'student' => $record,
+                    //                 'format' => 'pdf',
+                    //                 'academic_year_id' => $this->studentRecordFilters()['academic_year_id'],
+                    //             ]))
+                    //             ->openUrlInNewTab(),
+                    //         Action::make('attendance_excel')
+                    //             ->label('Export as Excel')
+                    //             ->icon('heroicon-o-table-cells')
+                    //             ->color('success')
+                    //             ->url(fn (Student $record): string => route('admin.student-attendance.export', [
+                    //                 'student' => $record,
+                    //                 'format' => 'excel',
+                    //                 'academic_year_id' => $this->studentRecordFilters()['academic_year_id'],
+                    //             ]))
+                    //             ->openUrlInNewTab(),
+                    //     ])
+                    //         ->label('Export Attendance')
+                    //         ->icon('heroicon-o-arrow-down-tray')
+                    //         ->dropdownWidth('sm'),
+                    // ])
+                    //     ->label('View Attendance')
+                    //     ->icon('heroicon-o-clipboard-document-check')
+                    //     ->dropdownWidth('sm'),
                 ])
                     ->label('More')
                     ->icon('heroicon-o-ellipsis-horizontal-circle')
@@ -261,7 +304,7 @@ class StudentList extends Component implements HasForms, HasTable
                     ->label('New Student')
                     ->icon('heroicon-o-user-plus')
                     ->color('danger')
-                    ->url(fn(): string => route('admin.students-create')),
+                    ->url(fn (): string => route('admin.students-create')),
             ]);
     }
 

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\StudentAttendanceExportController;
 use App\Http\Controllers\ProfileController;
+use App\Livewire\Admin\ViewStudentAttendance;
 use App\Livewire\Auth\FacultyStaffLogin;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\StudentLogin;
@@ -24,7 +26,6 @@ Route::get('/announcements', function () {
 
 Route::get('/student-login', StudentLogin::class)->name('student-login');
 Route::get('/faculty-staff-login', FacultyStaffLogin::class)->name('faculty-staff-login');
-
 Route::get('/dashboard', function () {
     switch (auth()->user()->user_type) {
         case 'admin':
@@ -81,6 +82,11 @@ Route::prefix('administrator')->middleware(['auth', 'verified'])->group(function
         return view('admin.view-student-grades', ['studentId' => $id]);
     })->name('admin.student-grades');
 
+    Route::get('/students/{student}/attendance', ViewStudentAttendance::class)
+        ->name('admin.student-attendance');
+    Route::get('/students/{student}/attendance/export/{format}', StudentAttendanceExportController::class)
+        ->name('admin.student-attendance.export');
+
     Route::get('/view-student-grades', function () {
         return view('admin.view-student-grades');
     })->name('admin.view-student-grades');
@@ -127,6 +133,12 @@ Route::prefix('teacher')->middleware(['auth', 'verified'])->group(function () {
         return view('teacher.view-records');
     })->name('teacher.view-records');
 
+    Route::get('/students/create', function () {
+        abort_unless(auth()->user()?->user_type === 'teacher', 403);
+
+        return view('teacher.students-create');
+    })->name('teacher.students-create');
+
     Route::redirect('/attendance', '/teacher/attendance-and-grading');
     Route::redirect('/grading', '/teacher/attendance-and-grading');
 
@@ -135,7 +147,7 @@ Route::prefix('teacher')->middleware(['auth', 'verified'])->group(function () {
     })->name('teacher.calendar');
 });
 
-Route::prefix('student')->middleware(['auth', 'verified'])->group(function () {
+Route::prefix('student')->middleware(['auth', 'verified', 'student.password.changed'])->group(function () {
     Route::get('/dashboard', function () {
         return view('student.index');
     }

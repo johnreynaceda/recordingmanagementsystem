@@ -34,8 +34,24 @@ class Record extends Component implements HasForms, HasTable
                 TextInput::make('lastname')->required(),
                 DatePicker::make('birthdate')->required(),
                 TextInput::make('address')->required(),
-                TextInput::make('contact_number')->nullable(),
-                TextInput::make('lrn')->nullable(),
+                TextInput::make('contact_number')
+                    ->label('Contact Number')
+                    ->tel()
+                    ->placeholder('+639171234567')
+                    ->helperText('Use +63 followed by 10 digits.')
+                    ->maxLength(13)
+                    ->rules(['regex:/^\+63\d{10}$/'])
+                    ->nullable(),
+                TextInput::make('lrn')
+                    ->label('LRN')
+                    ->placeholder('12-digit LRN')
+                    ->length(12)
+                    ->rules(['digits:12'])
+                    ->extraInputAttributes([
+                        'inputmode' => 'numeric',
+                        'pattern' => '[0-9]{12}',
+                    ])
+                    ->nullable(),
                 FileUpload::make('image_path')->image()->label('Image')->columnSpanFull(),
             ])->columns(2),
             Fieldset::make('Academic Details')->schema([

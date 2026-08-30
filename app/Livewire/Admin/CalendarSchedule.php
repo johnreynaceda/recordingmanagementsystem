@@ -6,9 +6,9 @@ use App\Models\Event;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Livewire\Component;
 
@@ -19,6 +19,9 @@ class CalendarSchedule extends Component implements HasForms
     public $title, $start_date, $end_date;
 
     public $events = [];
+
+    public ?int $editingEventId = null;
+
     public string $audience = 'admin';
 
     public function mount()
@@ -29,7 +32,7 @@ class CalendarSchedule extends Component implements HasForms
     public function loadEvents()
     {
         $this->events = Event::get()->map(
-            function($event) {
+            function ($event) {
                 return [
                     'id' => $event->id,
                     'title' => $event->title,
@@ -62,23 +65,90 @@ class CalendarSchedule extends Component implements HasForms
             ]);
     }
 
-    public function saveEvent(){
+    public function saveEvent(): void
+    {
+        $this->ensureAdmin();
+
+        $startDateRules = ['required', 'date'];
+        $endDateRules = ['required', 'date', 'after_or_equal:start_date'];
+
+        if ($this->editingEventId === null) {
+            $startDateRules[] = 'after_or_equal:today';
+            $endDateRules[] = 'after_or_equal:today';
+        }
+
         $this->validate([
-            'title' => 'required|string|max:255',
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after_or_equal:start_date|after_or_equal:today',
+            'title' => ['required', 'string', 'max:255'],
+            'start_date' => $startDateRules,
+            'end_date' => $endDateRules,
         ], [
             'start_date.after_or_equal' => 'The start date cannot be in the past.',
             'end_date.after_or_equal' => 'The end date cannot be before the start date or in the past.',
         ]);
 
-        Event::create([
+        $eventData = [
             'title' => $this->title,
             'start_date' => Carbon::parse($this->start_date),
             'end_date' => Carbon::parse($this->end_date),
-        ]);
+        ];
 
-        return redirect()->route('admin.calendar');
+        if ($this->editingEventId) {
+            Event::findOrFail($this->editingEventId)->update($eventData);
+        } else {
+            Event::create($eventData);
+        }
+
+        session()->flash(
+            'calendar_message',
+            $this->editingEventId ? 'Event updated successfully.' : 'Event created successfully.',
+        );
+
+        $this->resetEventForm();
+        $this->loadEvents();
+    }
+
+    public function editEvent(int $eventId): void
+    {
+        $this->ensureAdmin();
+
+        $event = Event::findOrFail($eventId);
+
+        $this->editingEventId = $event->id;
+        $this->title = $event->title;
+        $this->start_date = Carbon::parse($event->start_date)->toDateString();
+        $this->end_date = Carbon::parse($event->end_date)->toDateString();
+        $this->resetValidation();
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->ensureAdmin();
+        $this->resetEventForm();
+    }
+
+    public function deleteEvent(int $eventId): void
+    {
+        $this->ensureAdmin();
+
+        Event::findOrFail($eventId)->delete();
+
+        if ($this->editingEventId === $eventId) {
+            $this->resetEventForm();
+        }
+
+        $this->loadEvents();
+        session()->flash('calendar_message', 'Event deleted successfully.');
+    }
+
+    private function resetEventForm(): void
+    {
+        $this->reset(['editingEventId', 'title', 'start_date', 'end_date']);
+        $this->resetValidation();
+    }
+
+    private function ensureAdmin(): void
+    {
+        abort_unless(auth()->user()?->user_type === 'admin', 403);
     }
 
 

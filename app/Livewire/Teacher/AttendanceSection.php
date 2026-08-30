@@ -40,14 +40,18 @@ class AttendanceSection extends Component implements HasForms, HasTable
         return $table
             ->query(
                 StudentRecord::query()
-                    ->where('is_active', true)
-                    ->where('academic_year_id', $this->selected_academic_year_id)
+                    ->join('students', 'students.id', '=', 'student_records.student_id')
+                    ->where('student_records.is_active', true)
+                    ->where('student_records.academic_year_id', $this->selected_academic_year_id)
                     ->when($this->section_id, function ($query) {
-                        $query->where('section_id', $this->section_id);
-                    })->orderBy('lastname', 'asc')
+                        $query->where('student_records.section_id', $this->section_id);
+                    })
+                    ->orderBy('students.lastname', 'asc')
+                    ->orderBy('students.firstname', 'asc')
+                    ->select('student_records.*')
             )
             ->columns([
-                TextColumn::make('student')
+                TextColumn::make('student.lastname')
                     ->label('STUDENT NAME')
                     ->formatStateUsing(
                         fn($record) => strtoupper($record->student->lastname . ', ' . $record->student->firstname . ' ' . ($record->student->middlename ? substr($record->student->middlename, 0, 1) . '.' : ''))
@@ -69,7 +73,7 @@ class AttendanceSection extends Component implements HasForms, HasTable
                     ->default($this->selected_academic_year_id)
                     ->query(function ($query, array $data) {
                         if (filled($data['value'])) {
-                            $query->where('academic_year_id', $data['value']);
+                            $query->where('student_records.academic_year_id', $data['value']);
                         }
                     }),
             ])

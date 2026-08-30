@@ -88,12 +88,15 @@ class Profile extends Component
             'firstname' => 'required|string|max:255',
             'middlename' => 'nullable|string|max:255',
             'lastname' => 'required|string|max:255',
-            'contact_number' => 'nullable|string|max:20',
+            'contact_number' => ['nullable', 'string', 'regex:/^\+63\d{10}$/'],
             'parent_name' => 'nullable|string|max:255',
-            'parent_contact' => 'nullable|string|max:20',
+            'parent_contact' => ['nullable', 'string', 'regex:/^\+63\d{10}$/'],
             'birthdate' => 'required|date',
             'address' => 'required|string|max:500',
             'new_image' => 'nullable|image|max:2048', // 2MB Max
+        ], [
+            'contact_number.regex' => 'The contact number must use the +63 international format followed by 10 digits (for example, +639171234567).',
+            'parent_contact.regex' => 'The parent contact number must use the +63 international format followed by 10 digits (for example, +639171234567).',
         ]);
 
         if ($this->new_image) {

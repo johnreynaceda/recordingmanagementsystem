@@ -46,7 +46,12 @@
                             class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">Profile
                         </a>
                         <a href="{{ route('teacher.calendar') }}"
-                            class="mr-5 font-medium leading-6 text-gray-600 hover:text-main">Calendar
+                            class="{{ request()->routeIs('teacher.calendar') ? 'text-main' : '' }} mr-5 font-medium leading-6 text-gray-600 hover:text-main">Calendar
+                        </a>
+                        <a href="{{ route('teacher.students-create') }}"
+                            class="inline-flex items-center gap-2 rounded-lg bg-main px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 {{ request()->routeIs('teacher.students-create') ? 'ring-2 ring-red-300 ring-offset-2' : '' }}">
+                            <x-heroicon-o-user-plus class="h-4 w-4" />
+                            Enroll Student
                         </a>
 
                     </nav>

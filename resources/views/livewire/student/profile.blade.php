@@ -114,7 +114,9 @@
 
                                 <div class="space-y-1">
                                     <label class="block text-sm font-semibold text-gray-700">Contact Number</label>
-                                    <input type="text" wire:model="contact_number" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
+                                    <input type="tel" wire:model="contact_number" placeholder="+639171234567"
+                                        maxlength="13" inputmode="tel" pattern="\+63[0-9]{10}"
+                                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
                                     @error('contact_number') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                                 </div>
 
@@ -126,7 +128,9 @@
 
                                 <div class="space-y-1">
                                     <label class="block text-sm font-semibold text-gray-700">Parent Contact</label>
-                                    <input type="text" wire:model="parent_contact" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
+                                    <input type="tel" wire:model="parent_contact" placeholder="+639171234567"
+                                        maxlength="13" inputmode="tel" pattern="\+63[0-9]{10}"
+                                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
                                     @error('parent_contact') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                                 </div>
 

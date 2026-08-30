@@ -18,7 +18,6 @@ use Filament\Forms\Components\ViewField;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Arr;
 use Livewire\Component;
 
@@ -83,7 +82,14 @@ class CreateStudent extends Component implements HasForms
                             fn ($state, callable $set) => $set('lastname', $this->capitalizeNameWhileTyping($state))
                         ),
                     DatePicker::make('birthdate')->required()->reactive(),
-                    TextInput::make('contact_number')->required(),
+                    TextInput::make('contact_number')
+                        ->label('Contact Number')
+                        ->tel()
+                        ->placeholder('+639171234567')
+                        ->helperText('Use +63 followed by 10 digits.')
+                        ->maxLength(13)
+                        ->rules(['regex:/^\+63\d{10}$/'])
+                        ->required(),
                     TextInput::make('address')->required()->columnSpan(2),
                     Select::make('grade_level')
                         ->options(GradeLevel::all()->pluck('name', 'id'))
@@ -101,7 +107,16 @@ class CreateStudent extends Component implements HasForms
 
                 ])->columns(3),
                 Fieldset::make("STUDENT'S ACCOUNT")->schema([
-                    TextInput::make('lrn')->label('LRN')->required(),
+                    TextInput::make('lrn')
+                        ->label('LRN')
+                        ->placeholder('12-digit LRN')
+                        ->length(12)
+                        ->rules(['digits:12'])
+                        ->extraInputAttributes([
+                            'inputmode' => 'numeric',
+                            'pattern' => '[0-9]{12}',
+                        ])
+                        ->required(),
                     TextInput::make('email')->email()->required(),
                     TextInput::make('password')
                         ->password()
@@ -121,6 +136,8 @@ class CreateStudent extends Component implements HasForms
 
     public function submitRecord(bool $createAnother = false)
     {
+        abort_unless(in_array(auth()->user()?->user_type, ['admin', 'teacher'], true), 403);
+
         $this->firstname = $this->normalizeName($this->firstname);
         $this->middlename = $this->normalizeName($this->middlename);
         $this->lastname = $this->normalizeName($this->lastname);
@@ -138,8 +155,11 @@ class CreateStudent extends Component implements HasForms
             'confirm_password' => ['required', 'string', 'max:'.self::MAX_PASSWORD_LENGTH, 'same:password'],
             'student_picture' => ['nullable'],
             'student_picture.*' => ['image', 'max:'.self::MAX_PROFILE_IMAGE_SIZE_KB],
-            'lrn' => ['required', 'string', 'max:50'],
-            'contact_number' => ['required', 'string', 'max:20'],
+            'lrn' => ['required', 'digits:12', 'unique:students,lrn'],
+            'contact_number' => ['required', 'string', 'regex:/^\+63\d{10}$/'],
+        ], [
+            'lrn.digits' => 'The LRN must contain exactly 12 digits.',
+            'contact_number.regex' => 'The contact number must use the +63 international format followed by 10 digits (for example, +639171234567).',
         ]);
 
         $user = User::create([
@@ -175,14 +195,6 @@ class CreateStudent extends Component implements HasForms
             'academic_year_id' => AcademicYear::getActiveYearId(),
         ]);
 
-        try {
-            Password::sendResetLink([
-                'email' => $user->email,
-            ]);
-        } catch (\Exception $e) {
-            \Log::warning('Password reset email failed: '.$e->getMessage());
-        }
-
         if ($createAnother) {
             $this->resetForm();
 
@@ -191,7 +203,7 @@ class CreateStudent extends Component implements HasForms
             return null;
         }
 
-        return redirect()->route('admin.students');
+        return redirect()->to($this->returnUrl());
     }
 
     private function resetForm(): void
@@ -253,6 +265,16 @@ class CreateStudent extends Component implements HasForms
 
     public function render()
     {
-        return view('livewire.create-student');
+        return view('livewire.create-student', [
+            'returnUrl' => $this->returnUrl(),
+            'returnLabel' => auth()->user()?->user_type === 'teacher' ? 'Back to dashboard' : 'Back to list',
+        ]);
+    }
+
+    private function returnUrl(): string
+    {
+        return auth()->user()?->user_type === 'teacher'
+            ? route('teacher.dashboard')
+            : route('admin.students');
     }
 }
