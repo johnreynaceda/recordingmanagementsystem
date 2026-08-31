@@ -1,3 +1,6 @@
+@include('components.new-layout')
+@php return; @endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
