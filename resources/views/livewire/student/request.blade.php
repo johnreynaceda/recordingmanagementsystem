@@ -13,7 +13,7 @@
                 </div>
 
                 <button type="button" wire:click="$set('showModal', true)"
-                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-main px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-200">
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-main px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-200 sm:w-auto">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 5v14" />
@@ -110,18 +110,18 @@
             <div class="space-y-4 lg:hidden">
                 @forelse ($requests as $request)
                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
+                        <div class="flex flex-col items-start gap-3 min-[420px]:flex-row min-[420px]:justify-between">
+                            <div class="min-w-0">
                                 <p class="font-bold text-slate-950">{{ $request->option }}</p>
                                 <p class="mt-1 text-sm text-slate-500">{{ $request->created_at->format('M d, Y, g:i A') }}</p>
                             </div>
 
                             @if ($request->status === 'approved')
-                                <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Approved</span>
+                                <span class="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Approved</span>
                             @elseif ($request->status === 'declined')
-                                <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">Declined</span>
+                                <span class="shrink-0 rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">Declined</span>
                             @else
-                                <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">Pending</span>
+                                <span class="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">Pending</span>
                             @endif
                         </div>
 
@@ -144,12 +144,12 @@
     </div>
 
     <div x-data="{ open: @entangle('showModal') }" x-show="open" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
         role="dialog" aria-modal="true">
         <div x-show="open" x-transition.opacity class="absolute inset-0 bg-slate-950/60" @click="open = false"></div>
 
         <div x-show="open" x-transition
-            class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+            class="relative max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl sm:max-h-[90vh]">
             <div class="border-b border-slate-100 px-5 py-4 sm:px-6">
                 <div class="flex items-center justify-between gap-4">
                     <div>
@@ -192,9 +192,16 @@
 
                 <div>
                     <label for="phone" class="block text-sm font-semibold text-slate-700">Phone Number</label>
-                    <input type="tel" id="phone" wire:model="phone_number"
-                        class="mt-2 block w-full rounded-lg border-slate-200 shadow-sm focus:border-main focus:ring-main"
-                        placeholder="Enter your phone number" required>
+                    <div class="mt-2 flex rounded-lg shadow-sm">
+                        <span
+                            class="inline-flex items-center rounded-l-lg border border-r-0 border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-600">+63</span>
+                        <input type="tel" id="phone" wire:model="phone_number"
+                            class="block w-full rounded-none rounded-r-lg border-slate-200 shadow-none focus:border-main focus:ring-main"
+                            placeholder="9171234567" maxlength="10" inputmode="numeric" pattern="[0-9]{10}"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                            aria-describedby="phone-help" required>
+                    </div>
+                    <p id="phone-help" class="mt-1 text-xs text-slate-500">Enter the 10-digit mobile number only.</p>
                     @error('phone_number')
                         <span class="mt-1 block text-sm text-red-600">{{ $message }}</span>
                     @enderror

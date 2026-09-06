@@ -103,13 +103,31 @@
                                         <input type="text" readonly class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm bg-gray-50 sm:text-sm py-2 px-3 focus:outline-none focus:ring-0 focus:border-gray-300 min-w-[140px]" value="{{ $record->student->lrn ?? 'N/A' }}">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model.live="termGrades.{{ $record->student_id }}.first_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" maxlength="6"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                            wire:model.live="termGrades.{{ $record->student_id }}.first_grading"
+                                            class="mt-1 block w-20 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center @error('termGrades.' . $record->student_id . '.first_grading') border-red-500 @else border-gray-300 @enderror">
+                                        @error('termGrades.' . $record->student_id . '.first_grading')
+                                            <p class="mt-1 w-20 whitespace-normal text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model.live="termGrades.{{ $record->student_id }}.second_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" maxlength="6"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                            wire:model.live="termGrades.{{ $record->student_id }}.second_grading"
+                                            class="mt-1 block w-20 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center @error('termGrades.' . $record->student_id . '.second_grading') border-red-500 @else border-gray-300 @enderror">
+                                        @error('termGrades.' . $record->student_id . '.second_grading')
+                                            <p class="mt-1 w-20 whitespace-normal text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" inputmode="decimal" min="0" max="100" step="0.01" wire:model.live="termGrades.{{ $record->student_id }}.third_grading" class="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center">
+                                        <input type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" maxlength="6"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                                            wire:model.live="termGrades.{{ $record->student_id }}.third_grading"
+                                            class="mt-1 block w-20 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border text-center @error('termGrades.' . $record->student_id . '.third_grading') border-red-500 @else border-gray-300 @enderror">
+                                        @error('termGrades.' . $record->student_id . '.third_grading')
+                                            <p class="mt-1 w-20 whitespace-normal text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php

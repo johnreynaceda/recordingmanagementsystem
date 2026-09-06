@@ -42,7 +42,7 @@ Route::get('/dashboard', function () {
     }
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::prefix('administrator')->middleware(['auth', 'verified'])->group(function () {
+Route::prefix('administrator')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/dashboard', function () {
         return redirect()->route('admin.staffs');
     }
@@ -120,7 +120,7 @@ Route::prefix('administrator')->middleware(['auth', 'verified'])->group(function
     })->name('admin.announcements');
 });
 
-Route::prefix('teacher')->middleware(['auth', 'verified'])->group(function () {
+Route::prefix('teacher')->middleware(['auth', 'verified', 'role:teacher'])->group(function () {
     Route::get('/dashboard', function () {
         return view('teacher.dashboard');
     })->name('teacher.dashboard');
@@ -134,8 +134,6 @@ Route::prefix('teacher')->middleware(['auth', 'verified'])->group(function () {
     })->name('teacher.view-records');
 
     Route::get('/students/create', function () {
-        abort_unless(auth()->user()?->user_type === 'teacher', 403);
-
         return view('teacher.students-create');
     })->name('teacher.students-create');
 
@@ -147,7 +145,7 @@ Route::prefix('teacher')->middleware(['auth', 'verified'])->group(function () {
     })->name('teacher.calendar');
 });
 
-Route::prefix('student')->middleware(['auth', 'verified', 'student.password.changed'])->group(function () {
+Route::prefix('student')->middleware(['auth', 'verified', 'role:student', 'student.password.changed'])->group(function () {
     Route::get('/dashboard', function () {
         return view('student.index');
     }

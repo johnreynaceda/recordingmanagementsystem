@@ -28,8 +28,8 @@ class StaffList extends Component implements HasForms, HasTable
     {
         return $table
             ->query(Staff::query())->headerActions([
-                CreateAction::make('new_staff')
-                    ->label('New Staff')
+                CreateAction::make('new_teacher')
+                    ->label('New Teachers')
                     ->icon('heroicon-o-user-plus')
                     ->iconPosition(IconPosition::After)
                     ->using(function (array $data): Staff {
@@ -78,7 +78,7 @@ class StaffList extends Component implements HasForms, HasTable
                             TextInput::make('confirm_password')->password()->required()->revealable()->same('password'),
                         ]),
                     ]),
-                ])->modalHeading('Create Staff')->modalWidth('2xl'),
+                ])->modalHeading('Create Teacher')->modalWidth('2xl'),
             ])
             ->columns([
                 TextColumn::make('id')->label('FULLNAME')->formatStateUsing(

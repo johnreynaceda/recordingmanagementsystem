@@ -98,6 +98,17 @@ class Grading extends Component
             return;
         }
 
+        $this->validate([
+            'termGrades.*.first_grading' => ['nullable', 'numeric', 'min:0', 'max:100', 'regex:/^\d+(?:\.\d{1,2})?$/'],
+            'termGrades.*.second_grading' => ['nullable', 'numeric', 'min:0', 'max:100', 'regex:/^\d+(?:\.\d{1,2})?$/'],
+            'termGrades.*.third_grading' => ['nullable', 'numeric', 'min:0', 'max:100', 'regex:/^\d+(?:\.\d{1,2})?$/'],
+        ], [
+            'termGrades.*.*.numeric' => 'Grades must contain numbers only.',
+            'termGrades.*.*.regex' => 'Grades must contain numbers only, with up to two decimal places.',
+            'termGrades.*.*.min' => 'Grades cannot be lower than 0.',
+            'termGrades.*.*.max' => 'Grades cannot be higher than 100.',
+        ]);
+
         $academicYearId = $this->selected_academic_year_id;
 
         foreach ($this->termGrades as $studentId => $data) {

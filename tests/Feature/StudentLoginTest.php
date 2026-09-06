@@ -25,6 +25,15 @@ class StudentLoginTest extends TestCase
             ->assertDontSee('Sign Up');
     }
 
+    public function test_lrn_must_contain_exactly_12_digits(): void
+    {
+        Livewire::test(StudentLogin::class)
+            ->set('lrn', '12345')
+            ->set('password', 'password')
+            ->call('login')
+            ->assertHasErrors(['lrn' => 'digits']);
+    }
+
     public function test_first_login_emails_password_change_link_and_logs_student_out(): void
     {
         Notification::fake();

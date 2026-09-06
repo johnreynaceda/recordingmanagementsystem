@@ -85,10 +85,16 @@ class CreateStudent extends Component implements HasForms
                     TextInput::make('contact_number')
                         ->label('Contact Number')
                         ->tel()
-                        ->placeholder('+639171234567')
-                        ->helperText('Use +63 followed by 10 digits.')
-                        ->maxLength(13)
-                        ->rules(['regex:/^\+63\d{10}$/'])
+                        ->prefix('+63')
+                        ->placeholder('9171234567')
+                        ->helperText('Enter the 10-digit mobile number only.')
+                        ->maxLength(10)
+                        ->rules(['digits:10'])
+                        ->extraInputAttributes([
+                            'inputmode' => 'numeric',
+                            'pattern' => '[0-9]*',
+                            'oninput' => "this.value = this.value.replace(/\\D/g, '').slice(0, 10)",
+                        ])
                         ->required(),
                     TextInput::make('address')->required()->columnSpan(2),
                     Select::make('grade_level')
@@ -114,7 +120,9 @@ class CreateStudent extends Component implements HasForms
                         ->rules(['digits:12'])
                         ->extraInputAttributes([
                             'inputmode' => 'numeric',
-                            'pattern' => '[0-9]{12}',
+                            'pattern' => '[0-9]*',
+                            'maxlength' => '12',
+                            'oninput' => "this.value = this.value.replace(/\\D/g, '').slice(0, 12)",
                         ])
                         ->required(),
                     TextInput::make('email')->email()->required(),
@@ -156,10 +164,10 @@ class CreateStudent extends Component implements HasForms
             'student_picture' => ['nullable'],
             'student_picture.*' => ['image', 'max:'.self::MAX_PROFILE_IMAGE_SIZE_KB],
             'lrn' => ['required', 'digits:12', 'unique:students,lrn'],
-            'contact_number' => ['required', 'string', 'regex:/^\+63\d{10}$/'],
+            'contact_number' => ['required', 'digits:10'],
         ], [
             'lrn.digits' => 'The LRN must contain exactly 12 digits.',
-            'contact_number.regex' => 'The contact number must use the +63 international format followed by 10 digits (for example, +639171234567).',
+            'contact_number.digits' => 'The contact number must contain exactly 10 digits after +63.',
         ]);
 
         $user = User::create([
@@ -181,7 +189,7 @@ class CreateStudent extends Component implements HasForms
             'lastname' => $this->lastname,
             'birthdate' => $this->birthdate,
             'address' => $this->address,
-            'contact_number' => $this->contact_number,
+            'contact_number' => '+63'.$this->contact_number,
             'lrn' => $this->lrn,
             'image_path' => $imagePath,
             'user_id' => $user->id,

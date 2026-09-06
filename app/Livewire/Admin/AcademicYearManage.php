@@ -26,10 +26,10 @@ class AcademicYearManage extends Component implements HasForms, HasTable
     protected function getFormSchema(): array
     {
         return [
-            TextInput::make('name')
+            TextInput::make('name')->label('Academic Year')
                 ->required()
                 ->unique('academic_years', 'name', ignoreRecord: true)
-                ->placeholder('2024-2025'),
+                ->placeholder('academic year format: 2023-2024'),
             DatePicker::make('start_date')->required(),
             DatePicker::make('end_date')->required(),
         ];

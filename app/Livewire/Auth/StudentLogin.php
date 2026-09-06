@@ -28,6 +28,14 @@ class StudentLogin extends Component implements HasForms
             TextInput::make('lrn')
                 ->label('LRN')
                 ->required()
+                ->length(12)
+                ->rules(['digits:12'])
+                ->extraInputAttributes([
+                    'inputmode' => 'numeric',
+                    'pattern' => '[0-9]*',
+                    'maxlength' => '12',
+                    'oninput' => "this.value = this.value.replace(/\\D/g, '').slice(0, 12)",
+                ])
                 ->autocomplete('username'),
             TextInput::make('password')
                 ->required()
@@ -40,8 +48,10 @@ class StudentLogin extends Component implements HasForms
     public function login(): mixed
     {
         $this->validate([
-            'lrn' => ['required', 'string', 'max:50'],
+            'lrn' => ['required', 'digits:12'],
             'password' => ['required', 'string'],
+        ], [
+            'lrn.digits' => 'The LRN must contain exactly 12 digits.',
         ]);
 
         $student = Student::query()

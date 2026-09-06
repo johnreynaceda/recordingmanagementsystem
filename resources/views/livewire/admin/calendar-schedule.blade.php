@@ -12,7 +12,7 @@
                     </p>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3 text-center sm:min-w-96">
+                <div class="grid grid-cols-1 gap-3 text-center min-[420px]:grid-cols-3 sm:min-w-96">
                     <div class="rounded-xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
                         <p class="text-2xl font-bold">{{ number_format($total_events) }}</p>
                         <p class="mt-1 text-xs font-medium uppercase tracking-wide text-slate-300">Total</p>
@@ -150,20 +150,18 @@
                     canManage,
                     calendar: null,
                     tooltip: null,
+                    isMobile: window.matchMedia('(max-width: 639px)').matches,
+                    resizeHandler: null,
 
                     init() {
                         const calendarEl = this.$el.querySelector('#calendar');
 
                         this.calendar = new FullCalendar.Calendar(calendarEl, {
-                            initialView: 'dayGridMonth',
+                            initialView: this.isMobile ? 'listWeek' : 'dayGridMonth',
                             events: this.events,
                             displayEventTime: false,
                             height: 'auto',
-                            headerToolbar: {
-                                left: 'prev,next today',
-                                center: 'title',
-                                right: 'dayGridMonth,listWeek',
-                            },
+                            headerToolbar: this.toolbarForViewport(),
                             buttonText: {
                                 today: 'Today',
                                 month: 'Month',
@@ -182,10 +180,35 @@
 
                         this.calendar.render();
 
+                        this.resizeHandler = () => {
+                            const mobile = window.matchMedia('(max-width: 639px)').matches;
+
+                            if (mobile === this.isMobile) {
+                                return;
+                            }
+
+                            this.isMobile = mobile;
+                            this.calendar.setOption('headerToolbar', this.toolbarForViewport());
+                            this.calendar.changeView(mobile ? 'listWeek' : 'dayGridMonth');
+                        };
+                        window.addEventListener('resize', this.resizeHandler);
+
                         this.$watch('events', (newEvents) => {
                             this.calendar.removeAllEvents();
                             this.calendar.addEventSource(newEvents);
                         });
+                    },
+
+                    toolbarForViewport() {
+                        return this.isMobile
+                            ? { left: 'prev,next', center: 'title', right: 'today' }
+                            : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listWeek' };
+                    },
+
+                    destroy() {
+                        window.removeEventListener('resize', this.resizeHandler);
+                        this.hideTooltip();
+                        this.calendar?.destroy();
                     },
 
                     showTooltip(info) {

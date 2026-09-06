@@ -92,18 +92,20 @@ class Request extends Component
         $this->validate([
             'name' => 'required|string|max:255',
             'email_address' => 'required|email',
-            'phone_number' => 'required|string|max:15',
+            'phone_number' => ['required', 'digits:10'],
             'option' => 'required|string',
             'last_year_attended_id' => 'required|exists:academic_years,id',
             'section_id' => 'required|exists:sections,id',
             'additional_information' => 'nullable|string|max:500',
+        ], [
+            'phone_number.digits' => 'The phone number must contain exactly 10 digits after +63.',
         ]);
 
         Requesst::create([
             'name' => $this->name,
             'user_id' => Auth::id(),
             'email_address' => $this->email_address,
-            'phone_number' => $this->phone_number,
+            'phone_number' => '+63'.$this->phone_number,
             'option' => $this->option,
             'last_year_attended_id' => $this->last_year_attended_id,
             'section_id' => $this->section_id,

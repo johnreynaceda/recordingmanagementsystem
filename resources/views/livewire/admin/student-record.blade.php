@@ -209,13 +209,14 @@
                                                         <label
                                                             class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Section</label>
                                                         <select wire:model="edit_section_id"
-                                                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
+                                                            class="block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border @error('edit_section_id') border-red-500 @else border-gray-300 @enderror">
                                                             <option value="">— No Section —</option>
                                                             @foreach ($this->editSections as $sec)
                                                                 <option value="{{ $sec->id }}">
                                                                     {{ $sec->name }}</option>
                                                             @endforeach
                                                         </select>
+                                                        <p class="mt-1 text-xs text-gray-500">Only sections from the selected grade level are shown.</p>
                                                         @error('edit_section_id')
                                                             <span
                                                                 class="text-red-500 text-xs mt-1">{{ $message }}</span>
@@ -384,7 +385,7 @@
     {{-- Promote Modal --}}
     @if ($showPromoteModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-            wire:click.self="$set('showPromoteModal', false)">
+            wire:click.self="cancelPromote">
             <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -396,17 +397,21 @@
                     </div>
                     <div>
                         <h3 class="text-lg font-bold text-gray-900">Promote Student</h3>
-                        <p class="text-sm text-gray-500">Assign a section for the next grade level.</p>
+                        <p class="text-sm text-gray-500">
+                            Promote to <span class="font-semibold text-main">{{ $promote_grade_level_name }}</span>
+                            for {{ $promote_academic_year_name }}.
+                        </p>
                     </div>
                 </div>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Section
-                            (optional)</label>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                            Select {{ $promote_grade_level_name }} Section <span class="text-red-500">*</span>
+                        </label>
                         <select wire:model="promote_section_id"
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
-                            <option value="">— No Section —</option>
+                            class="block w-full rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border @error('promote_section_id') border-red-500 @else border-gray-300 @enderror">
+                            <option value="">Choose a section</option>
                             @foreach ($this->promoteSections as $sec)
                                 <option value="{{ $sec->id }}">{{ $sec->name }}</option>
                             @endforeach
@@ -418,7 +423,7 @@
                 </div>
 
                 <div class="mt-6 flex justify-end gap-3">
-                    <button wire:click="$set('showPromoteModal', false)"
+                    <button wire:click="cancelPromote"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
                     <button wire:click="confirmPromote"
                         class="px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg shadow-sm hover:bg-green-700 transition-colors">

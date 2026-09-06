@@ -2,13 +2,21 @@
 
 namespace App\Livewire\Auth;
 
+use Illuminate\Support\Facades\Password;
 use Livewire\Component;
 
 class ForgotPassword extends Component
 {
-     public string $email = '';
+    public string $email = '';
 
-      public function sendResetLink()
+    public string $portal = '';
+
+    public function mount(): void
+    {
+        $this->portal = request()->query('portal') === 'staff' ? 'staff' : '';
+    }
+
+    public function sendResetLink()
     {
         $this->validate([
             'email' => 'required|email',
@@ -25,10 +33,8 @@ class ForgotPassword extends Component
             $this->addError('email', __($status));
         }
     }
-    
-
     public function render()
     {
-        return view('livewire.auth.forgot-password');
+        return view('livewire.auth.forgot-password')->layout('layouts.guest');
     }
 }

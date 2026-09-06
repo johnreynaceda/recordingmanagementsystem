@@ -3,14 +3,12 @@
 namespace App\Livewire\Admin;
 
 use App\Models\AcademicYear;
-use App\Models\AttendanceRecord;
 use App\Models\GradeLevel;
 use App\Models\Student;
 use App\Models\StudentGrade;
 use App\Models\StudentRecord;
 use App\Models\TermGrade;
 use App\Models\User;
-use Carbon\Carbon;
 use Livewire\Component;
 
 class ViewStudentGrade extends Component
@@ -18,8 +16,6 @@ class ViewStudentGrade extends Component
     public $studentFiles = [];
 
     public $termGrades = [];
-
-    public $attendance = [];
 
     public $selected_academic_year_id;
 
@@ -48,6 +44,9 @@ class ViewStudentGrade extends Component
 
     public function loadStudent()
     {
+        $this->currentStudent = null;
+        $this->studentInfo = null;
+
         if (! $this->selectedStudentId) {
             return;
         }
@@ -91,7 +90,6 @@ class ViewStudentGrade extends Component
         if (! $this->currentStudent || ! $this->selected_academic_year_id) {
             $this->studentFiles = [];
             $this->termGrades = [];
-            $this->attendance = [];
             $this->studentGradeLevel = null;
             $this->studentRecordInfo = null;
 
@@ -146,38 +144,6 @@ class ViewStudentGrade extends Component
                 'remarks' => $first->remarks,
             ];
         })->values()->toArray();
-
-        $enrollmentRecords = StudentRecord::where('student_id', $studentId)
-            ->where('academic_year_id', $this->selected_academic_year_id)
-            ->get();
-        $this->attendance = [];
-        if ($enrollmentRecords->count() > 0) {
-            $recordIds = $enrollmentRecords->pluck('id');
-            $records = AttendanceRecord::whereIn('student_record_id', $recordIds)
-                ->get()
-                ->groupBy(fn ($r) => Carbon::parse($r->created_at)->format('Y-m'));
-
-            $this->attendance = $records->map(function ($group, $ym) {
-                $first = $group->first();
-                $monthDate = Carbon::parse($first->created_at);
-                $monthName = $monthDate->format('F');
-                $year = $monthDate->format('Y');
-
-                $schoolDays = $this->getSchoolDays($monthDate);
-                $present = $group->count();
-                $absent = max(0, $schoolDays - $present);
-                $rate = $schoolDays > 0 ? round(($present / $schoolDays) * 100, 1) : 0;
-
-                return [
-                    'month' => $monthName,
-                    'year' => $year,
-                    'school_days' => $schoolDays,
-                    'present' => $present,
-                    'absent' => $absent,
-                    'rate' => $rate,
-                ];
-            })->values()->toArray();
-        }
     }
 
     public function exportGrades()
@@ -212,46 +178,6 @@ class ViewStudentGrade extends Component
         $rows[] = ['General Average', '', '', '', $generalAverage, ''];
 
         return $this->downloadCsv($this->exportFilename('student-grades'), $rows);
-    }
-
-    public function exportAttendance()
-    {
-        $this->ensureCurrentExportData();
-
-        $rows = [
-            ['Student Attendance'],
-            ['Student Name', $this->studentInfo['name'] ?? 'N/A'],
-            ['LRN', $this->studentInfo['lrn'] ?? 'N/A'],
-            ['Academic Year', $this->studentRecordInfo['academic_year'] ?? 'N/A'],
-            ['Grade Level', $this->studentRecordInfo['grade_level'] ?? $this->studentGradeLevel ?? 'N/A'],
-            ['Section', $this->studentRecordInfo['section'] ?? 'N/A'],
-            [],
-            ['Month', 'School Days', 'Present', 'Absent', '% Attendance'],
-        ];
-
-        foreach ($this->attendance as $row) {
-            $rows[] = [
-                trim(($row['month'] ?? '').' '.($row['year'] ?? '')),
-                $row['school_days'] ?? 0,
-                $row['present'] ?? 0,
-                $row['absent'] ?? 0,
-                isset($row['rate']) ? $row['rate'].'%' : '0%',
-            ];
-        }
-
-        $totalSchoolDays = array_sum(array_column($this->attendance, 'school_days'));
-        $totalPresent = array_sum(array_column($this->attendance, 'present'));
-        $totalAbsent = array_sum(array_column($this->attendance, 'absent'));
-        $overallRate = $totalSchoolDays > 0 ? round(($totalPresent / $totalSchoolDays) * 100, 1) : 0;
-        $rows[] = [];
-        $rows[] = ['Overall', $totalSchoolDays, $totalPresent, $totalAbsent, $overallRate.'%'];
-
-        return $this->downloadCsv($this->exportFilename('student-attendance'), $rows);
-    }
-
-    public function updatedSelectedAcademicYearId()
-    {
-        $this->loadData();
     }
 
     public function promoteStudent()
@@ -402,22 +328,6 @@ class ViewStudentGrade extends Component
             ->exists();
     }
 
-    private function getSchoolDays(Carbon $date)
-    {
-        $start = $date->copy()->startOfMonth();
-        $end = $date->copy()->endOfMonth();
-        $days = 0;
-        $current = $start->copy();
-        while ($current <= $end) {
-            if (! $current->isWeekend()) {
-                $days++;
-            }
-            $current->addDay();
-        }
-
-        return $days;
-    }
-
     private function ensureCurrentExportData()
     {
         if (! $this->currentStudent && $this->selectedStudentId) {
@@ -452,19 +362,6 @@ class ViewStudentGrade extends Component
 
     public function render()
     {
-        $students = Student::with('user')
-            ->get()
-            ->map(function ($student) {
-                return [
-                    'id' => $student->id,
-                    'name' => $student->firstname.' '.$student->lastname,
-                    'lrn' => $student->lrn ?? 'N/A',
-                ];
-            });
-
-        return view('livewire.admin.view-student-grade', [
-            'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
-            'students' => $students,
-        ])->layout('components.admin-layout');
+        return view('livewire.admin.view-student-grade')->layout('components.admin-layout');
     }
 }

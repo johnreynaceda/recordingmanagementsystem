@@ -64,6 +64,25 @@
         x-data="{
             sidebarOpen: false,
             sidebarCollapsed: localStorage.getItem('admin-sidebar-collapsed') === 'true',
+            shortDate: '',
+            timeWithSeconds: '',
+            init() {
+                this.updateClock();
+                setInterval(() => this.updateClock(), 1000);
+            },
+            updateClock() {
+                const now = new Date();
+                this.shortDate = new Intl.DateTimeFormat('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                }).format(now);
+                this.timeWithSeconds = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }).format(now);
+            },
             toggleSidebar() {
                 this.sidebarCollapsed = ! this.sidebarCollapsed;
                 localStorage.setItem('admin-sidebar-collapsed', this.sidebarCollapsed);
@@ -251,9 +270,17 @@
                     </div>
 
                     <div class="ml-auto flex items-center gap-3">
-                        <div class="hidden text-right sm:block">
-                            <p class="text-sm font-semibold text-slate-700">{{ now()->format('l, M j') }}</p>
-                            <p class="text-xs font-medium text-slate-400">{{ now()->format('Y') }}</p>
+                        <div class="flex items-center gap-2 rounded-xl px-1.5 py-1 sm:gap-3 sm:px-3" aria-label="Current date and time">
+                                <span class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-main md:flex">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M5.25 4.5h13.5a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Z" />
+                                    </svg>
+                                </span>
+                                <span class="text-right">
+                                    <span class="block whitespace-nowrap text-xs font-semibold leading-4 text-slate-700 sm:text-sm sm:leading-5" x-text="shortDate"></span>
+                                    <span class="block whitespace-nowrap text-[11px] font-medium leading-4 text-slate-400 sm:text-xs" x-text="timeWithSeconds"></span>
+                                </span>
                         </div>
                         <div class="hidden h-9 w-px bg-slate-200 sm:block"></div>
                         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-xs font-bold text-white shadow-sm">

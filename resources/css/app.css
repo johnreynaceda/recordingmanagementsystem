@@ -47,4 +47,27 @@
     .calendar-tooltip {
         @apply pointer-events-none absolute z-50 max-w-xs rounded-xl border border-red-100 bg-white p-3 text-sm shadow-xl;
     }
+
+    @media (max-width: 639px) {
+        .calendar-shell .fc .fc-toolbar {
+            @apply gap-2;
+        }
+
+        .calendar-shell .fc .fc-toolbar-chunk {
+            @apply flex items-center justify-center;
+        }
+
+        .calendar-shell .fc .fc-toolbar-title {
+            @apply text-center text-base;
+        }
+
+        .calendar-shell .fc .fc-button {
+            @apply px-2.5 py-2 text-xs;
+        }
+
+        .calendar-shell .fc .fc-list-event-title,
+        .calendar-shell .fc .fc-list-event-time {
+            @apply text-xs;
+        }
+    }
 }

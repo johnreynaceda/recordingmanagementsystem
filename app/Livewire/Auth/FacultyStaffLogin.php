@@ -17,6 +17,9 @@ class FacultyStaffLogin extends Component implements HasForms
 
     public string $email = '';
     public string $password = '';
+
+    public bool $remember = false;
+
     public string $error = '';
 
     public function form(Form $form): Form
@@ -41,7 +44,7 @@ class FacultyStaffLogin extends Component implements HasForms
             'password' => 'required|min:6',
         ]);
 
-        if (!Auth::attempt(['email' => $this->email, 'password' => $this->password])) {
+        if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             sweetalert()->error('Invalid email or password.');
             $this->reset('email', 'password');
             return;

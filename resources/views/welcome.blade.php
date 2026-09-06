@@ -1,3 +1,6 @@
+@include('welcome-refined')
+@php return; @endphp
+
 @section('title', 'Welcome')
 <x-home-layout>
     <div class="relative overflow-hidden min-h-[calc(100vh-140px)] flex flex-col justify-center">

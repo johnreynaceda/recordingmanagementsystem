@@ -1,10 +1,10 @@
-<div class="max-w-5xl mx-auto px-4 py-8 space-y-8">
+<div class="mx-auto max-w-5xl space-y-5 sm:space-y-8">
 
     {{-- ===== HEADER CARD ===== --}}
-    <div class="bg-white rounded-2xl shadow-md p-8 border border-gray-200 flex items-center justify-between">
+    <div class="flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-md sm:p-8">
         <div>
             <p class="text-blue-400 text-xs font-semibold uppercase tracking-widest mb-1">DepEd Form 138 – E</p>
-            <h1 class="text-3xl font-extrabold tracking-tight text-gray-800">Periodic Rating</h1>
+            <h1 class="text-2xl font-extrabold tracking-tight text-gray-800 sm:text-3xl">Periodic Rating</h1>
             @if ($studentGradeLevel)
                 <p class="text-gray-400 mt-1 text-sm"> {{ $studentGradeLevel }}</p>
             @else
@@ -22,15 +22,15 @@
     </div>
 
     @if ($academic_years->count() > 0)
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 px-4">
-            <div class="flex border-b border-gray-200 overflow-x-auto">
+        <div class="rounded-2xl border border-gray-200 bg-white px-2 shadow-sm sm:px-4">
+            <div class="flex snap-x overflow-x-auto border-b border-gray-200">
                 @foreach ($academic_years as $year)
                     @php
                         $yearRecord = $student_records_by_academic_year->get($year->id);
                     @endphp
                     <button type="button"
                         wire:click="selectAcademicYear({{ $year->id }})"
-                        class="whitespace-nowrap py-3 px-6 font-medium text-sm border-b-2 transition-colors {{ (int) $selected_academic_year_id === (int) $year->id ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        class="snap-start whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors sm:px-6 {{ (int) $selected_academic_year_id === (int) $year->id ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                         <span class="flex items-center">
                             <svg class="w-5 h-5 inline-block mr-2 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             {{ $year->name }}
@@ -52,7 +52,7 @@
     @endif
 
     {{-- ===== GRADES TABLE ===== --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="hidden overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:block">
 
         {{-- Column Headers --}}
         <div class="grid grid-cols-12 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-widest">
@@ -146,10 +146,70 @@
         </div>
     </div>
 
+    {{-- Mobile grade cards --}}
+    <div class="space-y-3 lg:hidden">
+        @forelse($termGrades as $row)
+            <article class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="flex items-start justify-between gap-3 border-b border-gray-100 bg-blue-50 px-4 py-3">
+                    <h2 class="min-w-0 break-words text-sm font-bold text-gray-800">{{ $row['subject_name'] }}</h2>
+                    @if (!empty($row['final_rating']))
+                        <span class="inline-flex h-9 min-w-12 shrink-0 items-center justify-center rounded-xl px-2 text-base font-extrabold text-white shadow-sm {{ (int) $row['final_rating'] >= 75 ? 'bg-green-500' : 'bg-red-500' }}">
+                            {{ $row['final_rating'] }}
+                        </span>
+                    @else
+                        <span class="shrink-0 text-gray-400">&mdash;</span>
+                    @endif
+                </div>
+                <div class="grid grid-cols-3 divide-x divide-gray-100 px-2 py-4 text-center">
+                    @foreach ([
+                        'first_grading' => '1st Term',
+                        'second_grading' => '2nd Term',
+                        'third_grading' => '3rd Term',
+                    ] as $period => $label)
+                        <div class="px-1">
+                            <p class="text-[0.65rem] font-bold uppercase tracking-wide text-gray-400">{{ $label }}</p>
+                            @if (!empty($row[$period]))
+                                <span class="mt-2 inline-block rounded-lg px-2 py-1 text-sm font-bold {{ (int) $row[$period] >= 75 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                    {{ $row[$period] }}
+                                </span>
+                            @else
+                                <span class="mt-2 block text-gray-300">&mdash;</span>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <div class="flex items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 text-sm">
+                    <span class="font-medium text-gray-500">Remarks</span>
+                    <span class="break-words text-right font-semibold text-gray-700">{{ $row['remarks'] ?: '—' }}</span>
+                </div>
+            </article>
+        @empty
+            <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-5 py-10 text-center">
+                <p class="text-sm font-medium text-gray-500">No grades record found for this academic year.</p>
+                <p class="mt-1 text-xs text-gray-400">Grades will appear here once submitted by your teacher.</p>
+            </div>
+        @endforelse
+
+        @php
+            $mobileFinals = array_filter(array_column($termGrades, 'final_rating'), fn($v) => $v !== null);
+            $mobileGeneralAverage = count($mobileFinals) > 0 ? round(array_sum($mobileFinals) / count($mobileFinals), 0) : null;
+        @endphp
+        <div class="flex items-center justify-between rounded-2xl bg-blue-100 px-4 py-4 text-blue-800 shadow-sm">
+            <span class="text-sm font-bold uppercase tracking-wide">General Average</span>
+            @if ($mobileGeneralAverage)
+                <span class="inline-flex h-10 min-w-16 items-center justify-center rounded-xl px-3 text-lg font-extrabold text-white shadow {{ $mobileGeneralAverage >= 75 ? 'bg-green-500' : 'bg-red-500' }}">
+                    {{ $mobileGeneralAverage }}
+                </span>
+            @else
+                <span class="text-gray-400">&mdash;</span>
+            @endif
+        </div>
+    </div>
+
     {{-- ===== ATTENDANCE SECTION ===== --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
-        <div class="bg-blue-50 px-6 py-5 flex items-center justify-between">
+        <div class="flex items-center justify-between bg-blue-50 px-4 py-4 sm:px-6 sm:py-5">
             <div class="flex items-center gap-3">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -161,7 +221,7 @@
 
         @if (count($attendance) > 0)
             <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+                <table class="w-full min-w-[38rem] text-sm">
                     <thead>
                         <tr class="bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-widest">
                             <th class="px-6 py-3 text-left">Month</th>
@@ -275,7 +335,7 @@
 
     {{-- ===== UPLOADED GRADE FILES ===== --}}
     @if ($studentFiles && count($studentFiles) > 0)
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
             <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

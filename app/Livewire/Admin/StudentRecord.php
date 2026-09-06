@@ -8,6 +8,7 @@ use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentRecord as StudentRecordModel;
 use App\Models\TermGrade;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class StudentRecord extends Component
@@ -23,11 +24,11 @@ class StudentRecord extends Component
 
     public $showPromoteModal = false;
     public $promote_section_id = null;
+    public $promote_grade_level_name = null;
+    public $promote_academic_year_name = null;
 
     protected $rules = [
         'edit_grade_level_id' => 'required|exists:grade_levels,id',
-        'edit_section_id' => 'nullable|exists:sections,id',
-        'promote_section_id' => 'nullable|exists:sections,id',
     ];
 
     public function mount()
@@ -85,7 +86,15 @@ class StudentRecord extends Component
             return;
         }
 
+        if (!Section::where('grade_level_id', $nextGradeLevel->id)->exists()) {
+            sweetalert()->error('No sections are configured for ' . $nextGradeLevel->name . '. Please create a section first.');
+            return;
+        }
+
         $this->promote_section_id = null;
+        $this->promote_grade_level_name = $nextGradeLevel->name;
+        $this->promote_academic_year_name = $nextAcademicYear->name;
+        $this->resetValidation('promote_section_id');
         $this->showPromoteModal = true;
     }
 
@@ -113,20 +122,57 @@ class StudentRecord extends Component
             ->orderBy('start_date')
             ->first();
 
+        if (!$nextGradeLevel || !$nextAcademicYear) {
+            $this->cancelPromote();
+            sweetalert()->error('The promotion target is no longer available. Please try again.');
+            return;
+        }
+
+        $this->validate([
+            'promote_section_id' => [
+                'required',
+                Rule::exists('sections', 'id')->where(
+                    fn ($query) => $query->where('grade_level_id', $nextGradeLevel->id)
+                ),
+            ],
+        ], [
+            'promote_section_id.required' => 'Please select a section for ' . $nextGradeLevel->name . '.',
+            'promote_section_id.exists' => 'The selected section does not belong to ' . $nextGradeLevel->name . '.',
+        ]);
+
+        $existingRecord = StudentRecordModel::where('student_id', $student->id)
+            ->where('grade_level_id', $nextGradeLevel->id)
+            ->where('academic_year_id', $nextAcademicYear->id)
+            ->exists();
+
+        if ($existingRecord) {
+            $this->cancelPromote();
+            sweetalert()->error('Student already has a record for the next grade level and academic year.');
+            return;
+        }
+
         StudentRecordModel::create([
             'student_id' => $student->id,
             'grade_level_id' => $nextGradeLevel->id,
-            'section_id' => $this->promote_section_id ?: null,
+            'section_id' => $this->promote_section_id,
             'academic_year_id' => $nextAcademicYear->id,
             'is_active' => true,
         ]);
 
         $currentRecord->update(['is_active' => false]);
 
-        $this->showPromoteModal = false;
-        $this->promote_section_id = null;
+        $this->cancelPromote();
 
         sweetalert()->success('Student promoted to ' . $nextGradeLevel->name . ' for ' . $nextAcademicYear->name . '!');
+    }
+
+    public function cancelPromote()
+    {
+        $this->showPromoteModal = false;
+        $this->promote_section_id = null;
+        $this->promote_grade_level_name = null;
+        $this->promote_academic_year_name = null;
+        $this->resetValidation('promote_section_id');
     }
 
     public function getPromoteSectionsProperty()
@@ -232,7 +278,17 @@ class StudentRecord extends Component
 
     public function updateRecord()
     {
-        $this->validate();
+        $this->validate([
+            'edit_grade_level_id' => ['required', 'exists:grade_levels,id'],
+            'edit_section_id' => [
+                'nullable',
+                Rule::exists('sections', 'id')->where(
+                    fn ($query) => $query->where('grade_level_id', $this->edit_grade_level_id)
+                ),
+            ],
+        ], [
+            'edit_section_id.exists' => 'The selected section does not belong to the selected grade level.',
+        ]);
 
         $record = StudentRecordModel::find($this->edit_record_id);
         if (!$record) {
@@ -253,11 +309,24 @@ class StudentRecord extends Component
         $this->edit_record_id = null;
         $this->edit_grade_level_id = null;
         $this->edit_section_id = null;
+        $this->resetValidation(['edit_grade_level_id', 'edit_section_id']);
+    }
+
+    public function updatedEditGradeLevelId()
+    {
+        $this->edit_section_id = null;
+        $this->resetValidation('edit_section_id');
     }
 
     public function getEditSectionsProperty()
     {
-        return Section::all();
+        if (!$this->edit_grade_level_id) {
+            return collect();
+        }
+
+        return Section::where('grade_level_id', $this->edit_grade_level_id)
+            ->orderBy('name')
+            ->get();
     }
 
     public function exportGrades($academicYearId = null)

@@ -23,13 +23,13 @@ class CreateStudentValidationTest extends TestCase
             ->call('submitRecord')
             ->assertHasErrors([
                 'lrn' => 'digits',
-                'contact_number' => 'regex',
+                'contact_number' => 'digits',
             ]);
 
         Livewire::actingAs($admin)
             ->test(CreateStudent::class)
             ->set('lrn', '123456789012')
-            ->set('contact_number', '+639171234567')
+            ->set('contact_number', '9171234567')
             ->call('submitRecord')
             ->assertHasNoErrors(['lrn', 'contact_number']);
     }

@@ -26,22 +26,19 @@
     @vite('resources/css/app.css')
 </head>
 
-<body>
+<body class="antialiased">
 
-    <div class="flex flex-col h-screen overflow-hidden bg-gray-100">
-        <div class="bg-main h-5 w-full">
-        </div>
-        <section class="w-full px-8 relative sticky top-0 text-gray-700 border-b border-main bg-white"
+    <div class="flex min-h-screen min-h-[100dvh] flex-col bg-gray-100" x-data="{ mobileMenuOpen: false }">
+        <div class="h-2 w-full shrink-0 bg-main sm:h-3"></div>
+        <header class="sticky top-0 z-40 w-full border-b border-main/20 bg-white text-gray-700 shadow-sm"
             {!! $attributes ?? '' !!}>
-            <div
-                class="container flex flex-col flex-wrap items-center justify-between py-4 mx-auto md:flex-row max-w-7xl">
-                <div class="relative flex flex-col md:flex-row">
-                    <a href="#_"
-                        class="flex items-center mb-5 font-medium text-main lg:w-auto lg:items-center lg:justify-center md:mb-0">
-                        <img src="{{ asset('images/tmcnhs_logo.png') }}" class="h-12" alt="">
+            <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+                <div class="flex min-w-0 items-center">
+                    <a href="{{ route('student.index') }}" class="flex shrink-0 items-center font-medium text-main">
+                        <img src="{{ asset('images/tmcnhs_logo.png') }}" class="h-10 w-auto sm:h-12"
+                            alt="Trece Martires City National High School">
                     </a>
-                    <nav
-                        class="flex flex-wrap items-center mb-5 text-base md:mb-0 md:pl-8 md:ml-8 md:border-l md:border-gray-200">
+                    <nav class="ml-6 hidden items-center border-l border-gray-200 pl-6 text-sm font-medium lg:flex xl:text-base">
                         <a href="{{ route('student.index') }}"
                             class="{{ request()->routeIs('student.index') ? 'text-main bg-white' : 'text-gray-700' }} px-4 py-2 rounded-lg hover:bg-white hover:text-main">Dashboard</a>
                         {{-- <a href=""
@@ -65,11 +62,11 @@
                     </nav>
                 </div>
 
-                <div class="inline-flex items-center ml-5 space-x-6 lg:justify-end">
+                <div class="hidden items-center lg:inline-flex">
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <a href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();"
-                            class="mr-5 flex space-x-2 font-medium leading-6 text-gray-600 hover:text-main">
+                        <button type="submit"
+                            class="flex items-center gap-2 rounded-lg px-3 py-2 font-medium leading-6 text-gray-600 transition hover:bg-red-50 hover:text-main">
                             <span>
                                 Logout
                             </span>
@@ -80,25 +77,57 @@
                                 <polyline points="16 17 21 12 16 7" />
                                 <line x1="21" x2="9" y1="12" y2="12" />
                             </svg>
-                        </a>
+                        </button>
                     </form>
                 </div>
+
+                <button type="button" @click="mobileMenuOpen = ! mobileMenuOpen"
+                    :aria-expanded="mobileMenuOpen.toString()" aria-controls="student-mobile-menu"
+                    class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-main focus:outline-none focus:ring-2 focus:ring-red-200 lg:hidden">
+                    <span class="sr-only">Toggle navigation</span>
+                    <svg x-show="! mobileMenuOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg x-show="mobileMenuOpen" x-cloak class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-        </section>
 
-
-
-        <div class="flex-1 overflow-y-auto">
-            <main class="py-10">
-
-                <div class="px-4 mx-auto 2xl:max-w-7xl sm:px-6 md:px-8">
-                    <div class="py-2">
-
-                        <div class="">{{ $slot }}</div>
-                    </div>
+            <nav id="student-mobile-menu" x-show="mobileMenuOpen" x-cloak x-transition.origin.top
+                @click.outside="mobileMenuOpen = false"
+                class="border-t border-gray-100 bg-white px-4 py-3 shadow-lg sm:px-6 lg:hidden">
+                <div class="mx-auto grid max-w-7xl gap-1 sm:grid-cols-2">
+                    <a href="{{ route('student.index') }}"
+                        class="{{ request()->routeIs('student.index') ? 'bg-red-50 text-main' : 'text-gray-700' }} rounded-lg px-4 py-3 font-medium hover:bg-red-50 hover:text-main">Dashboard</a>
+                    <a href="{{ route('student.request') }}"
+                        class="{{ request()->routeIs('student.request') ? 'bg-red-50 text-main' : 'text-gray-700' }} rounded-lg px-4 py-3 font-medium hover:bg-red-50 hover:text-main">Requests</a>
+                    <a href="{{ route('student.calendar') }}"
+                        class="{{ request()->routeIs('student.calendar') ? 'bg-red-50 text-main' : 'text-gray-700' }} rounded-lg px-4 py-3 font-medium hover:bg-red-50 hover:text-main">Calendar</a>
+                    <a href="{{ route('student.grade') }}"
+                        class="{{ request()->routeIs('student.grade') ? 'bg-red-50 text-main' : 'text-gray-700' }} rounded-lg px-4 py-3 font-medium hover:bg-red-50 hover:text-main">Grade</a>
+                    <form method="POST" action="{{ route('logout') }}" class="sm:col-span-2">
+                        @csrf
+                        <button type="submit"
+                            class="flex w-full items-center gap-2 rounded-lg px-4 py-3 text-left font-medium text-gray-700 hover:bg-red-50 hover:text-main">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" x2="9" y1="12" y2="12" />
+                            </svg>
+                            Logout
+                        </button>
+                    </form>
                 </div>
-            </main>
-        </div>
+            </nav>
+        </header>
+
+        <main class="w-full flex-1 py-5 sm:py-7 lg:py-10">
+            <div class="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8">
+                {{ $slot }}
+            </div>
+        </main>
     </div>
 
     @filamentScripts
