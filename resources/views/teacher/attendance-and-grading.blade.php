@@ -1,4 +1,4 @@
-@section('title', 'Attendance & Grades')
+@section('title', 'Attendance and Grades')
 <x-teacher-layout>
     <div x-data="{ activeTab: 'attendance' }">
         <div class="flex border-b border-gray-200 mb-6">

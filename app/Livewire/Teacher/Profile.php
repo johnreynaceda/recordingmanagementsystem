@@ -14,12 +14,19 @@ class Profile extends Component
     use WireUiActions;
 
     public $record;
+
     public $firstname;
+
     public $lastname;
+
     public $address;
+
     public $showModal = false;
+
     public $assignedSections = [];
+
     public $assignedSubjects = [];
+
     public $activeAcademicYearName;
 
     public function mount()
@@ -66,14 +73,13 @@ class Profile extends Component
             'address' => 'required|string|max:255',
         ]);
 
-
         $this->record->update([
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
             'address' => $this->address,
         ]);
 
-
+        sweetalert()->success('Profile updated successfully!');
         session()->flash('message', 'Profile updated successfully.');
 
         $this->showModal = false;

@@ -16,7 +16,11 @@ class CalendarSchedule extends Component implements HasForms
 {
     use InteractsWithForms;
 
-    public $title, $start_date, $end_date;
+    public $title;
+
+    public $start_date;
+
+    public $end_date;
 
     public $events = [];
 
@@ -45,23 +49,22 @@ class CalendarSchedule extends Component implements HasForms
         )->toArray();
     }
 
-
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-              Fieldset::make('EVENT INFORMATION')->schema([
-                TextInput::make('title')
-                    ->label('Event Title')
-                    ->placeholder('Recognition day, enrollment deadline...')
-                    ->required(),
-                DatePicker::make('start_date')
-                    ->label('Start Date')
-                    ->required(),
-                DatePicker::make('end_date')
-                    ->label('End Date')
-                    ->required(),
-              ])->columns(1)
+                Fieldset::make('EVENT INFORMATION')->schema([
+                    TextInput::make('title')
+                        ->label('Event Title')
+                        ->placeholder('Recognition day, enrollment deadline...')
+                        ->required(),
+                    DatePicker::make('start_date')
+                        ->label('Start Date')
+                        ->required(),
+                    DatePicker::make('end_date')
+                        ->label('End Date')
+                        ->required(),
+                ])->columns(1),
             ]);
     }
 
@@ -98,6 +101,9 @@ class CalendarSchedule extends Component implements HasForms
             Event::create($eventData);
         }
 
+        sweetalert()->success(
+            $this->editingEventId ? 'Event updated successfully!' : 'Event created successfully!'
+        );
         session()->flash(
             'calendar_message',
             $this->editingEventId ? 'Event updated successfully.' : 'Event created successfully.',
@@ -137,6 +143,7 @@ class CalendarSchedule extends Component implements HasForms
         }
 
         $this->loadEvents();
+        sweetalert()->success('Event deleted successfully!');
         session()->flash('calendar_message', 'Event deleted successfully.');
     }
 
@@ -150,7 +157,6 @@ class CalendarSchedule extends Component implements HasForms
     {
         abort_unless(auth()->user()?->user_type === 'admin', 403);
     }
-
 
     public function render()
     {

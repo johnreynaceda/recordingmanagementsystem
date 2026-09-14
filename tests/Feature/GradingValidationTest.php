@@ -49,7 +49,7 @@ class GradingValidationTest extends TestCase
             ->set('selected_section_id', $section->id)
             ->set('selected_subject_id', $subject->id)
             ->set('termGrades.999.first_grading', '89')
-            ->set('termGrades.999.second_grading', '90.50')
+            ->set('termGrades.999.second_grading', '90')
             ->set('termGrades.999.third_grading', '92')
             ->call('saveGrades')
             ->assertHasNoErrors();
@@ -57,9 +57,9 @@ class GradingValidationTest extends TestCase
         $this->assertDatabaseHas('term_grades', [
             'student_id' => 999,
             'first_grading' => '89',
-            'second_grading' => '90.50',
+            'second_grading' => '90',
             'third_grading' => '92',
-            'final_rating' => 91,
+            'final_rating' => 90,
         ]);
     }
 

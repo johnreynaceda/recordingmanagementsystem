@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\AcademicYear;
 use App\Models\Notification;
+use App\Notifications\RequestApprovedNotification;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\Action;
@@ -13,14 +14,12 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Contracts\View\View;
-use App\Notifications\RequestApprovedNotification;
 use Livewire\Component;
 
 class Request extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
     public $selected_academic_year_id;
 
@@ -47,7 +46,7 @@ class Request extends Component implements HasForms, HasTable
                 TextColumn::make('additional_information')->words(3)->label('ADDITIONAL INFO')->searchable(),
                 TextColumn::make('academicYear.name')->label('ACADEMIC YEAR')->searchable(),
                 TextColumn::make('created_at')->label('REQUESTED AT')->date(),
-                TextColumn::make('status')->label('STATUS')->badge()->color(fn(string $state): string => match ($state) {
+                TextColumn::make('status')->label('STATUS')->badge()->color(fn (string $state): string => match ($state) {
                     'approved' => 'success',
                     'declined' => 'danger',
                 }),
@@ -69,12 +68,16 @@ class Request extends Component implements HasForms, HasTable
                         function ($record) {
                             $record->user->notify(new RequestApprovedNotification($record->option));
                             $record->update(['status' => 'approved']);
+                            sweetalert()->success('Request approved successfully!');
                         }
                     ),
                     Action::make('Decline')->color('danger')->icon('heroicon-s-hand-thumb-down')->action(
-                        fn($record) => $record->update(['status' => 'declined'])
+                        function ($record) {
+                            $record->update(['status' => 'declined']);
+                            sweetalert()->success('Request declined successfully!');
+                        }
                     ),
-                ])->hidden(fn($record) => $record->status != null)
+                ])->hidden(fn ($record) => $record->status != null),
             ])
             ->bulkActions([
                 // ...

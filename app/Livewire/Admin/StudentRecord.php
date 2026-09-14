@@ -132,7 +132,12 @@ class StudentRecord extends Component
             'promote_section_id' => [
                 'required',
                 Rule::exists('sections', 'id')->where(
-                    fn ($query) => $query->where('grade_level_id', $nextGradeLevel->id)
+                    fn ($query) => $query
+                        ->where('grade_level_id', $nextGradeLevel->id)
+                        ->where(function ($query) use ($nextAcademicYear) {
+                            $query->where('academic_year_id', $nextAcademicYear->id)
+                                ->orWhereNull('academic_year_id');
+                        })
                 ),
             ],
         ], [
@@ -198,7 +203,18 @@ class StudentRecord extends Component
             return collect();
         }
 
-        return Section::where('grade_level_id', $nextGradeLevel->id)->get();
+        $currentAcademicYear = AcademicYear::find($this->selected_academic_year_id);
+        $nextAcademicYear = $currentAcademicYear
+            ? AcademicYear::where('start_date', '>', $currentAcademicYear->start_date)->orderBy('start_date')->first()
+            : null;
+
+        if (! $nextAcademicYear) {
+            return collect();
+        }
+
+        return Section::where('grade_level_id', $nextGradeLevel->id)
+            ->forAcademicYear($nextAcademicYear->id)
+            ->get();
     }
 
     public function getCanPromoteProperty()
@@ -278,22 +294,27 @@ class StudentRecord extends Component
 
     public function updateRecord()
     {
+        $record = StudentRecordModel::find($this->edit_record_id);
+        if (!$record) {
+            return;
+        }
+
         $this->validate([
             'edit_grade_level_id' => ['required', 'exists:grade_levels,id'],
             'edit_section_id' => [
                 'nullable',
                 Rule::exists('sections', 'id')->where(
-                    fn ($query) => $query->where('grade_level_id', $this->edit_grade_level_id)
+                    fn ($query) => $query
+                        ->where('grade_level_id', $this->edit_grade_level_id)
+                        ->where(function ($query) use ($record) {
+                            $query->where('academic_year_id', $record->academic_year_id)
+                                ->orWhereNull('academic_year_id');
+                        })
                 ),
             ],
         ], [
             'edit_section_id.exists' => 'The selected section does not belong to the selected grade level.',
         ]);
-
-        $record = StudentRecordModel::find($this->edit_record_id);
-        if (!$record) {
-            return;
-        }
 
         $record->update([
             'grade_level_id' => $this->edit_grade_level_id,
@@ -320,11 +341,14 @@ class StudentRecord extends Component
 
     public function getEditSectionsProperty()
     {
-        if (!$this->edit_grade_level_id) {
+        if (!$this->edit_grade_level_id || ! $this->edit_record_id) {
             return collect();
         }
 
+        $academicYearId = StudentRecordModel::whereKey($this->edit_record_id)->value('academic_year_id');
+
         return Section::where('grade_level_id', $this->edit_grade_level_id)
+            ->forAcademicYear($academicYearId)
             ->orderBy('name')
             ->get();
     }

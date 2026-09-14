@@ -1,8 +1,9 @@
 @section('title', 'Student Login')
 
-<div class="px-1 py-2 sm:px-2">
+<div>
+    <div class="flex items-center justify-between gap-4">
     <a href="{{ route('home') }}"
-        class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 transition hover:text-main focus:outline-none focus:ring-2 focus:ring-main focus:ring-offset-2">
+        class="inline-flex min-h-11 items-center gap-2 rounded-lg px-1 text-sm font-bold text-slate-500 transition duration-300 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2">
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd"
                 d="M17 10a.75.75 0 0 1-.75.75H5.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L5.56 9.25h10.69A.75.75 0 0 1 17 10Z"
@@ -10,16 +11,23 @@
         </svg>
         Back to home
     </a>
+        <span class="hidden items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-400 sm:inline-flex">
+            <svg class="h-3.5 w-3.5 text-[#a71930]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 12 2 2 4-4m5.5-2c0 5.2-3.6 8-8.5 9.5C7.1 20 3.5 17.2 3.5 12V5.5L12 2l8.5 3.5V12Z"/></svg>
+            Secure access
+        </span>
+    </div>
 
-    <div class="mt-6 text-center">
-        <img class="mx-auto h-20 w-20 object-contain" src="{{ asset('images/tmcnhs_logo.png') }}"
-            alt="TMCNHS logo">
-        <span class="mt-4 inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-main">
+    <div class="mt-5 text-center">
+        <a href="{{ route('home') }}" class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#fdfcfb] p-1.5 ring-1 ring-slate-200 transition duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2" aria-label="TMCNHS home">
+            <img class="h-full w-full object-contain" src="{{ asset('images/tmcnhs_logo.png') }}" alt="TMCNHS seal">
+        </a>
+        <span class="mt-5 inline-flex items-center gap-2 rounded-full border border-red-100 bg-red-50 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#a71930]">
+            <span class="h-1.5 w-1.5 rounded-full bg-[#b4233b]"></span>
             Student Portal
         </span>
-        <h1 class="mt-3 text-2xl font-bold tracking-tight text-gray-900">Welcome back</h1>
-        <p class="mt-2 text-sm leading-6 text-gray-600">
-            Sign in using your learner reference number.
+        <h1 class="mt-3 text-2xl font-extrabold tracking-[-0.025em] text-[#101928] sm:text-3xl">Welcome back, learner</h1>
+        <p class="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-slate-500">
+            Enter your learner reference number and password to access your student account.
         </p>
     </div>
 
@@ -47,24 +55,24 @@
         </div>
     @endif
 
-    <form wire:submit.prevent="login" class="mt-7">
+    <form wire:submit.prevent="login" class="mt-7" aria-label="Student portal sign in">
         {{ $this->form }}
 
         <div class="mt-5 flex items-center justify-between gap-4">
             <label class="inline-flex cursor-pointer items-center">
                 <input type="checkbox" wire:model="remember"
-                    class="rounded border-gray-300 text-main shadow-sm focus:ring-main">
-                <span class="ms-2 text-sm text-gray-600">Remember me</span>
+                    class="rounded border-slate-300 text-[#a71930] shadow-sm focus:ring-[#b4233b]">
+                <span class="ms-2 text-sm font-medium text-slate-600">Remember me</span>
             </label>
 
             <a href="{{ route('password.request') }}"
-                class="text-sm font-semibold text-main transition hover:text-red-700 hover:underline">
+                class="rounded text-sm font-bold text-[#a71930] transition duration-300 hover:text-[#861326] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2">
                 Forgot password?
             </a>
         </div>
 
         <button type="submit" wire:loading.attr="disabled" wire:target="login"
-            class="mt-6 flex w-full items-center justify-center rounded-xl bg-main px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-main focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">
+            class="mt-6 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#a71930] px-4 py-3 text-sm font-extrabold text-white shadow-lg shadow-red-950/15 transition duration-300 hover:-translate-y-0.5 hover:bg-[#861326] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
             <svg wire:loading wire:target="login" class="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"
                 aria-hidden="true">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -75,10 +83,26 @@
         </button>
     </form>
 
-    <div class="mt-7 border-t border-gray-200 pt-6 text-center text-sm text-gray-600">
+    <div class="mt-6 rounded-2xl border border-red-100 bg-red-50/70 p-5 text-center">
+        <p class="text-sm font-semibold text-slate-700">New to the student portal?</p>
+        <a href="{{ route('student.self-enrollment') }}"
+            class="mt-1 inline-flex items-center rounded font-extrabold text-[#a71930] transition duration-300 hover:text-[#861326] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2">
+            Start self-enrollment
+            <svg class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.69l-3.22-3.22a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd" />
+            </svg>
+        </a>
+    </div>
+
+    <div class="mt-7 border-t border-slate-200 pt-6 text-center text-sm font-medium text-slate-600">
         Faculty or staff member?
-        <a href="{{ route('faculty-staff-login') }}" class="font-semibold text-main hover:text-red-700 hover:underline">
+        <a href="{{ route('faculty-staff-login') }}" class="rounded font-extrabold text-[#a71930] transition hover:text-[#861326] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2">
             Use the faculty portal
         </a>
     </div>
+
+    <p class="mt-5 flex items-center justify-center gap-2 text-center text-[11px] font-semibold leading-5 text-slate-400">
+        <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10V7.5a4 4 0 0 1 8 0V10m-9.25 0h10.5A1.75 1.75 0 0 1 19 11.75v7.5A1.75 1.75 0 0 1 17.25 21H6.75A1.75 1.75 0 0 1 5 19.25v-7.5A1.75 1.75 0 0 1 6.75 10Z"/></svg>
+        Your credentials are protected by secure authentication.
+    </p>
 </div>

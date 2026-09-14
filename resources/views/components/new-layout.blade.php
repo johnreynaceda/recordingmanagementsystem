@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }} | @yield('title')</title>
+    <title>TMCNHS | @yield('title', 'Administration')</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&display=swap" rel="stylesheet" />
 
     <style>
         [x-cloak] { display: none !important; }
-        .admin-scrollbar { scrollbar-color: rgba(255, 255, 255, .16) transparent; scrollbar-width: thin; }
+        body { font-family: 'Manrope', sans-serif; }
+        .admin-scrollbar { scrollbar-color: rgba(255, 255, 255, .28) transparent; scrollbar-width: thin; }
         .admin-scrollbar::-webkit-scrollbar { width: 5px; }
-        .admin-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .16); border-radius: 999px; }
+        .admin-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .28); border-radius: 999px; }
     </style>
 
     <tallstackui:script />
@@ -59,11 +60,13 @@
     ];
 @endphp
 
-<body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+<body class="min-h-screen bg-[#fbfaf8] text-slate-800 antialiased">
+    <a href="#admin-content" class="sr-only z-[100] rounded-lg bg-white px-4 py-3 font-bold text-[#a71930] shadow-lg focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to main content</a>
     <div
         x-data="{
             sidebarOpen: false,
             sidebarCollapsed: localStorage.getItem('admin-sidebar-collapsed') === 'true',
+            profileOpen: false,
             shortDate: '',
             timeWithSeconds: '',
             init() {
@@ -95,11 +98,11 @@
             x-transition.opacity
             x-cloak
             @click="sidebarOpen = false"
-            class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden"
+            class="fixed inset-0 z-40 bg-[#101928]/45 backdrop-blur-sm lg:hidden"
         ></div>
 
         <aside
-            class="fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 -translate-x-full flex-col bg-gradient-to-b from-red-600 via-red-600 to-main text-white shadow-2xl shadow-red-950/30 transition-all duration-300 ease-out lg:static lg:translate-x-0 lg:shadow-none"
+            class="fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 -translate-x-full flex-col bg-gradient-to-b from-[#8f142a] via-[#a71930] to-[#861326] text-white shadow-2xl shadow-red-950/25 transition-all duration-300 ease-out lg:static lg:translate-x-0 lg:shadow-none"
             :class="{
                 'translate-x-0': sidebarOpen,
                 '-translate-x-full': ! sidebarOpen,
@@ -108,24 +111,25 @@
             }"
             aria-label="Admin navigation"
         >
-            <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-                <img src="{{ asset('images/bg.jpg') }}" class="h-full w-full object-cover opacity-10" alt="">
-                <div class="absolute -left-12 -top-16 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
+            <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+                <img src="{{ asset('images/bg.jpg') }}" class="h-full w-full object-cover object-center opacity-[0.14]" alt="">
+                <div class="absolute inset-0 bg-gradient-to-b from-[#8f142a]/45 via-[#a71930]/65 to-[#861326]/85"></div>
             </div>
+            <div class="absolute inset-x-0 top-0 z-20 h-1 bg-gradient-to-r from-[#8d1429] via-[#c52a45] to-[#e56a79]" aria-hidden="true"></div>
 
-            <div class="relative z-10 flex h-20 shrink-0 items-center border-b border-white/20 px-5">
-                <a href="{{ route('admin.dashboard') }}" class="relative flex min-w-0 items-center gap-3">
-                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white p-1.5 shadow-lg shadow-black/20">
+            <div class="relative z-10 flex h-20 shrink-0 items-center border-b border-white/15 px-5">
+                <a href="{{ route('admin.dashboard') }}" class="relative flex min-w-0 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2">
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white p-1 shadow-sm ring-1 ring-slate-200">
                         <img src="{{ asset('images/tmcnhs_logo.png') }}" class="h-full w-full object-contain" alt="School logo">
                     </span>
                     <span class="min-w-0 leading-tight" :class="sidebarCollapsed ? 'lg:hidden' : ''">
-                        <span class="block truncate text-sm font-bold tracking-wide">TMCNHS</span>
-                        <span class="block truncate text-[11px] font-medium text-white/70">Records Management</span>
+                        <span class="block truncate text-sm font-extrabold tracking-wide text-white">TMCNHS</span>
+                        <span class="block truncate text-[11px] font-semibold text-white/65">Records Management</span>
                     </span>
                 </a>
 
                 <button type="button" @click="sidebarOpen = false"
-                    class="relative ml-auto rounded-xl p-2 text-white/70 transition hover:bg-white/15 hover:text-white lg:hidden"
+                    class="relative ml-auto rounded-xl p-2 text-white/70 transition duration-300 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white lg:hidden"
                     aria-label="Close navigation">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" d="M6 6l12 12M18 6 6 18" />
@@ -137,9 +141,9 @@
                 @foreach ($navigationGroups as $group)
                     <section>
                         <div class="mb-2 px-3" :class="sidebarCollapsed ? 'lg:px-1' : ''">
-                            <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/60"
+                            <p class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/55"
                                 :class="sidebarCollapsed ? 'lg:hidden' : ''">{{ $group['label'] }}</p>
-                            <span class="hidden h-px bg-white/20" :class="sidebarCollapsed ? 'lg:block' : ''"></span>
+                            <span class="hidden h-px bg-white/15" :class="sidebarCollapsed ? 'lg:block' : ''"></span>
                         </div>
 
                         <ul class="space-y-1">
@@ -148,7 +152,7 @@
                                 <li>
                                     <a href="{{ route($item['route']) }}" title="{{ $item['label'] }}"
                                         @click="sidebarOpen = false"
-                                        class="group relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition duration-200 {{ $isActive ? 'bg-white text-main shadow-lg shadow-red-950/15' : 'text-white/80 hover:bg-white/15 hover:text-white' }}"
+                                        class="group relative flex min-h-11 items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-bold transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#a71930] {{ $isActive ? 'border-white bg-white text-[#a71930] shadow-lg shadow-red-950/15' : 'border-transparent text-white/80 hover:border-white/10 hover:bg-white/10 hover:text-white' }}"
                                         :class="sidebarCollapsed ? 'lg:justify-center lg:px-2' : ''"
                                         @if ($isActive) aria-current="page" @endif>
                                         <span class="flex h-5 w-5 shrink-0 items-center justify-center">
@@ -199,7 +203,7 @@
 
                                         @if (isset($item['badge']) && $item['badge'] > 0)
                                             <span
-                                                class="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold {{ $isActive ? 'bg-main text-white' : 'bg-white text-main' }}"
+                                                class="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-extrabold {{ $isActive ? 'bg-[#a71930] text-white' : 'bg-white text-[#a71930]' }}"
                                                 :class="sidebarCollapsed ? 'lg:absolute lg:-right-1 lg:-top-1' : ''">
                                                 {{ $item['badge'] > 99 ? '99+' : $item['badge'] }}
                                             </span>
@@ -212,22 +216,22 @@
                 @endforeach
             </nav>
 
-            <div class="relative z-10 shrink-0 border-t border-white/20 p-3">
-                <div class="mb-2 flex items-center gap-3 rounded-xl bg-white/10 p-2.5"
+            <div class="relative z-10 shrink-0 border-t border-white/15 bg-red-950/10 p-3">
+                <div class="mb-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/10 p-2.5"
                     :class="sidebarCollapsed ? 'lg:justify-center lg:px-2' : ''">
-                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-xs font-bold text-main shadow-sm">
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-xs font-extrabold text-[#a71930] shadow-sm">
                         {{ $adminInitials ?: 'AD' }}
                     </span>
                     <span class="min-w-0" :class="sidebarCollapsed ? 'lg:hidden' : ''">
-                        <span class="block truncate text-sm font-semibold text-white">{{ $adminName }}</span>
-                        <span class="block text-[11px] font-medium capitalize text-white/60">{{ auth()->user()->user_type ?? 'Admin' }}</span>
+                        <span class="block truncate text-sm font-bold text-white">{{ $adminName }}</span>
+                        <span class="block text-[11px] font-semibold capitalize text-white/55">{{ auth()->user()->user_type ?? 'Admin' }}</span>
                     </span>
                 </div>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" title="Sign out"
-                        class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/80 transition hover:bg-white/15 hover:text-white"
+                        class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-white/75 transition duration-300 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#a71930]"
                         :class="sidebarCollapsed ? 'lg:justify-center lg:px-2' : ''">
                         <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 8.25 18 12m0 0-3.75 3.75M18 12H7.5M10.5 4.5H5.25a1.5 1.5 0 0 0-1.5 1.5v12a1.5 1.5 0 0 0 1.5 1.5h5.25" />
@@ -239,81 +243,98 @@
         </aside>
 
         <div class="flex min-w-0 flex-1 flex-col">
-            <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
-                <div class="flex h-20 items-center gap-3 px-4 sm:px-6 lg:px-8">
+            <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-[0_4px_18px_rgba(15,23,42,0.035)] backdrop-blur-md">
+                <div class="mx-auto flex h-[76px] w-full max-w-[1600px] items-center gap-3 px-4 sm:px-6 lg:px-8">
                     <button type="button" @click="sidebarOpen = true"
-                        class="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-950 lg:hidden"
+                        class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition duration-300 hover:border-red-200 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] lg:hidden"
                         aria-label="Open navigation">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
                         </svg>
                     </button>
 
                     <button type="button" @click="toggleSidebar()"
-                        class="hidden rounded-xl p-2.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-800 lg:block"
+                        class="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 shadow-sm transition duration-300 hover:border-red-200 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] lg:inline-flex"
                         :aria-label="sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'">
                         <svg class="h-5 w-5 transition-transform duration-300" :class="sidebarCollapsed ? 'rotate-180' : ''"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6" />
                         </svg>
                     </button>
 
+                    <div class="hidden h-9 w-px bg-slate-200 lg:block" aria-hidden="true"></div>
+
                     <div class="min-w-0">
-                        <div class="flex items-center gap-2 text-xs font-semibold text-slate-400">
-                            <span>Admin</span>
-                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
-                            </svg>
-                            <span class="truncate text-main">{{ $pageTitle }}</span>
+                        <div class="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-400">
+                            <span>Administration</span>
+                            <span class="h-1 w-1 rounded-full bg-[#b4233b]" aria-hidden="true"></span>
+                            <span class="hidden truncate text-[#a71930] sm:inline">School Management Portal</span>
                         </div>
-                        <h1 class="mt-0.5 truncate text-lg font-bold tracking-tight text-slate-950 sm:text-xl">{{ $pageTitle }}</h1>
+                        <h1 class="mt-0.5 truncate text-lg font-extrabold tracking-[-0.025em] text-[#101928] sm:text-xl">{{ $pageTitle }}</h1>
                     </div>
 
-                    <div class="ml-auto flex items-center gap-3">
-                        <div class="flex items-center gap-2 rounded-xl px-1.5 py-1 sm:gap-3 sm:px-3" aria-label="Current date and time">
-                                <span class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-main md:flex">
-                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M5.25 4.5h13.5a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Z" />
-                                    </svg>
-                                </span>
-                                <span class="text-right">
-                                    <span class="block whitespace-nowrap text-xs font-semibold leading-4 text-slate-700 sm:text-sm sm:leading-5" x-text="shortDate"></span>
-                                    <span class="block whitespace-nowrap text-[11px] font-medium leading-4 text-slate-400 sm:text-xs" x-text="timeWithSeconds"></span>
-                                </span>
+                    <div class="ml-auto flex items-center gap-2 sm:gap-3">
+                     
+
+                        <div class="hidden items-center gap-3 rounded-xl border border-slate-200 bg-[#fdfcfb] px-3 py-2 md:flex" aria-label="Current date and time">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-[#a71930] ring-1 ring-red-100">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M5.25 4.5h13.5a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Z" /></svg>
+                            </span>
+                            <span>
+                                <span class="block whitespace-nowrap text-xs font-bold leading-4 text-slate-700" x-text="shortDate"></span>
+                                <span class="block whitespace-nowrap text-[10px] font-semibold leading-4 text-slate-400" x-text="timeWithSeconds"></span>
+                            </span>
                         </div>
-                        <div class="hidden h-9 w-px bg-slate-200 sm:block"></div>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-xs font-bold text-white shadow-sm">
-                            {{ $adminInitials ?: 'AD' }}
+
+                        <div class="relative" @click.outside="profileOpen = false">
+                            <button type="button" @click="profileOpen = ! profileOpen" :aria-expanded="profileOpen"
+                                class="group flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5 pr-2 shadow-sm transition duration-300 hover:border-red-200 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b]"
+                                aria-haspopup="menu" aria-label="Open administrator menu">
+                                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#101928] text-[10px] font-extrabold text-white">{{ $adminInitials ?: 'AD' }}</span>
+                                <span class="hidden max-w-32 text-left sm:block">
+                                    <span class="block truncate text-xs font-bold leading-4 text-[#101928]">{{ $adminName }}</span>
+                                    <span class="block text-[10px] font-semibold capitalize leading-4 text-slate-400">{{ auth()->user()->user_type ?? 'Admin' }}</span>
+                                </span>
+                                <svg class="hidden h-4 w-4 text-slate-400 transition duration-300 group-hover:text-[#a71930] sm:block" :class="profileOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                            </button>
+
+                            <div x-show="profileOpen" x-transition.origin.top.right x-cloak
+                                class="absolute right-0 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_50px_-20px_rgba(15,23,42,0.35)]"
+                                role="menu">
+                                <div class="border-b border-slate-100 px-3 py-3">
+                                    <p class="truncate text-sm font-extrabold text-[#101928]">{{ $adminName }}</p>
+                                    <p class="mt-0.5 truncate text-xs font-medium text-slate-500">{{ auth()->user()->email }}</p>
+                                </div>
+                                <a href="{{ route('profile.edit') }}" role="menuitem"
+                                    class="mt-1 flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-bold text-slate-600 transition duration-300 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b]">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path stroke-linecap="round" d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
+                                    Account settings
+                                </a>
+                                <a href="{{ route('home') }}" target="_blank" rel="noopener" role="menuitem"
+                                    class="flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-bold text-slate-600 transition duration-300 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] xl:hidden">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12s3-5.25 8.25-5.25S20.25 12 20.25 12 17.25 17.25 12 17.25 3.75 12 3.75 12Z"/><circle cx="12" cy="12" r="2.25"/></svg>
+                                    View school website
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}" class="mt-1 border-t border-slate-100 pt-1">
+                                    @csrf
+                                    <button type="submit" role="menuitem" class="flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-bold text-slate-600 transition duration-300 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b]">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 8.25 18 12m0 0-3.75 3.75M18 12H7.5M10.5 4.5H5.25a1.5 1.5 0 0 0-1.5 1.5v12a1.5 1.5 0 0 0 1.5 1.5h5.25"/></svg>
+                                        Sign out
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main class="relative flex-1 overflow-y-auto">
+            <main id="admin-content" class="relative flex-1 overflow-y-auto bg-[#fbfaf8]">
                 <div class="pointer-events-none absolute inset-x-0 top-0 h-72 overflow-hidden">
-                    <div class="absolute -right-28 -top-36 h-80 w-80 rounded-full bg-red-100/70 blur-3xl"></div>
-                    <div class="absolute left-1/3 -top-52 h-80 w-80 rounded-full bg-slate-200/60 blur-3xl"></div>
+                    <div class="absolute -right-28 -top-36 h-80 w-80 rounded-full bg-red-100/45 blur-3xl"></div>
+                    <div class="absolute left-1/3 -top-52 h-80 w-80 rounded-full bg-slate-200/45 blur-3xl"></div>
                 </div>
 
                 <div class="relative mx-auto w-full max-w-[1600px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
-                    <section class="mb-7 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
-                        <div class="relative flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-                            <div class="absolute inset-y-0 left-0 w-1 bg-main"></div>
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-[0.16em] text-main">Administration workspace</p>
-                                <p class="mt-1 text-lg font-semibold text-slate-900">Welcome back, {{ $adminName }}</p>
-                            </div>
-                            <div class="flex items-center gap-2 text-sm font-medium text-slate-500">
-                                <span class="relative flex h-2.5 w-2.5">
-                                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50"></span>
-                                    <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                                </span>
-                                System ready
-                            </div>
-                        </div>
-                    </section>
-
                     {{ $slot }}
                 </div>
             </main>

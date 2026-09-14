@@ -23,10 +23,11 @@ use Livewire\Component;
 
 class SubjectList extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
     public $grade_level_id;
+
     public $selected_academic_year_id;
 
     public function mount()
@@ -38,7 +39,7 @@ class SubjectList extends Component implements HasForms, HasTable
     private function teacherOptions(): array
     {
         return Staff::with('user')->get()->mapWithKeys(function ($staff) {
-            return [$staff->id => $staff->firstname . ' ' . $staff->lastname];
+            return [$staff->id => $staff->firstname.' '.$staff->lastname];
         })->toArray();
     }
 
@@ -71,14 +72,16 @@ class SubjectList extends Component implements HasForms, HasTable
                             ->nullable(),
                     ])
                     ->modalWidth('xl')
-                    ->modalHeading('Create Subject'),
+                    ->modalHeading('Create Subject')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Subject created successfully!')),
             ])
             ->columns([
                 TextColumn::make('subject_name')->label('SUBJECT NAME'),
                 TextColumn::make('teacher')
                     ->label('TEACHER')
-                    ->formatStateUsing(fn($record) => $record->teacher
-                        ? $record->teacher->firstname . ' ' . $record->teacher->lastname
+                    ->formatStateUsing(fn ($record) => $record->teacher
+                        ? $record->teacher->firstname.' '.$record->teacher->lastname
                         : 'Not Assigned'),
                 TextColumn::make('academicYear.name')
                     ->label('ACADEMIC YEAR'),
@@ -102,6 +105,7 @@ class SubjectList extends Component implements HasForms, HasTable
                             'subject_name' => $data['subject_name'],
                             'teacher_id' => $data['teacher_id'] ?? null,
                         ]);
+                        sweetalert()->success('Subject updated successfully!');
                     })
                     ->form([
                         TextInput::make('subject_name')->required(),
@@ -113,8 +117,11 @@ class SubjectList extends Component implements HasForms, HasTable
                             ->nullable(),
                     ])
                     ->modalWidth('xl')
-                    ->modalHeading('Edit Subject'),
-                DeleteAction::make('delete'),
+                    ->modalHeading('Edit Subject')
+                    ->successNotification(null),
+                DeleteAction::make('delete')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Subject deleted successfully!')),
             ])
             ->bulkActions([
                 // ...

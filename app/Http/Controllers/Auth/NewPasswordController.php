@@ -73,9 +73,13 @@ class NewPasswordController extends Controller
         // redirect them back to where they came from with their error message.
         $loginRoute = $isStudentPasswordReset ? 'student-login' : 'login';
 
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route($loginRoute)->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        if ($status === Password::PASSWORD_RESET) {
+            sweetalert()->success('Password reset successfully!');
+
+            return redirect()->route($loginRoute)->with('status', __($status));
+        }
+
+        return back()->withInput($request->only('email'))
+            ->withErrors(['email' => __($status)]);
     }
 }

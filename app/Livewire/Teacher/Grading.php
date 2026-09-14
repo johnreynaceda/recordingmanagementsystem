@@ -27,11 +27,15 @@ class Grading extends Component
     public function updatedSelectedAcademicYearId($value)
     {
         $this->selected_academic_year_id = AcademicYear::where('id', $value)->first()->id;
+        $this->selected_section_id = null;
+        $this->selected_subject_id = null;
+        $this->termGrades = [];
     }
 
     public function getSectionsProperty()
     {
         return auth()->user()->staff->sections()
+            ->forAcademicYear($this->selected_academic_year_id)
             ->get();
     }
 
@@ -99,14 +103,14 @@ class Grading extends Component
         }
 
         $this->validate([
-            'termGrades.*.first_grading' => ['nullable', 'numeric', 'min:0', 'max:100', 'regex:/^\d+(?:\.\d{1,2})?$/'],
-            'termGrades.*.second_grading' => ['nullable', 'numeric', 'min:0', 'max:100', 'regex:/^\d+(?:\.\d{1,2})?$/'],
-            'termGrades.*.third_grading' => ['nullable', 'numeric', 'min:0', 'max:100', 'regex:/^\d+(?:\.\d{1,2})?$/'],
+            'termGrades.*.first_grading' => ['nullable', 'numeric', 'min:0', 'max:99', 'regex:/^\d{1,2}$/'],
+            'termGrades.*.second_grading' => ['nullable', 'numeric', 'min:0', 'max:99', 'regex:/^\d{1,2}$/'],
+            'termGrades.*.third_grading' => ['nullable', 'numeric', 'min:0', 'max:99', 'regex:/^\d{1,2}$/'],
         ], [
             'termGrades.*.*.numeric' => 'Grades must contain numbers only.',
-            'termGrades.*.*.regex' => 'Grades must contain numbers only, with up to two decimal places.',
+            'termGrades.*.*.regex' => 'Grades must contain no more than two digits.',
             'termGrades.*.*.min' => 'Grades cannot be lower than 0.',
-            'termGrades.*.*.max' => 'Grades cannot be higher than 100.',
+            'termGrades.*.*.max' => 'Grades cannot be higher than 99.',
         ]);
 
         $academicYearId = $this->selected_academic_year_id;

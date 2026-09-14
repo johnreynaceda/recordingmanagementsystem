@@ -1,11 +1,8 @@
 @php
     $student = $getRecord();
     $imageUrl = filled($student->image_path) ? Storage::url($student->image_path) : asset('images/no.jpg');
-    $displayRecord = $student->studentRecords->where('is_active', true)->sortByDesc('grade_level_id')->first();
-
-    if (!$displayRecord) {
-        $displayRecord = $student->studentRecords->sortByDesc('grade_level_id')->first();
-    }
+    // The relationship is constrained by StudentList to the selected school year.
+    $displayRecord = $student->studentRecords->first();
 
     $middleInitial = filled($student->middlename) ? strtoupper(substr($student->middlename, 0, 1)) . '.' : '';
     $fullName = trim($student->firstname . ' ' . $middleInitial . ' ' . $student->lastname);
@@ -13,6 +10,8 @@
     $gradeName = $displayRecord?->gradeLevel?->name ?? 'Not Assigned';
     $yearName = $displayRecord?->academicYear?->name ?? 'No academic year';
     $isGraduated = $student->status === 'Graduated';
+    $isRejected = $student->status === 'Rejected';
+    $needsPlacement = !$isGraduated && !$isRejected && (!$displayRecord?->grade_level_id || !$displayRecord?->section_id);
 @endphp
 
 <div class="group relative min-h-[18rem] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-lg">
@@ -24,8 +23,8 @@
                 <img src="{{ $imageUrl }}" alt="Student profile photo"
                     class="h-24 w-24 rounded-2xl border-4 border-white object-cover shadow-md">
                 <span
-                    class="absolute -bottom-2 left-3 rounded-full border border-white bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide {{ $isGraduated ? 'text-purple-700' : 'text-emerald-700' }}">
-                    {{ $isGraduated ? 'Graduated' : 'Active' }}
+                    class="absolute -bottom-2 left-3 rounded-full border border-white bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide {{ $isGraduated ? 'text-purple-700' : ($isRejected ? 'text-red-700' : ($needsPlacement ? 'text-amber-700' : 'text-emerald-700')) }}">
+                    {{ $isGraduated ? 'Graduated' : ($isRejected ? 'Rejected' : ($needsPlacement ? 'Needs placement' : 'Active')) }}
                 </span>
             </div>
 
@@ -44,11 +43,11 @@
         </div>
 
         <div class="mt-5 grid grid-cols-2 gap-3 text-sm">
-            <div class="rounded-lg border border-slate-100 bg-slate-50 p-3">
+            <div class="rounded-lg border {{ $gradeName === 'Not Assigned' ? 'border-amber-200 bg-amber-50' : 'border-slate-100 bg-slate-50' }} p-3">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Grade</p>
                 <p class="mt-1 truncate font-bold text-slate-800">{{ $gradeName }}</p>
             </div>
-            <div class="rounded-lg border border-slate-100 bg-slate-50 p-3">
+            <div class="rounded-lg border {{ !$sectionName ? 'border-amber-200 bg-amber-50' : 'border-slate-100 bg-slate-50' }} p-3">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Section</p>
                 <p class="mt-1 truncate font-bold text-slate-800">{{ $sectionName ?? 'Unassigned' }}</p>
             </div>

@@ -72,7 +72,7 @@
                                 </td>
                                 <td class="px-4 py-4 text-sm text-slate-600">
                                     <p class="font-medium text-slate-800">{{ $request->email_address }}</p>
-                                    <p class="mt-1">{{ $request->phone_number }}</p>
+                                    <p class="mt-1">+63 {{ $this->formatContactNumber($request->phone_number) }}</p>
                                 </td>
                                 <td class="max-w-md px-4 py-4 text-sm text-slate-600">
                                     <p><span class="font-semibold text-slate-800">Last Year Attended:</span> {{ $request->lastYearAttended->name ?? 'N/A' }}</p>
@@ -127,7 +127,7 @@
 
                         <div class="mt-4 grid gap-3 text-sm text-slate-600">
                             <p><span class="font-semibold text-slate-800">Email:</span> {{ $request->email_address }}</p>
-                            <p><span class="font-semibold text-slate-800">Phone:</span> {{ $request->phone_number }}</p>
+                            <p><span class="font-semibold text-slate-800">Phone:</span> +63 {{ $this->formatContactNumber($request->phone_number) }}</p>
                             <p><span class="font-semibold text-slate-800">Last Year Attended:</span> {{ $request->lastYearAttended->name ?? 'N/A' }}</p>
                             <p><span class="font-semibold text-slate-800">Section:</span> {{ $request->section->name ?? 'N/A' }}</p>
                             <p><span class="font-semibold text-slate-800">Details:</span> {{ $request->additional_information ?: 'No additional information provided.' }}</p>
@@ -182,9 +182,10 @@
 
                 <div>
                     <label for="email" class="block text-sm font-semibold text-slate-700">Email Address</label>
-                    <input type="email" id="email" wire:model="email_address"
-                        class="mt-2 block w-full rounded-lg border-slate-200 shadow-sm focus:border-main focus:ring-main"
-                        required>
+                    <input type="email" id="email" wire:model="email_address" readonly
+                        class="mt-2 block w-full cursor-not-allowed rounded-lg border-slate-200 bg-slate-50 text-slate-600 shadow-sm"
+                        aria-describedby="email-help" required>
+                    <p id="email-help" class="mt-1 text-xs text-slate-500">Loaded from your student account.</p>
                     @error('email_address')
                         <span class="mt-1 block text-sm text-red-600">{{ $message }}</span>
                     @enderror
@@ -195,13 +196,12 @@
                     <div class="mt-2 flex rounded-lg shadow-sm">
                         <span
                             class="inline-flex items-center rounded-l-lg border border-r-0 border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-600">+63</span>
-                        <input type="tel" id="phone" wire:model="phone_number"
-                            class="block w-full rounded-none rounded-r-lg border-slate-200 shadow-none focus:border-main focus:ring-main"
-                            placeholder="9171234567" maxlength="10" inputmode="numeric" pattern="[0-9]{10}"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                        <input type="tel" id="phone" value="{{ $this->formatContactNumber($phone_number) }}" readonly
+                            class="block w-full cursor-not-allowed rounded-none rounded-r-lg border-slate-200 bg-slate-50 text-slate-600 shadow-none"
+                            placeholder="917-123-4567" maxlength="12" inputmode="numeric" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
                             aria-describedby="phone-help" required>
                     </div>
-                    <p id="phone-help" class="mt-1 text-xs text-slate-500">Enter the 10-digit mobile number only.</p>
+                    <p id="phone-help" class="mt-1 text-xs text-slate-500">Loaded from your student profile.</p>
                     @error('phone_number')
                         <span class="mt-1 block text-sm text-red-600">{{ $message }}</span>
                     @enderror

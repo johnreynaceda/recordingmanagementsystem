@@ -1,4 +1,4 @@
-@include('welcome-refined')
+@include('welcome-modern')
 @php return; @endphp
 
 @section('title', 'Welcome')

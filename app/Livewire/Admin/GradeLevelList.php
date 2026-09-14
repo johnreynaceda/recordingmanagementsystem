@@ -3,9 +3,6 @@
 namespace App\Livewire\Admin;
 
 use App\Models\GradeLevel;
-use App\Models\Staff;
-use App\Models\User;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -23,40 +20,43 @@ use Livewire\Component;
 
 class GradeLevelList extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
     public function table(Table $table): Table
     {
         return $table
             ->query(GradeLevel::query())->headerActions([
-               CreateAction::make('new_grade_level')->label('New Grade level')->icon('heroicon-o-plus')->iconPosition(IconPosition::After)->form([
-                TextInput::make('name')->required()
-               ])->modalWidth('xl')->modalHeading('Create Grade Level')
+                CreateAction::make('new_grade_level')->label('New Grade level')->icon('heroicon-o-plus')->iconPosition(IconPosition::After)->form([
+                    TextInput::make('name')->required(),
+                ])->modalWidth('xl')->modalHeading('Create Grade Level')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Grade level created successfully!')),
             ])
             ->columns([
-               
+
                 TextColumn::make('name')->label('NAME'),
-             
-            ])
-            ->filters([
-                // ...
+
             ])
             ->actions([
-               EditAction::make('edit')->color('success')->action(
-                function($record, $data){
-                    $record->update([
-                        'name' => $data['name'],
-                    ]);
-                }
-               )->form([
-                TextInput::make('name')->required()
-               ])->modalWidth('xl')->modalHeading('Edit Grade Level'),
-               DeleteAction::make('delete'),
-               ActionGroup::make([
+                EditAction::make('edit')->color('success')->action(
+                    function ($record, $data) {
+                        $record->update([
+                            'name' => $data['name'],
+                        ]);
+                        sweetalert()->success('Grade level updated successfully!');
+                    }
+                )->form([
+                    TextInput::make('name')->required(),
+                ])->modalWidth('xl')->modalHeading('Edit Grade Level')
+                    ->successNotification(null),
+                DeleteAction::make('delete')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Grade level deleted successfully!')),
+                ActionGroup::make([
                 Action::make('sections')->label('Manage Section')->color('danger')->icon('heroicon-o-arrow-right')->url(fn (GradeLevel $record): string => route('admin.section', $record)),
-                Action::make('subjects')->label('Assign Subjects')->color('success')->icon('heroicon-o-folder-plus')->url(fn (GradeLevel $record): string => route('admin.grade-level-subjects', $record))
-                ])->color('black')
+                Action::make('subjects')->label('Assign Subjects')->color('success')->icon('heroicon-o-folder-plus')->url(fn (GradeLevel $record): string => route('admin.grade-level-subjects', $record)),
+                ])->color('black'),
             ])
             ->bulkActions([
                 // ...

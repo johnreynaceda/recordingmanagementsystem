@@ -6,143 +6,182 @@ use App\Models\AcademicYear;
 use App\Models\AttendanceRecord;
 use App\Models\Section;
 use App\Models\StudentRecord;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Livewire\Component;
 
-class AttendanceSection extends Component implements HasForms, HasTable
+class AttendanceSection extends Component
 {
-    use InteractsWithForms, InteractsWithTable;
-
     public $section_id;
 
     public $selected_academic_year_id;
 
     public $selected_date;
 
-    public function mount()
+    public array $selectedStudentRecordIds = [];
+
+    public function mount(): void
     {
         $this->selected_academic_year_id = AcademicYear::getActiveYearId();
         $this->selected_date = now()->toDateString();
     }
 
-    public function table(Table $table): Table
+    public function toggleSelectAll(): void
     {
-        return $table
-            ->query(
-                StudentRecord::query()
-                    ->join('students', 'students.id', '=', 'student_records.student_id')
-                    ->where('student_records.is_active', true)
-                    ->where('student_records.academic_year_id', $this->selected_academic_year_id)
-                    ->when($this->section_id, function ($query) {
-                        $query->where('student_records.section_id', $this->section_id);
-                    })
-                    ->orderBy('students.lastname', 'asc')
-                    ->orderBy('students.firstname', 'asc')
-                    ->select('student_records.*')
-            )
-            ->columns([
-                TextColumn::make('student.lastname')
-                    ->label('STUDENT NAME')
-                    ->formatStateUsing(
-                        fn($record) => strtoupper($record->student->lastname . ', ' . $record->student->firstname . ' ' . ($record->student->middlename ? substr($record->student->middlename, 0, 1) . '.' : ''))
-                    )
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('student.lrn')
-                    ->label('LRN')
-                    ->sortable(),
-                TextColumn::make('section.name')
-                    ->label('SECTION')
-                    ->formatStateUsing(fn($record) => strtoupper($record->section->name))
-                    ->sortable(),
-            ])
-            ->filters([
-                SelectFilter::make('academic_year_id')
-                    ->label('Academic Year')
-                    ->options(AcademicYear::pluck('name', 'id')->toArray())
-                    ->default($this->selected_academic_year_id)
-                    ->query(function ($query, array $data) {
-                        if (filled($data['value'])) {
-                            $query->where('student_records.academic_year_id', $data['value']);
-                        }
-                    }),
-            ])
-            ->actions([])
-            ->bulkActions([
-                BulkAction::make('present')
-                    ->color('success')
-                    ->icon('heroicon-o-document-check')
-                    ->label('Mark as Present')
-                    ->requiresConfirmation()
-                    ->modalHeading('Mark Attendance')
-                    ->modalDescription('Are you sure you want to mark the selected students as present?')
-                    ->modalSubmitActionLabel('Yes, Mark Present')
-                    ->action(function (Collection $records) {
-                        $this->validate([
-                            'selected_date' => ['required', 'date'],
-                        ]);
+        $recordIds = $this->studentRecordsQuery()->pluck('student_records.id')->map(fn ($id) => (string) $id)->all();
+        $selectedIds = array_map('strval', $this->selectedStudentRecordIds);
 
-                        $alreadyPresent = [];
-                        $addedAttendance = [];
-                        $activeYearId = AcademicYear::getActiveYearId();
-                        $attendanceDate = Carbon::parse($this->selected_date);
-                        $attendanceTimestamp = $attendanceDate->copy()->setTimeFrom(now());
-
-                        foreach ($records as $record) {
-                            $existingAttendance = AttendanceRecord::where('student_record_id', $record->id)
-                                ->whereDate('created_at', $attendanceDate->toDateString())
-                                ->exists();
-
-                            if ($existingAttendance) {
-                                $alreadyPresent[] = strtoupper($record->student->lastname . ', ' . $record->student->firstname);
-                            } else {
-                                AttendanceRecord::create([
-                                    'student_record_id' => $record->id,
-                                    'academic_year_id' => $activeYearId,
-                                    'created_at' => $attendanceTimestamp,
-                                    'updated_at' => $attendanceTimestamp,
-                                ]);
-                                $addedAttendance[] = strtoupper($record->student->lastname . ', ' . $record->student->firstname);
-                            }
-                        }
-
-                        $messages = [];
-                        if (! empty($alreadyPresent)) {
-                            $messages[] = count($alreadyPresent) . ' student(s) already marked present: ' . implode(', ', $alreadyPresent);
-                        }
-                        if (! empty($addedAttendance)) {
-                            $messages[] = count($addedAttendance) . ' student(s) marked present: ' . implode(', ', $addedAttendance);
-                        }
-
-                        session()->flash('attendance_message', implode(' | ', $messages));
-                        $this->resetTable();
-                    }),
-            ])
-            ->emptyStateHeading('No Students Found')
-            ->emptyStateDescription('Select a section to view students.');
+        $this->selectedStudentRecordIds = count(array_intersect($recordIds, $selectedIds)) === count($recordIds)
+            ? []
+            : $recordIds;
     }
 
-    public function updatedSectionId()
+    public function markSelectedPresent(): void
     {
-        $this->resetTable();
+        $this->validate([
+            'selected_academic_year_id' => ['required', 'exists:academic_years,id'],
+            'selected_date' => ['required', 'date'],
+            'selectedStudentRecordIds' => ['required', 'array', 'min:1'],
+            'selectedStudentRecordIds.*' => ['integer', 'distinct', 'exists:student_records,id'],
+        ], [
+            'selectedStudentRecordIds.required' => 'Select at least one student.',
+            'selectedStudentRecordIds.min' => 'Select at least one student.',
+        ]);
+
+        $records = $this->studentRecordsQuery()
+            ->whereIn('student_records.id', $this->selectedStudentRecordIds)
+            ->get();
+
+        if ($records->isEmpty()) {
+            $this->addError('selectedStudentRecordIds', 'No valid students were selected.');
+
+            return;
+        }
+
+        $attendanceDate = Carbon::parse($this->selected_date);
+        $attendanceTimestamp = $attendanceDate->copy()->setTimeFrom(now());
+        $alreadyPresent = [];
+        $addedAttendance = [];
+
+        foreach ($records as $record) {
+            $studentName = strtoupper($record->student->lastname.', '.$record->student->firstname);
+            $existingAttendance = AttendanceRecord::where('student_record_id', $record->id)
+                ->whereDate('created_at', $attendanceDate->toDateString())
+                ->exists();
+
+            if ($existingAttendance) {
+                $alreadyPresent[] = $studentName;
+
+                continue;
+            }
+
+            AttendanceRecord::create([
+                'student_record_id' => $record->id,
+                'academic_year_id' => $record->academic_year_id ?? $this->selected_academic_year_id,
+                'created_at' => $attendanceTimestamp,
+                'updated_at' => $attendanceTimestamp,
+            ]);
+            $addedAttendance[] = $studentName;
+        }
+
+        $messages = [];
+
+        if ($alreadyPresent !== []) {
+            $messages[] = count($alreadyPresent).' student(s) already marked present: '.implode(', ', $alreadyPresent);
+        }
+
+        if ($addedAttendance !== []) {
+            $messages[] = count($addedAttendance).' student(s) marked present: '.implode(', ', $addedAttendance);
+        }
+
+        $message = implode(' | ', $messages);
+
+        if ($addedAttendance !== []) {
+            sweetalert()->success($message);
+        } else {
+            sweetalert()->info($message);
+        }
+
+        session()->flash('attendance_message', $message);
+        $this->selectedStudentRecordIds = [];
+    }
+
+    public function updatedSectionId(): void
+    {
+        $this->selectedStudentRecordIds = [];
+        $this->resetValidation();
+    }
+
+    public function updatedSelectedAcademicYearId(): void
+    {
+        $this->section_id = null;
+        $this->selectedStudentRecordIds = [];
+        $this->resetValidation();
+    }
+
+    public function updatedSelectedDate(): void
+    {
+        $this->selectedStudentRecordIds = [];
+        $this->resetValidation();
     }
 
     public function render(): View
     {
+        $sections = Section::where('staff_id', auth()->user()->staff->id)
+            ->forAcademicYear($this->selected_academic_year_id)
+            ->orderBy('name')
+            ->get();
+        $studentRecords = filled($this->section_id)
+            ? $this->studentRecordsQuery()->get()
+            : collect();
+        $visibleRecordIds = $studentRecords->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $selectedIds = array_map('strval', $this->selectedStudentRecordIds);
+
         return view('livewire.teacher.attendance-section', [
-            'sections' => Section::where('staff_id', auth()->user()->staff->id)
-                ->get(),
+            'sections' => $sections,
             'academic_years' => AcademicYear::orderByDesc('is_active')->orderBy('name', 'desc')->get(),
+            'studentRecords' => $studentRecords,
+            'allStudentsSelected' => $visibleRecordIds !== []
+                && count(array_intersect($visibleRecordIds, $selectedIds)) === count($visibleRecordIds),
         ]);
+    }
+
+    private function studentRecordsQuery(): Builder
+    {
+        $activeAcademicYearId = AcademicYear::getActiveYearId();
+
+        return StudentRecord::query()
+            ->with([
+                'student',
+                'section',
+                'attendanceRecords' => fn ($query) => $query
+                    ->when(
+                        $this->selected_date,
+                        fn ($query) => $query->whereDate('created_at', $this->selected_date)
+                    )
+                    ->oldest('created_at'),
+            ])
+            ->join('students', 'students.id', '=', 'student_records.student_id')
+            ->where('student_records.is_active', true)
+            ->where('student_records.section_id', $this->section_id)
+            ->whereHas('section', function ($query) {
+                $query->where('staff_id', auth()->user()->staff->id);
+            })
+            ->when(
+                filled($this->selected_academic_year_id),
+                function ($query) use ($activeAcademicYearId) {
+                    $query->where(function ($query) use ($activeAcademicYearId) {
+                        $query->where('student_records.academic_year_id', $this->selected_academic_year_id);
+
+                        if ((string) $this->selected_academic_year_id === (string) $activeAcademicYearId) {
+                            $query->orWhereNull('student_records.academic_year_id');
+                        }
+                    });
+                }
+            )
+            ->orderBy('students.lastname')
+            ->orderBy('students.firstname')
+            ->select('student_records.*');
     }
 }

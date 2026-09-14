@@ -1,34 +1,35 @@
 @section('title', 'How to Enroll')
-<x-home-layout>
-    <section class="relative -mx-4 -mt-4 overflow-hidden bg-slate-950 md:-mx-6 md:-mt-6">
+<x-landing-layout>
+    <section class="relative isolate overflow-hidden border-b border-slate-200 bg-white">
         <img src="{{ asset('images/bg.jpg') }}" alt="TMCNHS enrollment"
-            class="absolute inset-0 h-full w-full object-cover opacity-30">
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-main/75"></div>
+            class="absolute inset-0 -z-20 h-full w-full object-cover opacity-30">
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-white via-white/95 to-white/70"></div>
+        <div class="absolute inset-0 -z-10 bg-gradient-to-t from-[#fbfaf8] via-transparent to-white/20"></div>
 
         <div class="relative mx-auto grid min-h-[30rem] max-w-7xl items-end gap-10 px-4 pb-12 pt-24 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:pb-16">
-            <div class="max-w-3xl text-white">
-                <p class="text-sm font-semibold uppercase tracking-[0.24em] text-red-200">Admissions Guide</p>
-                <h1 class="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+            <div class="max-w-3xl text-[#101928]">
+                <p class="text-xs font-extrabold uppercase tracking-[0.2em] text-[#a71930]">Admissions Guide</p>
+                <h1 class="mt-4 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl lg:text-6xl">
                     How to Enroll
                 </h1>
-                <p class="mt-5 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
+                <p class="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
                     Prepare the correct documents before enrollment opens so the school can verify learner identity, eligibility, and previous grade completion without delay.
                 </p>
             </div>
 
-            <div class="rounded-2xl border border-white/15 bg-white/10 p-5 text-white shadow-2xl backdrop-blur">
+            <div class="rounded-[24px] border border-slate-200 bg-white/95 p-6 text-[#101928] shadow-[0_24px_70px_-28px_rgba(15,23,42,0.35)] backdrop-blur-sm">
                 <div class="flex items-center gap-4">
-                    <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-main shadow-lg">
+                    <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-[#a71930] shadow-sm ring-1 ring-red-100">
                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-red-100">Enrollment Reminder</p>
+                        <p class="text-xs font-extrabold uppercase tracking-[0.18em] text-[#a71930]">Enrollment Reminder</p>
                         <h2 class="mt-1 text-2xl font-bold">Submit complete and accurate documents</h2>
                     </div>
                 </div>
-                <div class="mt-6 space-y-3 text-sm leading-6 text-slate-100">
+                <div class="mt-6 space-y-3 border-t border-slate-200 pt-5 text-sm leading-6 text-slate-600">
                     <p>Birth certificates are submitted once throughout a learner's stay in basic education.</p>
                     <p>Temporary secondary documents may be accepted when the PSA/NSO birth certificate is not yet available.</p>
                 </div>
@@ -36,10 +37,10 @@
         </div>
     </section>
 
-    <section class="bg-slate-50 py-14 sm:py-16">
+    <section class="bg-[#fbfaf8] py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="grid gap-4 md:grid-cols-3">
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg">
                     <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-red-50 text-main">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -51,7 +52,7 @@
                     </p>
                 </div>
 
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg">
                     <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-red-50 text-main">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -63,7 +64,7 @@
                     </p>
                 </div>
 
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg">
                     <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-red-50 text-main">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 104 11c0 1.22-.103 2.416-.3 3.584" />
@@ -152,7 +153,7 @@
                 </aside>
 
                 <div class="space-y-8">
-                    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <article class="rounded-[20px] border border-slate-200 bg-white p-7 shadow-sm">
                         <div class="flex items-start gap-4">
                             <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-main text-sm font-bold text-white">1</span>
                             <div>
@@ -164,7 +165,7 @@
                         </div>
                     </article>
 
-                    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <article class="rounded-[20px] border border-slate-200 bg-white p-7 shadow-sm">
                         <div class="flex items-start gap-4">
                             <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-main text-sm font-bold text-white">2</span>
                             <div>
@@ -179,7 +180,7 @@
                         </div>
                     </article>
 
-                    <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+                    <article class="rounded-[20px] border border-slate-200 bg-[#fbfaf8] p-7 shadow-sm">
                         <h3 class="text-xl font-bold text-slate-950">Accepted secondary documents</h3>
                         <div class="mt-5 grid gap-3 sm:grid-cols-2">
                             <div class="rounded-lg border border-slate-200 bg-white p-4 text-sm font-medium text-slate-700">National ID or any primary government ID, such as driver's license, passport, or postal ID</div>
@@ -197,7 +198,7 @@
                         </p>
                     </article>
 
-                    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <article class="rounded-[20px] border border-slate-200 bg-white p-7 shadow-sm">
                         <div class="flex items-start gap-4">
                             <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-main text-sm font-bold text-white">3</span>
                             <div>
@@ -212,4 +213,4 @@
             </div>
         </div>
     </section>
-</x-home-layout>
+</x-landing-layout>

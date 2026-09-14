@@ -23,8 +23,8 @@ use Livewire\Component;
 
 class AnnouncementList extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
     public function table(Table $table): Table
     {
@@ -47,7 +47,9 @@ class AnnouncementList extends Component implements HasForms, HasTable
                             ->default(true),
                     ])
                     ->modalWidth('xl')
-                    ->modalHeading('Create Announcement'),
+                    ->modalHeading('Create Announcement')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Announcement created successfully!')),
             ])
             ->columns([
                 TextColumn::make('title')->label('TITLE')->searchable()->sortable(),
@@ -74,8 +76,12 @@ class AnnouncementList extends Component implements HasForms, HasTable
                             ->label('Active'),
                     ])
                     ->modalWidth('xl')
-                    ->modalHeading('Edit Announcement'),
-                DeleteAction::make('delete'),
+                    ->modalHeading('Edit Announcement')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Announcement updated successfully!')),
+                DeleteAction::make('delete')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Announcement deleted successfully!')),
             ])
             ->emptyStateHeading('No Announcements yet')
             ->emptyStateDescription('Create a new announcement to see it listed here.');

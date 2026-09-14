@@ -19,6 +19,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class CreateStudent extends Component implements HasForms
@@ -45,17 +46,77 @@ class CreateStudent extends Component implements HasForms
 
     public $section;
 
+    public $selected_academic_year_id;
+
     public $student_picture = [];
 
     public $lrn;
 
     public $contact_number;
 
+    public $parent_name;
+
+    public $parent_contact;
+
     public $password;
 
     public $confirm_password;
 
     public $sectionOptions = [];
+
+    public ?int $student_record_id = null;
+
+    public ?int $existing_student_id = null;
+
+    public ?int $existing_user_id = null;
+
+    public bool $isCompletingRegistration = false;
+
+    public function mount(): void
+    {
+        abort_unless(in_array(auth()->user()?->user_type, ['admin', 'teacher'], true), 403);
+
+        $this->selected_academic_year_id = AcademicYear::getActiveYearId()
+            ?? AcademicYear::latest('start_date')->value('id');
+
+        $recordId = request()->integer('student_record');
+
+        if (! $recordId) {
+            return;
+        }
+
+        $record = StudentRecord::query()
+            ->with('student.user')
+            ->findOrFail($recordId);
+
+        abort_if(
+            $record->student->status === 'Rejected'
+                || (filled($record->grade_level_id) && filled($record->section_id)),
+            409,
+            'This student registration can no longer be processed.'
+        );
+
+        $student = $record->student;
+
+        $this->student_record_id = $record->id;
+        $this->existing_student_id = $student->id;
+        $this->existing_user_id = $student->user_id;
+        $this->isCompletingRegistration = true;
+        $this->firstname = $student->firstname;
+        $this->middlename = $student->middlename;
+        $this->lastname = $student->lastname;
+        $this->birthdate = $student->birthdate;
+        $this->address = $student->address;
+        $this->contact_number = $this->localContactNumber($student->contact_number);
+        $this->parent_name = $student->parent_name;
+        $this->parent_contact = $this->localContactNumber($student->parent_contact);
+        $this->lrn = $student->lrn;
+        $this->email = $student->user?->email;
+        $this->grade_level = $record->grade_level_id;
+        $this->section = $record->section_id;
+        $this->selected_academic_year_id = $record->academic_year_id ?? $this->selected_academic_year_id;
+        $this->loadSectionOptions();
+    }
 
     public function form(Form $form): Form
     {
@@ -86,24 +147,34 @@ class CreateStudent extends Component implements HasForms
                         ->label('Contact Number')
                         ->tel()
                         ->prefix('+63')
-                        ->placeholder('9171234567')
-                        ->helperText('Enter the 10-digit mobile number only.')
-                        ->maxLength(10)
+                        ->placeholder('917-123-4567')
+                        ->helperText('Format: 917-123-4567')
+                        ->mask('999-999-9999')
+                        ->maxLength(12)
                         ->rules(['digits:10'])
                         ->extraInputAttributes([
                             'inputmode' => 'numeric',
-                            'pattern' => '[0-9]*',
-                            'oninput' => "this.value = this.value.replace(/\\D/g, '').slice(0, 10)",
+                            'pattern' => '[0-9]{3}-[0-9]{3}-[0-9]{4}',
                         ])
                         ->required(),
                     TextInput::make('address')->required()->columnSpan(2),
+                    Select::make('selected_academic_year_id')
+                        ->label('School Year')
+                        ->options(AcademicYear::orderByDesc('is_active')->orderByDesc('start_date')->pluck('name', 'id'))
+                        ->required()
+                        ->searchable()
+                        ->reactive()
+                        ->afterStateUpdated(function () {
+                            $this->section = null;
+                            $this->loadSectionOptions();
+                        }),
                     Select::make('grade_level')
                         ->options(GradeLevel::all()->pluck('name', 'id'))
                         ->searchable()
                         ->required()
                         ->reactive()
-                        ->afterStateUpdated(function ($state) {
-                            $this->sectionOptions = Section::where('grade_level_id', $state)->pluck('name', 'id')->toArray();
+                        ->afterStateUpdated(function () {
+                            $this->loadSectionOptions();
                             $this->section = null;
                         }),
                     Select::make('section')
@@ -112,6 +183,29 @@ class CreateStudent extends Component implements HasForms
                         ->reactive(),
 
                 ])->columns(3),
+                Fieldset::make("PARENT/GUARDIAN'S INFORMATION")->schema([
+                    TextInput::make('parent_name')
+                        ->label('Full Name')
+                        ->placeholder("Enter the parent or guardian's full name")
+                        ->maxLength(100)
+                        ->live()
+                        ->afterStateUpdated(
+                            fn ($state, callable $set) => $set('parent_name', $this->capitalizeNameWhileTyping($state))
+                        ),
+                    TextInput::make('parent_contact')
+                        ->label('Contact Number')
+                        ->tel()
+                        ->prefix('+63')
+                        ->placeholder('917-123-4567')
+                        ->helperText('Format: 917-123-4567')
+                        ->mask('999-999-9999')
+                        ->maxLength(12)
+                        ->rules(['nullable', 'digits:10'])
+                        ->extraInputAttributes([
+                            'inputmode' => 'numeric',
+                            'pattern' => '[0-9]{3}-[0-9]{3}-[0-9]{4}',
+                        ]),
+                ])->columns(2),
                 Fieldset::make("STUDENT'S ACCOUNT")->schema([
                     TextInput::make('lrn')
                         ->label('LRN')
@@ -128,13 +222,14 @@ class CreateStudent extends Component implements HasForms
                     TextInput::make('email')->email()->required(),
                     TextInput::make('password')
                         ->password()
-                        ->required()
+                        ->required(fn (): bool => ! $this->isCompletingRegistration)
+                        ->helperText(fn (): ?string => $this->isCompletingRegistration ? 'Leave blank to keep the student\'s current password.' : null)
                         ->maxLength(self::MAX_PASSWORD_LENGTH)
                         ->revealable(),
                     TextInput::make('confirm_password')
                         ->same('password')
                         ->password()
-                        ->required()
+                        ->required(fn (): bool => ! $this->isCompletingRegistration)
                         ->maxLength(self::MAX_PASSWORD_LENGTH)
                         ->revealable(),
 
@@ -149,6 +244,16 @@ class CreateStudent extends Component implements HasForms
         $this->firstname = $this->normalizeName($this->firstname);
         $this->middlename = $this->normalizeName($this->middlename);
         $this->lastname = $this->normalizeName($this->lastname);
+        $this->parent_name = $this->normalizeName($this->parent_name);
+        $this->contact_number = $this->localContactNumber($this->contact_number);
+        $this->parent_contact = $this->localContactNumber($this->parent_contact);
+
+        $passwordRules = $this->isCompletingRegistration
+            ? ['nullable', 'string', 'max:'.self::MAX_PASSWORD_LENGTH]
+            : ['required', 'string', 'max:'.self::MAX_PASSWORD_LENGTH];
+        $confirmationRules = $this->isCompletingRegistration
+            ? ['nullable', 'string', 'max:'.self::MAX_PASSWORD_LENGTH, 'same:password']
+            : ['required', 'string', 'max:'.self::MAX_PASSWORD_LENGTH, 'same:password'];
 
         $this->validate([
             'firstname' => ['required', 'string', 'max:50'],
@@ -156,19 +261,36 @@ class CreateStudent extends Component implements HasForms
             'lastname' => ['required', 'string', 'max:50'],
             'birthdate' => ['required', 'date'],
             'address' => ['required', 'string', 'max:100'],
-            'grade_level' => ['required'],
-            'section' => ['required'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'max:'.self::MAX_PASSWORD_LENGTH],
-            'confirm_password' => ['required', 'string', 'max:'.self::MAX_PASSWORD_LENGTH, 'same:password'],
+            'selected_academic_year_id' => ['required', 'exists:academic_years,id'],
+            'grade_level' => ['required', 'exists:grade_levels,id'],
+            'section' => [
+                'required',
+                Rule::exists('sections', 'id')->where(function ($query) {
+                    $query->where('grade_level_id', $this->grade_level)
+                        ->where(function ($query) {
+                            $query->where('academic_year_id', $this->selected_academic_year_id)
+                                ->orWhereNull('academic_year_id');
+                        });
+                }),
+            ],
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($this->existing_user_id)],
+            'password' => $passwordRules,
+            'confirm_password' => $confirmationRules,
             'student_picture' => ['nullable'],
             'student_picture.*' => ['image', 'max:'.self::MAX_PROFILE_IMAGE_SIZE_KB],
-            'lrn' => ['required', 'digits:12', 'unique:students,lrn'],
+            'lrn' => ['required', 'digits:12', Rule::unique('students', 'lrn')->ignore($this->existing_student_id)],
             'contact_number' => ['required', 'digits:10'],
+            'parent_name' => ['nullable', 'string', 'max:100'],
+            'parent_contact' => ['nullable', 'digits:10'],
         ], [
             'lrn.digits' => 'The LRN must contain exactly 12 digits.',
             'contact_number.digits' => 'The contact number must contain exactly 10 digits after +63.',
+            'parent_contact.digits' => 'The parent or guardian contact number must contain exactly 10 digits after +63.',
         ]);
+
+        if ($this->isCompletingRegistration) {
+            return $this->completeRegistration();
+        }
 
         $user = User::create([
             'name' => $this->firstname.' '.$this->lastname,
@@ -190,6 +312,8 @@ class CreateStudent extends Component implements HasForms
             'birthdate' => $this->birthdate,
             'address' => $this->address,
             'contact_number' => '+63'.$this->contact_number,
+            'parent_name' => $this->parent_name,
+            'parent_contact' => filled($this->parent_contact) ? '+63'.$this->parent_contact : null,
             'lrn' => $this->lrn,
             'image_path' => $imagePath,
             'user_id' => $user->id,
@@ -200,16 +324,19 @@ class CreateStudent extends Component implements HasForms
             'grade_level_id' => $this->grade_level,
             'section_id' => $this->section,
             'is_active' => true,
-            'academic_year_id' => AcademicYear::getActiveYearId(),
+            'academic_year_id' => $this->selected_academic_year_id,
         ]);
 
         if ($createAnother) {
             $this->resetForm();
 
+            sweetalert()->success('Student created successfully! You can now add another student.');
             session()->flash('success', 'Student created successfully. You can now add another student.');
 
             return null;
         }
+
+        sweetalert()->success('Student account created successfully!');
 
         return redirect()->to($this->returnUrl());
     }
@@ -228,11 +355,15 @@ class CreateStudent extends Component implements HasForms
             'student_picture',
             'lrn',
             'contact_number',
+            'parent_name',
+            'parent_contact',
             'password',
             'confirm_password',
             'sectionOptions',
         ]);
 
+        $this->selected_academic_year_id = AcademicYear::getActiveYearId()
+            ?? AcademicYear::latest('start_date')->value('id');
         $this->student_picture = [];
         $this->sectionOptions = [];
 
@@ -284,5 +415,83 @@ class CreateStudent extends Component implements HasForms
         return auth()->user()?->user_type === 'teacher'
             ? route('teacher.dashboard')
             : route('admin.students');
+    }
+
+    private function completeRegistration(): mixed
+    {
+        $record = StudentRecord::query()
+            ->with('student.user')
+            ->findOrFail($this->student_record_id);
+        $student = $record->student;
+        $uploadedImage = Arr::first($this->student_picture);
+
+        $studentData = [
+            'firstname' => $this->firstname,
+            'middlename' => $this->middlename,
+            'lastname' => $this->lastname,
+            'birthdate' => $this->birthdate,
+            'address' => $this->address,
+            'contact_number' => '+63'.$this->contact_number,
+            'parent_name' => $this->parent_name,
+            'parent_contact' => filled($this->parent_contact) ? '+63'.$this->parent_contact : null,
+            'lrn' => $this->lrn,
+            'status' => null,
+        ];
+
+        if ($uploadedImage) {
+            $studentData['image_path'] = $uploadedImage->store('Student Profile', 'public');
+        }
+
+        $student->update($studentData);
+
+        $userData = [
+            'name' => $this->firstname.' '.$this->lastname,
+            'email' => $this->email,
+        ];
+
+        if (filled($this->password)) {
+            $userData['password'] = bcrypt($this->password);
+        }
+
+        $student->user->update($userData);
+        $record->update([
+            'grade_level_id' => $this->grade_level,
+            'section_id' => $this->section,
+            'academic_year_id' => $this->selected_academic_year_id,
+            'is_active' => true,
+        ]);
+
+        sweetalert()->success('Student registration approved and completed!');
+
+        return redirect()->to($this->returnUrl());
+    }
+
+    private function localContactNumber(?string $number): ?string
+    {
+        if (! filled($number)) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D/', '', $number);
+
+        return str_starts_with($digits, '63') && strlen($digits) === 12
+            ? substr($digits, 2)
+            : $digits;
+    }
+
+    private function loadSectionOptions(): void
+    {
+        if (! filled($this->grade_level) || ! filled($this->selected_academic_year_id)) {
+            $this->sectionOptions = [];
+
+            return;
+        }
+
+        $this->sectionOptions = Section::query()
+            ->where('grade_level_id', $this->grade_level)
+            ->forAcademicYear($this->selected_academic_year_id)
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
     }
 }

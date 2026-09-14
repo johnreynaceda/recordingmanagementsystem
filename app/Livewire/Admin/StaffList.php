@@ -21,8 +21,8 @@ use Livewire\Component;
 
 class StaffList extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
     public function table(Table $table): Table
     {
@@ -34,55 +34,54 @@ class StaffList extends Component implements HasForms, HasTable
                     ->iconPosition(IconPosition::After)
                     ->using(function (array $data): Staff {
                         $user = User::create([
-                            'name'      => $data['firstname'] . ' ' . $data['lastname'],
-                            'email'     => $data['email'],
-                            'password'  => bcrypt($data['password']),
+                            'name' => $data['firstname'].' '.$data['lastname'],
+                            'email' => $data['email'],
+                            'password' => bcrypt($data['password']),
                             'user_type' => 'teacher',
                         ]);
 
                         return Staff::create([
-                            'firstname'  => $data['firstname'],
-                            'lastname'   => $data['lastname'],
+                            'firstname' => $data['firstname'],
+                            'lastname' => $data['lastname'],
                             'middlename' => $data['middlename'],
-                            'address'    => $data['address'],
-                            'user_id'    => $user->id,
+                            'address' => $data['address'],
+                            'user_id' => $user->id,
                         ]);
                     }
-                )->form([
-                    Grid::make([
-                        'default' => 2, // 2 columns on desktop
-                        'sm'      => 1, // 1 column on small screens
-                    ])->schema([
-                        Fieldset::make('INFORMATION')->schema([
-                            TextInput::make('firstname')->required()->live()
-                                ->afterStateUpdated(
-                                    fn($state, callable $set) =>
-                                    $set('firstname', ucwords(strtolower($state)))
-                                ),
-                            TextInput::make('middlename')->live()
-                                ->afterStateUpdated(
-                                    fn($state, callable $set) =>
-                                    $set('middlename', ucwords(strtolower($state)))
-                                ),
-                            TextInput::make('lastname')->required()->live()
-                                ->afterStateUpdated(
-                                    fn($state, callable $set) =>
-                                    $set('lastname', ucwords(strtolower($state)))
-                                ),
-                            TextInput::make('address')->columnSpanFull(),
-                        ]),
+                    )->form([
+                        Grid::make([
+                            'default' => 2, // 2 columns on desktop
+                            'sm' => 1, // 1 column on small screens
+                        ])->schema([
+                            Fieldset::make('INFORMATION')->schema([
+                                TextInput::make('firstname')->required()->live()
+                                    ->afterStateUpdated(
+                                        fn ($state, callable $set) => $set('firstname', ucwords(strtolower($state)))
+                                    ),
+                                TextInput::make('middlename')->live()
+                                    ->afterStateUpdated(
+                                        fn ($state, callable $set) => $set('middlename', ucwords(strtolower($state)))
+                                    ),
+                                TextInput::make('lastname')->required()->live()
+                                    ->afterStateUpdated(
+                                        fn ($state, callable $set) => $set('lastname', ucwords(strtolower($state)))
+                                    ),
+                                TextInput::make('address')->columnSpanFull(),
+                            ]),
 
-                        Fieldset::make('ACCOUNT')->schema([
+                            Fieldset::make('ACCOUNT')->schema([
                             TextInput::make('email')->email()->required(),
                             TextInput::make('password')->password()->required()->revealable(),
                             TextInput::make('confirm_password')->password()->required()->revealable()->same('password'),
                         ]),
-                    ]),
-                ])->modalHeading('Create Teacher')->modalWidth('2xl'),
+                        ]),
+                    ])->modalHeading('Create Teacher')->modalWidth('2xl')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Teacher account created successfully!')),
             ])
             ->columns([
                 TextColumn::make('id')->label('FULLNAME')->formatStateUsing(
-                    fn($record) => $record->firstname . ' ' . $record->lastname
+                    fn ($record) => $record->firstname.' '.$record->lastname
                 )->searchable(['firstname', 'lastname']),
                 TextColumn::make('user.email')->label('EMAIL'),
                 TextColumn::make('address')->label('ADDRESS'),
@@ -94,15 +93,16 @@ class StaffList extends Component implements HasForms, HasTable
                 EditAction::make('edit')->color('success')->action(
                     function ($record, $data) {
                         $record->update([
-                            'firstname'  => $data['firstname'],
-                            'lastname'   => $data['lastname'],
+                            'firstname' => $data['firstname'],
+                            'lastname' => $data['lastname'],
                             'middlename' => $data['middlename'],
-                            'address'    => $data['address'],
+                            'address' => $data['address'],
                         ]);
                         $record->user->update([
-                            'email'    => $data['email'],
+                            'email' => $data['email'],
                             'password' => $data['password'] ? bcrypt($data['password']) : '',
                         ]);
+                        sweetalert()->success('Teacher account updated successfully!');
                     }
                 )->form(
                     function ($record) {
@@ -122,8 +122,10 @@ class StaffList extends Component implements HasForms, HasTable
                             ]),
                         ];
                     }
-                ),
-                DeleteAction::make('delete'),
+                )->successNotification(null),
+                DeleteAction::make('delete')
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Teacher account deleted successfully!')),
             ])
             ->bulkActions([
                 // ...

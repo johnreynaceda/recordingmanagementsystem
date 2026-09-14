@@ -3,30 +3,40 @@
 namespace App\Livewire\Student;
 
 use App\Models\Student;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Storage;
 
 class Profile extends Component
 {
     use WithFileUploads;
 
     public $student;
+
     public $section;
+
     public $gradeLevel;
 
     public $isEditing = false;
 
     // Editable fields
     public $firstname;
+
     public $middlename;
+
     public $lastname;
+
     public $contact_number;
+
     public $parent_name;
+
     public $parent_contact;
+
     public $birthdate;
+
     public $address;
-    
+
     public $new_image;
 
     public function mount()
@@ -36,7 +46,7 @@ class Profile extends Component
 
     public function loadStudentData()
     {
-        /** @var \App\Models\Student|null $student */
+        /** @var Student|null $student */
         $student = Student::with(['studentRecords.section', 'studentRecords.gradeLevel'])
             ->where('user_id', auth()->id())
             ->first();
@@ -56,10 +66,12 @@ class Profile extends Component
 
     public function edit()
     {
-        /** @var \App\Models\Student|null $student */
+        /** @var Student|null $student */
         $student = $this->student;
-        if (!$student) return;
-        
+        if (! $student) {
+            return;
+        }
+
         $this->isEditing = true;
         $this->firstname = $student->firstname;
         $this->middlename = $student->middlename;
@@ -80,9 +92,11 @@ class Profile extends Component
 
     public function save()
     {
-        /** @var \App\Models\Student|null $student */
+        /** @var Student|null $student */
         $student = $this->student;
-        if (!$student) return;
+        if (! $student) {
+            return;
+        }
 
         $this->validate([
             'firstname' => 'required|string|max:255',
@@ -103,7 +117,7 @@ class Profile extends Component
             if ($student->image_path) {
                 Storage::disk('public')->delete($student->image_path);
             }
-            /** @var \Illuminate\Http\UploadedFile $image */
+            /** @var UploadedFile $image */
             $image = $this->new_image;
             $imagePath = $image->store('students/profiles', 'public');
             $student->image_path = $imagePath;
@@ -125,6 +139,7 @@ class Profile extends Component
         $this->isEditing = false;
         $this->new_image = null;
 
+        sweetalert()->success('Profile updated successfully!');
         session()->flash('success', 'Profile updated successfully.');
     }
 

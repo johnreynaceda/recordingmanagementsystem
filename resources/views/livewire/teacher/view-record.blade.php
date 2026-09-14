@@ -12,7 +12,7 @@
             <div class="mt-3 flex space-x-3 items-end">
                 <div class="w-64">
                     <x-native-select label="Academic Year" wire:model.live="selected_academic_year_id">
-                        <option value="">All Academic Years</option>
+                        <option value="">Select Academic Year</option>
                         @foreach($academic_years as $year)
                             <option value="{{ $year->id }}">{{ $year->name }} {{ $year->is_active ? '(Active)' : '' }}</option>
                         @endforeach
@@ -68,21 +68,26 @@
                                 NAME
                             </th>
 
-                            <th class="border text-center border-gray-600 px-2 font-bold text-gray-700  py-2">SECTION
+                            <th class="border text-center border-gray-600 px-2 font-bold text-gray-700  py-2">ATTENDANCE
                             </th>
 
 
                         </tr>
                     </thead>
                     <tbody class="">
-                        @forelse ($attendances as $item)
+                        @forelse ($student_records as $record)
+                            @php($attendance = $record->attendanceRecords->first())
                             <tr>
                                 <td class="border text-gray-700   font-medium text-center border-gray-600 px-3 ">
-                                    {{ $item->studentRecord->student->firstname . ' ' . $item->studentRecord->student->lastname }}
+                                    {{  $record->student->lastname.', '.$record->student->firstname }}
                                 </td>
 
                                 <td class="border text-gray-700  font-medium text-center border-gray-600 px-3 ">
-                                    {{ $item->studentRecord->section->name }}
+                                    @if ($attendance)
+                                        <span class="font-bold text-emerald-700">PRESENT</span>
+                                    @else
+                                        <span class="font-bold text-red-700">ABSENT</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty

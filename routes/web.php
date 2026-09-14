@@ -2,15 +2,30 @@
 
 use App\Http\Controllers\Admin\StudentAttendanceExportController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Announcement;
+use App\Models\Staff;
+use App\Models\Student;
 use App\Livewire\Admin\ViewStudentAttendance;
 use App\Livewire\Auth\FacultyStaffLogin;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\StudentLogin;
+use App\Livewire\Auth\StudentSelfEnrollment;
 use App\Livewire\Student\MyGrade;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome', [
+        'studentCount' => Schema::hasTable('students') ? Student::count() : 0,
+        'staffCount' => Schema::hasTable('staff') ? Staff::count() : 0,
+        'announcements' => Schema::hasTable('announcements')
+            ? Announcement::query()
+                ->where('is_active', true)
+                ->latest()
+                ->take(3)
+                ->get()
+            : collect(),
+    ]);
 })->name('home');
 Route::get('/about', function () {
     return view('pages.about');
@@ -25,6 +40,9 @@ Route::get('/announcements', function () {
 })->name('announcements');
 
 Route::get('/student-login', StudentLogin::class)->name('student-login');
+Route::get('/student-enrollment', StudentSelfEnrollment::class)
+    ->middleware('guest')
+    ->name('student.self-enrollment');
 Route::get('/faculty-staff-login', FacultyStaffLogin::class)->name('faculty-staff-login');
 Route::get('/dashboard', function () {
     switch (auth()->user()->user_type) {

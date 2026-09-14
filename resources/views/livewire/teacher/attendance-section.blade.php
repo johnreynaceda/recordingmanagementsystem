@@ -37,7 +37,7 @@
             <div>
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Section</label>
                 <select wire:model.live="section_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm py-2 px-3 border">
-                    <option value="">All Sections</option>
+                    <option value="">Select Section</option>
                     @foreach($sections as $section)
                         <option value="{{ $section->id }}">{{ $section->name }}</option>
                     @endforeach
@@ -57,17 +57,95 @@
     @if($section_id)
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
             <div class="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
-            <div class="px-6 pt-6 pb-4 border-b border-gray-100 text-center">
+            <div class="flex flex-col gap-4 border-b border-gray-100 px-6 pb-4 pt-6 sm:flex-row sm:items-center sm:justify-between">
                 @php
                     $selectedSection = $sections->firstWhere('id', $section_id);
                 @endphp
-                <span class="inline-block bg-red-50 text-red-700 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2">Section</span>
-                <h2 class="text-2xl font-bold text-gray-800 tracking-tight">
-                    {{ $selectedSection ? strtoupper($selectedSection->name) : '' }}
-                </h2>
+                <div>
+                    <span class="inline-block rounded-full bg-red-50 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-700">Section</span>
+                    <h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-800">
+                        {{ $selectedSection ? strtoupper($selectedSection->name) : '' }}
+                    </h2>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ $studentRecords->count() }} {{ Str::plural('student', $studentRecords->count()) }} found
+                    </p>
+                </div>
+
+                <button type="button"
+                    wire:click="markSelectedPresent"
+                    wire:confirm="Mark the selected students as present for {{ $selected_date }}?"
+                    wire:loading.attr="disabled"
+                    wire:target="markSelectedPresent"
+                    @disabled($selectedStudentRecordIds === [])
+                    class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50">
+                    <svg wire:loading.remove wire:target="markSelectedPresent" class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <svg wire:loading wire:target="markSelectedPresent" class="mr-2 h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Mark as Present
+                </button>
             </div>
-            <div class="p-6">
-                {{ $this->table }}
+
+            @error('selectedStudentRecordIds')
+                <div class="border-b border-red-100 bg-red-50 px-6 py-3 text-sm font-medium text-red-700">{{ $message }}</div>
+            @enderror
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="w-14 px-6 py-3 text-left">
+                                <input type="checkbox"
+                                    wire:click="toggleSelectAll"
+                                    @checked($allStudentsSelected)
+                                    aria-label="Select all students"
+                                    class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                            </th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Student Name</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">LRN</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Section</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Attendance Record</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        @forelse ($studentRecords as $record)
+                            @php($attendance = $record->attendanceRecords->first())
+                            <tr wire:key="attendance-student-{{ $record->id }}" class="hover:bg-gray-50">
+                                <td class="px-6 py-4">
+                                    <input type="checkbox"
+                                        wire:model.live="selectedStudentRecordIds"
+                                        value="{{ $record->id }}"
+                                        aria-label="Select {{ $record->student->firstname }} {{ $record->student->lastname }}"
+                                        class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm font-semibold text-gray-900">
+                                    {{ strtoupper($record->student->lastname.', '.$record->student->firstname.' '.($record->student->middlename ? substr($record->student->middlename, 0, 1).'.' : '')) }}
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-600">{{ $record->student->lrn ?: '—' }}</td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-600">{{ strtoupper($record->section->name) }}</td>
+                                <td class="whitespace-nowrap px-4 py-4 text-sm">
+                                    @if ($attendance)
+                                        <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                                            Present · {{ $attendance->created_at->format('h:i A') }}
+                                        </span>
+                                    @else
+                                        <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">No record</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <p class="text-base font-semibold text-gray-700">No students found</p>
+                                    <p class="mt-1 text-sm text-gray-500">There are no active student records in this section for the selected academic year.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     @else

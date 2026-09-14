@@ -1,62 +1,63 @@
 @section('title', 'About Us')
-<x-home-layout>
-    <section class="relative -mx-4 -mt-4 overflow-hidden bg-slate-950 md:-mx-6 md:-mt-6">
+<x-landing-layout>
+    <section class="relative isolate overflow-hidden border-b border-slate-200 bg-white">
         <img src="{{ asset('images/bg.jpg') }}" alt="Trece Martires City National High School"
-            class="absolute inset-0 h-full w-full object-cover opacity-35">
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-main/70"></div>
+            class="absolute inset-0 -z-20 h-full w-full object-cover opacity-30">
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-white via-white/95 to-white/70"></div>
+        <div class="absolute inset-0 -z-10 bg-gradient-to-t from-[#fbfaf8] via-transparent to-white/20"></div>
 
         <div class="relative mx-auto grid min-h-[32rem] max-w-7xl items-end gap-10 px-4 pb-12 pt-24 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:pb-16">
-            <div class="max-w-3xl text-white">
-                <p class="text-sm font-semibold uppercase tracking-[0.24em] text-red-200">School History</p>
-                <h1 class="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+            <div class="max-w-3xl text-[#101928]">
+                <p class="text-xs font-extrabold uppercase tracking-[0.2em] text-[#a71930]">School History</p>
+                <h1 class="mt-4 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl lg:text-6xl">
                     Then and Now
                 </h1>
-                <p class="mt-5 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
+                <p class="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
                     The story of Trece Martires City National High School began with borrowed rooms, shared books, and a community that believed the city deserved its own strong public secondary school.
                 </p>
             </div>
 
-            <div class="rounded-2xl border border-white/15 bg-white/10 p-5 text-white shadow-2xl backdrop-blur">
+            <div class="rounded-[24px] border border-slate-200 bg-white/95 p-6 text-[#101928] shadow-[0_24px_70px_-28px_rgba(15,23,42,0.35)] backdrop-blur-sm">
                 <div class="flex items-center gap-4">
                     <img src="{{ asset('images/tmcnhs_logo.png') }}" alt="TMCNHS logo"
                         class="h-20 w-20 rounded-2xl bg-white p-2 shadow-lg">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-red-100">TMCNHS</p>
+                        <p class="text-xs font-extrabold uppercase tracking-[0.18em] text-[#a71930]">TMCNHS</p>
                         <h2 class="mt-1 text-2xl font-bold">Trece Martires City National High School</h2>
                     </div>
                 </div>
                 <div class="mt-6 grid grid-cols-3 gap-3 text-center">
-                    <div class="rounded-xl border border-white/10 bg-white/10 px-3 py-4">
+                    <div class="rounded-xl border border-slate-200 bg-[#fbfaf8] px-3 py-4">
                         <p class="text-2xl font-extrabold">1966</p>
-                        <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-200">Founded</p>
+                        <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Founded</p>
                     </div>
-                    <div class="rounded-xl border border-white/10 bg-white/10 px-3 py-4">
+                    <div class="rounded-xl border border-slate-200 bg-[#fbfaf8] px-3 py-4">
                         <p class="text-2xl font-extrabold">1983</p>
-                        <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-200">Nationalized</p>
+                        <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Nationalized</p>
                     </div>
-                    <div class="rounded-xl border border-white/10 bg-white/10 px-3 py-4">
+                    <div class="rounded-xl border border-slate-200 bg-[#fbfaf8] px-3 py-4">
                         <p class="text-2xl font-extrabold">25k</p>
-                        <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-200">Sq. meters</p>
+                        <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Sq. meters</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="bg-slate-50 py-14 sm:py-16">
+    <section class="bg-[#fbfaf8] py-14 sm:py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="grid gap-4 md:grid-cols-3">
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg">
                     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-main">Location</p>
                     <p class="mt-3 text-lg font-bold text-slate-900">Heart of Trece Martires City</p>
                     <p class="mt-2 text-sm leading-6 text-slate-600">A few meters from the Provincial Capitol and at the center of Cavite Province.</p>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg">
                     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-main">Programs</p>
                     <p class="mt-3 text-lg font-bold text-slate-900">STE, SPA, ALS, and General Curriculum</p>
                     <p class="mt-2 text-sm leading-6 text-slate-600">Specialized and inclusive pathways for different learner strengths and circumstances.</p>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg">
                     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-main">Tagline</p>
                     <p class="mt-3 text-lg font-bold text-slate-900">We stand, We smile, We serve</p>
                     <p class="mt-2 text-sm leading-6 text-slate-600">A school community committed to service, growth, and holistic learner development.</p>
@@ -186,4 +187,4 @@
             </div>
         </div>
     </section>
-</x-home-layout>
+</x-landing-layout>

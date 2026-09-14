@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Auth\StudentLogin;
 use App\Models\Student;
+use App\Models\StudentRecord;
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,12 +18,13 @@ class StudentLoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_student_login_page_uses_lrn_and_has_no_signup_link(): void
+    public function test_student_login_page_uses_lrn_and_links_to_self_enrollment(): void
     {
         $this->get(route('student-login'))
             ->assertOk()
             ->assertSee('LRN')
-            ->assertDontSee('Sign Up');
+            ->assertSee('Start self-enrollment')
+            ->assertSee(route('student.self-enrollment'));
     }
 
     public function test_lrn_must_contain_exactly_12_digits(): void
@@ -116,6 +118,44 @@ class StudentLoginTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
         Notification::assertNothingSent();
+    }
+
+    public function test_rejected_student_cannot_log_in(): void
+    {
+        [$user, $student] = $this->createStudent([
+            'password_changed_at' => now(),
+        ]);
+        $student->update(['status' => 'Rejected']);
+
+        Livewire::test(StudentLogin::class)
+            ->set('lrn', $student->lrn)
+            ->set('password', 'initial-password')
+            ->call('login')
+            ->assertNoRedirect();
+
+        $this->assertGuest();
+    }
+
+    public function test_student_with_unassigned_grade_or_section_cannot_log_in(): void
+    {
+        [$user, $student] = $this->createStudent([
+            'password_changed_at' => now(),
+        ]);
+        StudentRecord::create([
+            'student_id' => $student->id,
+            'grade_level_id' => null,
+            'section_id' => null,
+            'academic_year_id' => null,
+            'is_active' => true,
+        ]);
+
+        Livewire::test(StudentLogin::class)
+            ->set('lrn', $student->lrn)
+            ->set('password', 'initial-password')
+            ->call('login')
+            ->assertNoRedirect();
+
+        $this->assertGuest();
     }
 
     private function createStudent(array $userAttributes = []): array

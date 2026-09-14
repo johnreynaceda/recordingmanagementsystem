@@ -7,6 +7,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -20,8 +22,8 @@ use Livewire\Component;
 
 class AcademicYearManage extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
     protected function getFormSchema(): array
     {
@@ -43,7 +45,9 @@ class AcademicYearManage extends Component implements HasForms, HasTable
                 CreateAction::make()
                     ->form($this->getFormSchema())
                     ->modalWidth('lg')
-                    ->slideOver(),
+                    ->slideOver()
+                    ->successNotification(null)
+                    ->after(fn () => sweetalert()->success('Academic year created successfully!')),
             ])
             ->columns([
                 TextColumn::make('name')->label('Academic Year')->searchable(),
@@ -51,26 +55,28 @@ class AcademicYearManage extends Component implements HasForms, HasTable
                 TextColumn::make('end_date')->label('End Date')->date('M d, Y'),
                 BadgeColumn::make('is_active')
                     ->label('Status')
-                    ->formatStateUsing(fn($state) => $state ? 'Active' : 'Inactive')
-                    ->color(fn($state) => $state ? 'success' : 'gray'),
+                    ->formatStateUsing(fn ($state) => $state ? 'Active' : 'Inactive')
+                    ->color(fn ($state) => $state ? 'success' : 'gray'),
             ])
             ->actions([
-                \Filament\Tables\Actions\ActionGroup::make([
+                ActionGroup::make([
                     ViewAction::make()->form($this->getFormSchema()),
-                    EditAction::make()->form($this->getFormSchema()),
-                    \Filament\Tables\Actions\Action::make('set_active')
+                    EditAction::make()
+                        ->form($this->getFormSchema())
+                        ->successNotification(null)
+                        ->after(fn () => sweetalert()->success('Academic year updated successfully!')),
+                    Action::make('set_active')
                         ->label('Set as Active')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->visible(fn(AcademicYear $record) => !$record->is_active)
+                        ->visible(fn (AcademicYear $record) => ! $record->is_active)
                         ->action(function (AcademicYear $record): void {
                             $record->setAsActive();
-                            \Filament\Notifications\Notification::make()
-                                ->title('Academic Year activated')
-                                ->success()
-                                ->send();
+                            sweetalert()->success('Academic year activated successfully!');
                         }),
-                    DeleteAction::make(),
+                    DeleteAction::make()
+                        ->successNotification(null)
+                        ->after(fn () => sweetalert()->success('Academic year deleted successfully!')),
                 ]),
             ]);
     }

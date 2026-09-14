@@ -87,6 +87,38 @@ class StudentLogin extends Component implements HasForms
             return null;
         }
 
+        if ($user->student->status === 'Rejected') {
+            Auth::logout();
+            if (request()->hasSession()) {
+                request()->session()->invalidate();
+                request()->session()->regenerateToken();
+            }
+            sweetalert()->error('Your student registration was rejected. Please contact the school for assistance.');
+            $this->reset('lrn', 'password');
+
+            return null;
+        }
+
+        $hasUnassignedPlacement = $user->student->studentRecords()
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('grade_level_id')
+                    ->orWhereNull('section_id');
+            })
+            ->exists();
+
+        if ($hasUnassignedPlacement) {
+            Auth::logout();
+            if (request()->hasSession()) {
+                request()->session()->invalidate();
+                request()->session()->regenerateToken();
+            }
+            sweetalert()->warning('Your enrollment is awaiting grade level and section assignment. Please contact the school.');
+            $this->reset('lrn', 'password');
+
+            return null;
+        }
+
         if ($user->password_changed_at === null) {
             $status = Password::sendResetLink(['email' => $user->email]);
 
