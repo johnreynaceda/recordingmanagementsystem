@@ -37,7 +37,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                    <div x-data="{ showPassword: false, showPasswordConfirmation: false }" class="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
                             <label for="lrn" class="block text-sm font-semibold text-slate-700">LRN <span class="text-red-600">*</span></label>
                             <input id="lrn" type="text" wire:model="lrn" required inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="username"
@@ -55,15 +55,39 @@
 
                         <div>
                             <label for="password" class="block text-sm font-semibold text-slate-700">Password <span class="text-red-600">*</span></label>
-                            <input id="password" type="password" wire:model="password" required autocomplete="new-password" minlength="8" maxlength="16" placeholder="Create an 8–16 character password"
-                                class="mt-2 block w-full rounded-xl border bg-white px-4 py-3 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-main focus:ring-main @error('password') border-red-400 @else border-slate-300 @enderror">
+                            <div class="relative mt-2">
+                                <input id="password" :type="showPassword ? 'text' : 'password'" wire:model="password" required autocomplete="new-password" minlength="8" maxlength="16" placeholder="Create an 8–16 character password"
+                                    class="block w-full rounded-xl border bg-white py-3 pl-4 pr-12 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-main focus:ring-main @error('password') border-red-400 @else border-slate-300 @enderror">
+                                <button type="button" @click="showPassword = ! showPassword" :aria-pressed="showPassword" :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                                    class="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-xl text-slate-400 transition hover:text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-main">
+                                    <svg x-show="! showPassword" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12s3-5.25 8.25-5.25S20.25 12 20.25 12 17.25 17.25 12 17.25 3.75 12 3.75 12Z" />
+                                        <circle cx="12" cy="12" r="2.25" />
+                                    </svg>
+                                    <svg x-show="showPassword" x-cloak class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" d="m4 4 16 16M10.4 7a8.9 8.9 0 0 1 1.6-.15c5.25 0 8.25 5.15 8.25 5.15a13.2 13.2 0 0 1-2.25 2.8M14.5 16.9a8.8 8.8 0 0 1-2.5.35C6.75 17.25 3.75 12 3.75 12a14.5 14.5 0 0 1 3-3.35" />
+                                    </svg>
+                                </button>
+                            </div>
                             @error('password') <p class="mt-2 text-sm font-medium text-red-600" role="alert">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
                             <label for="password_confirmation" class="block text-sm font-semibold text-slate-700">Confirm Password <span class="text-red-600">*</span></label>
-                            <input id="password_confirmation" type="password" wire:model="password_confirmation" required autocomplete="new-password" minlength="8" maxlength="16" placeholder="Re-enter your password"
-                                class="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-main focus:ring-main">
+                            <div class="relative mt-2">
+                                <input id="password_confirmation" :type="showPasswordConfirmation ? 'text' : 'password'" wire:model="password_confirmation" required autocomplete="new-password" minlength="8" maxlength="16" placeholder="Re-enter your password"
+                                    class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-4 pr-12 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-main focus:ring-main">
+                                <button type="button" @click="showPasswordConfirmation = ! showPasswordConfirmation" :aria-pressed="showPasswordConfirmation" :aria-label="showPasswordConfirmation ? 'Hide password confirmation' : 'Show password confirmation'"
+                                    class="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-xl text-slate-400 transition hover:text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-main">
+                                    <svg x-show="! showPasswordConfirmation" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12s3-5.25 8.25-5.25S20.25 12 20.25 12 17.25 17.25 12 17.25 3.75 12 3.75 12Z" />
+                                        <circle cx="12" cy="12" r="2.25" />
+                                    </svg>
+                                    <svg x-show="showPasswordConfirmation" x-cloak class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" d="m4 4 16 16M10.4 7a8.9 8.9 0 0 1 1.6-.15c5.25 0 8.25 5.15 8.25 5.15a13.2 13.2 0 0 1-2.25 2.8M14.5 16.9a8.8 8.8 0 0 1-2.5.35C6.75 17.25 3.75 12 3.75 12a14.5 14.5 0 0 1 3-3.35" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>

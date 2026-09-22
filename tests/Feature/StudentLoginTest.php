@@ -18,22 +18,22 @@ class StudentLoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_student_login_page_uses_lrn_and_links_to_self_enrollment(): void
+    public function test_student_login_page_accepts_email_or_lrn_and_links_to_self_enrollment(): void
     {
         $this->get(route('student-login'))
             ->assertOk()
-            ->assertSee('LRN')
+            ->assertSee('Email or LRN')
             ->assertSee('Start self-enrollment')
             ->assertSee(route('student.self-enrollment'));
     }
 
-    public function test_lrn_must_contain_exactly_12_digits(): void
+    public function test_login_identifier_must_be_an_email_or_exactly_12_digits(): void
     {
         Livewire::test(StudentLogin::class)
             ->set('lrn', '12345')
             ->set('password', 'password')
             ->call('login')
-            ->assertHasErrors(['lrn' => 'digits']);
+            ->assertHasErrors(['lrn']);
     }
 
     public function test_first_login_emails_password_change_link_and_logs_student_out(): void
@@ -112,6 +112,24 @@ class StudentLoginTest extends TestCase
 
         Livewire::test(StudentLogin::class)
             ->set('lrn', $student->lrn)
+            ->set('password', 'initial-password')
+            ->call('login')
+            ->assertRedirect(route('student.index'));
+
+        $this->assertAuthenticatedAs($user);
+        Notification::assertNothingSent();
+    }
+
+    public function test_returning_student_can_log_in_with_email(): void
+    {
+        Notification::fake();
+        [$user] = $this->createStudent([
+            'email' => 'student@example.com',
+            'password_changed_at' => now(),
+        ]);
+
+        Livewire::test(StudentLogin::class)
+            ->set('lrn', 'STUDENT@example.com')
             ->set('password', 'initial-password')
             ->call('login')
             ->assertRedirect(route('student.index'));

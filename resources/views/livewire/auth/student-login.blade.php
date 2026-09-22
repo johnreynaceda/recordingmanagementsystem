@@ -27,7 +27,7 @@
         </span>
         <h1 class="mt-3 text-2xl font-extrabold tracking-[-0.025em] text-[#101928] sm:text-3xl">Welcome back, learner</h1>
         <p class="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-slate-500">
-            Enter your learner reference number and password to access your student account.
+            Enter your email address or learner reference number and password to access your student account.
         </p>
     </div>
 

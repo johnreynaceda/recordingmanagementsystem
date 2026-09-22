@@ -86,11 +86,11 @@
                 </nav>
 
                 <div class="ml-auto flex items-center gap-2 sm:gap-3">
-                    <a href="{{ route('home') }}" target="_blank" rel="noopener"
+                    {{-- <a href="{{ route('home') }}" target="_blank" rel="noopener"
                         class="hidden min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-600 shadow-sm transition duration-300 hover:border-red-200 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] lg:inline-flex">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12s3-5.25 8.25-5.25S20.25 12 20.25 12 17.25 17.25 12 17.25 3.75 12 3.75 12Z"/><circle cx="12" cy="12" r="2.25"/></svg>
                         School website
-                    </a>
+                    </a> --}}
 
                     <div class="relative hidden sm:block" @click.outside="profileOpen = false">
                         <button type="button" @click="profileOpen = ! profileOpen" :aria-expanded="profileOpen"
@@ -114,10 +114,10 @@
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path stroke-linecap="round" d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
                                 My profile
                             </a>
-                            <a href="{{ route('home') }}" target="_blank" rel="noopener" role="menuitem" class="flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-bold text-slate-600 transition duration-300 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b]">
+                            {{-- <a href="{{ route('home') }}" target="_blank" rel="noopener" role="menuitem" class="flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-bold text-slate-600 transition duration-300 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b]">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12s3-5.25 8.25-5.25S20.25 12 20.25 12 17.25 17.25 12 17.25 3.75 12 3.75 12Z"/><circle cx="12" cy="12" r="2.25"/></svg>
                                 View school website
-                            </a>
+                            </a> --}}
                             <form method="POST" action="{{ route('logout') }}" class="mt-1 border-t border-slate-100 pt-1">
                                 @csrf
                                 <button type="submit" role="menuitem" class="flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-bold text-slate-600 transition duration-300 hover:bg-red-50 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b]">

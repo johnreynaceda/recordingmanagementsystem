@@ -3,6 +3,7 @@
 namespace App\Livewire\Auth;
 
 use App\Models\Student;
+use App\Models\User;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -10,6 +11,7 @@ use Filament\Forms\Form;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class StudentLogin extends Component implements HasForms
@@ -26,16 +28,11 @@ class StudentLogin extends Component implements HasForms
     {
         return $form->schema([
             TextInput::make('lrn')
-                ->label('LRN')
+                ->label('Email or LRN')
                 ->required()
-                ->length(12)
-                ->rules(['digits:12'])
-                ->extraInputAttributes([
-                    'inputmode' => 'numeric',
-                    'pattern' => '[0-9]*',
-                    'maxlength' => '12',
-                    'oninput' => "this.value = this.value.replace(/\\D/g, '').slice(0, 12)",
-                ])
+                ->placeholder('Enter your email or 12-digit LRN')
+                ->helperText('Use the email address linked to your account or your 12-digit LRN.')
+                ->maxLength(255)
                 ->autocomplete('username'),
             TextInput::make('password')
                 ->required()
@@ -48,22 +45,44 @@ class StudentLogin extends Component implements HasForms
     public function login(): mixed
     {
         $this->validate([
-            'lrn' => ['required', 'digits:12'],
+            'lrn' => [
+                'required',
+                'string',
+                'max:255',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $identifier = trim((string) $value);
+
+                    if (! filter_var($identifier, FILTER_VALIDATE_EMAIL)
+                        && preg_match('/^\d{12}$/', $identifier) !== 1) {
+                        $fail('Enter a valid email address or a 12-digit LRN.');
+                    }
+                },
+            ],
             'password' => ['required', 'string'],
-        ], [
-            'lrn.digits' => 'The LRN must contain exactly 12 digits.',
         ]);
 
-        $student = Student::query()
-            ->with('user')
-            ->where('lrn', trim($this->lrn))
-            ->first();
+        $identifier = trim($this->lrn);
 
-        if (! $student?->user || ! Auth::attempt([
-            'id' => $student->user_id,
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = User::query()
+                ->with('student')
+                ->where('user_type', 'student')
+                ->whereRaw('LOWER(email) = ?', [Str::lower($identifier)])
+                ->first();
+            $student = $user?->student;
+        } else {
+            $student = Student::query()
+                ->with('user')
+                ->where('lrn', $identifier)
+                ->first();
+            $user = $student?->user;
+        }
+
+        if (! $student || ! $user || ! Auth::attempt([
+            'id' => $user->id,
             'password' => $this->password,
         ], $this->remember)) {
-            sweetalert()->error('Invalid LRN or password.');
+            sweetalert()->error('Invalid email, LRN, or password.');
             $this->reset('lrn', 'password');
 
             return null;

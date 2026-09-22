@@ -1,249 +1,393 @@
-<div class="mx-auto max-w-7xl space-y-5 sm:space-y-8">
-    <!-- Header -->
-    <div class="relative flex items-center justify-between overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 to-red-800 p-5 text-white shadow-xl sm:rounded-3xl sm:p-8">
-        <div class="relative z-10">
-            <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Student Profile</h2>
-            <p class="mt-2 text-sm font-medium text-red-100 sm:text-base">Manage your personal information and student records.</p>
-        </div>
-        <div class="relative z-10 hidden md:block">
-            <svg class="w-16 h-16 text-red-200 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        </div>
-        <!-- Decorative subtle shapes -->
-        <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 blur-2xl"></div>
-        <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-red-300 opacity-10 blur-xl"></div>
-    </div>
-
-    @if (session()->has('success'))
-        <div x-data="{ show: true }" x-show="show" class="flex items-start justify-between gap-3 rounded-xl border-l-4 border-green-500 bg-green-50 p-4 shadow-sm transition-all duration-500">
-            <div class="flex min-w-0">
-                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <span class="text-green-800 font-medium">{{ session('success') }}</span>
+<div class="mx-auto max-w-7xl space-y-5 sm:space-y-6">
+    @if (session()->has('success') || session('status') === 'password-updated')
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity
+            class="flex items-start justify-between gap-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-emerald-800 shadow-sm"
+            role="status">
+            <div class="flex min-w-0 items-start gap-3">
+                <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-600 ring-1 ring-emerald-200">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6" />
+                    </svg>
+                </span>
+                <div>
+                    <p class="text-sm font-extrabold">{{ session('status') === 'password-updated' ? 'Password updated' : 'Profile updated' }}</p>
+                    <p class="mt-0.5 text-sm font-medium text-emerald-700">
+                        {{ session('status') === 'password-updated' ? 'Your account password was changed successfully.' : session('success') }}
+                    </p>
+                </div>
             </div>
-            <button @click="show = false" class="text-green-500 hover:text-green-700 transition">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <button type="button" @click="show = false"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                aria-label="Dismiss notification">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" d="m6 6 12 12M18 6 6 18" />
+                </svg>
             </button>
         </div>
     @endif
 
-    <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white/80 shadow-lg backdrop-blur-xl sm:rounded-3xl">
-        
-        <div class="p-4 sm:p-8 lg:p-12">
-            @if($isEditing)
-                <form wire:submit.prevent="save">
-                    <div class="lg:flex lg:gap-12">
-                        <!-- Left Side: Profile Picture Edit -->
-                        <div class="mb-10 flex flex-col items-center lg:mb-0 lg:w-1/3">
-                            <div class="group relative h-36 w-36 cursor-pointer overflow-hidden rounded-full border-4 border-white shadow-2xl ring-4 ring-red-50 transition-all duration-300 hover:ring-red-100 sm:h-48 sm:w-48">
+    @if (! $student)
+        <section class="rounded-[20px] border border-dashed border-slate-300 bg-white px-6 py-14 text-center shadow-sm" aria-labelledby="profile-unavailable-title">
+            <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-[#a71930] ring-1 ring-red-100">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <circle cx="12" cy="8" r="3.75" />
+                    <path stroke-linecap="round" d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+                </svg>
+            </span>
+            <h2 id="profile-unavailable-title" class="mt-5 text-xl font-extrabold tracking-tight text-[#101928]">Student profile unavailable</h2>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">We could not find a student record linked to this account. Please contact the school registrar for assistance.</p>
+        </section>
+    @elseif ($isEditing)
+        <form wire:submit.prevent="save" class="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+            <div class="flex flex-col gap-4 border-b border-slate-200 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+                <div>
+                    <p class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#a71930]">Profile settings</p>
+                    <h2 class="mt-1 text-xl font-extrabold tracking-[-0.025em] text-[#101928]">Edit personal information</h2>
+                    <p class="mt-1 text-sm leading-6 text-slate-500">Keep your contact and family details accurate for school records.</p>
+                </div>
+                <span class="inline-flex w-fit items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700 ring-1 ring-inset ring-amber-200">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true"></span>
+                    Unsaved changes
+                </span>
+            </div>
+
+            <div class="grid lg:grid-cols-[280px_minmax(0,1fr)]">
+                <aside class="border-b border-slate-200 bg-[#fdfcfb] p-5 sm:p-7 lg:border-b-0 lg:border-r" aria-label="Profile photo and academic information">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative">
+                            <div class="h-32 w-32 overflow-hidden rounded-[24px] bg-slate-100 ring-4 ring-white shadow-md sm:h-36 sm:w-36">
                                 @if ($new_image)
-                                    <img src="{{ $new_image->temporaryUrl() }}" class="w-full h-full object-cover">
+                                    <img src="{{ $new_image->temporaryUrl() }}" class="h-full w-full object-cover" alt="Preview of new profile photo">
                                 @elseif ($student->image_path)
-                                    <img src="{{ asset('storage/' . $student->image_path) }}" class="w-full h-full object-cover">
+                                    <img src="{{ asset('storage/' . $student->image_path) }}" class="h-full w-full object-cover" alt="Profile photo of {{ trim($student->firstname . ' ' . $student->lastname) }}">
                                 @else
-                                    <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                        <svg class="w-20 h-20 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                    </div>
+                                    <span class="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400">
+                                        <svg class="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                            <circle cx="12" cy="8" r="3.75" />
+                                            <path stroke-linecap="round" d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+                                        </svg>
+                                    </span>
                                 @endif
-                                
-                                <label for="photo-upload" class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer backdrop-blur-sm">
-                                    <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-4m0 0l-3 3m3-3l3 3"></path></svg>
-                                    <span class="text-white text-sm font-medium">Change Photo</span>
-                                </label>
-                                <input type="file" id="photo-upload" wire:model="new_image" class="hidden" accept="image/*">
                             </div>
-
-                            <label for="photo-upload" class="mt-5 inline-flex w-full cursor-pointer items-center justify-center rounded-xl border border-red-200 bg-white px-4 py-2.5 text-center text-sm font-bold text-red-600 shadow-sm transition-all duration-200 hover:bg-red-50 sm:w-auto sm:px-5">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                Upload Profile Picture
+                            <label for="profile-photo"
+                                class="absolute -bottom-2 -right-2 flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[#a71930] text-white shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-[#861326] focus-within:ring-2 focus-within:ring-[#b4233b] focus-within:ring-offset-2"
+                                title="Choose a new profile photo">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 8.25h3l1.5-2.5h6l1.5 2.5h3A1.5 1.5 0 0 1 21 9.75v8.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.25v-8.5a1.5 1.5 0 0 1 1.5-1.5Z" />
+                                    <circle cx="12" cy="13" r="3" />
+                                </svg>
+                                <span class="sr-only">Choose a new profile photo</span>
+                                <input id="profile-photo" type="file" wire:model="new_image" class="sr-only" accept="image/*">
                             </label>
-
-                            @if ($new_image)
-                                <p class="mt-3 text-sm font-medium text-gray-600">New photo selected.</p>
-                            @endif
-
-                            @error('new_image') <span class="text-red-500 text-sm mt-3 font-medium bg-red-50 px-3 py-1 rounded-full">{{ $message }}</span> @enderror
-                            
-                            <div wire:loading wire:target="new_image" class="mt-4 text-red-600 font-medium animate-pulse text-sm">
-                                Uploading preview...
-                            </div>
-                            
-                            <!-- Static Info Blocks -->
-                            <div class="mt-8 w-full space-y-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 shadow-inner sm:mt-10 sm:p-6">
-                                <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Learner Reference Number</p>
-                                    <p class="text-lg font-semibold text-gray-800">{{ $student->lrn ?? 'N/A' }}</p>
-                                </div>
-                                <div class="pt-4 border-t border-gray-200">
-                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Academic Section</p>
-                                    <p class="text-lg font-semibold text-red-600">{{ $section }}</p>
-                                </div>
-                                <div class="pt-4 border-t border-gray-200">
-                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Grade Level</p>
-                                    <p class="text-lg font-semibold text-red-600">{{ $gradeLevel }}</p>
-                                </div>
-                            </div>
                         </div>
 
-                        <!-- Right Side: Edit Form -->
-                        <div class="min-w-0 space-y-6 lg:flex-1">
-                            <div class="border-b border-gray-100 pb-4 mb-6">
-                                <h3 class="flex items-center text-lg font-bold text-gray-800 sm:text-xl">
-                                    <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    Edit Personal Details
-                                </h3>
-                                <p class="text-sm text-gray-500 mt-1">Update your identification and contact records.</p>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-                                <div class="col-span-1 md:col-span-2 space-y-1">
-                                    <label class="block text-sm font-semibold text-gray-700">First Name</label>
-                                    <input type="text" wire:model="firstname" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                    @error('firstname') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-
-                                <div class="space-y-1">
-                                    <label class="block text-sm font-semibold text-gray-700">Middle Name</label>
-                                    <input type="text" wire:model="middlename" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                    @error('middlename') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-
-                                <div class="space-y-1">
-                                    <label class="block text-sm font-semibold text-gray-700">Last Name</label>
-                                    <input type="text" wire:model="lastname" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                    @error('lastname') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-
-                                <div class="space-y-1">
-                                    <label class="block text-sm font-semibold text-gray-700">Contact Number</label>
-                                    <input type="tel" wire:model="contact_number" placeholder="+639171234567"
-                                        maxlength="13" inputmode="tel" pattern="\+63[0-9]{10}"
-                                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                    @error('contact_number') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-
-                                <div class="space-y-1">
-                                    <label class="block text-sm font-semibold text-gray-700">Parent Name</label>
-                                    <input type="text" wire:model="parent_name" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                    @error('parent_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-
-                                <div class="space-y-1">
-                                    <label class="block text-sm font-semibold text-gray-700">Parent Contact</label>
-                                    <input type="tel" wire:model="parent_contact" placeholder="+639171234567"
-                                        maxlength="13" inputmode="tel" pattern="\+63[0-9]{10}"
-                                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                    @error('parent_contact') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-
-                                <div class="space-y-1">
-                                    <label class="block text-sm font-semibold text-gray-700">Birthdate</label>
-                                    <input type="date" wire:model="birthdate" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                    @error('birthdate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-
-                                <div class="col-span-1 md:col-span-2 space-y-1">
-                                    <label class="block text-sm font-semibold text-gray-700">Address</label>
-                                    <input type="text" wire:model="address" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-md py-3 px-4 transition-colors duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                    <p class="text-xs text-gray-400 mt-1 pl-1">Format: Street Address, Barangay, Region, Province, City/Municipality</p>
-                                    @error('address') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-                            
-                            <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col-reverse sm:flex-row sm:items-center justify-end sm:space-x-4">
-                                <button type="button" wire:click="cancelEdit" class="mt-4 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 shadow-sm text-sm font-semibold rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
-                                    Cancel
-                                </button>
-                                <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl shadow-md text-white bg-red-600 hover:bg-red-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200" wire:loading.attr="disabled">
-                                    <svg wire:loading.remove wire:target="save" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    <svg wire:loading wire:target="save" class="animate-spin w-4 h-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    Save Changes
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            @else
-                <div class="lg:flex lg:gap-12">
-                    <!-- Left Side: Profile Picture View -->
-                    <div class="relative mb-14 flex flex-col items-center lg:mb-0 lg:w-1/3">
-                        <div class="mb-8 h-36 w-36 overflow-hidden rounded-full border-4 border-white shadow-2xl ring-4 ring-red-50 transition-transform duration-300 hover:scale-105 sm:h-48 sm:w-48">
-                            @if ($student->image_path)
-                                <img src="{{ asset('storage/' . $student->image_path) }}" class="w-full h-full object-cover">
-                            @else
-                                <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                    <svg class="w-20 h-20 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                </div>
-                            @endif
-                        </div>
-                        
-                        <button wire:click="edit" class="absolute bottom-0 z-10 flex items-center rounded-full border border-red-100 bg-white px-6 py-2.5 text-sm font-bold text-red-600 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-red-50 hover:shadow-xl lg:-bottom-4">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                            Edit Profile
-                        </button>
+                        <p class="mt-5 text-sm font-extrabold text-[#101928]">Profile photo</p>
+                        <p class="mt-1 max-w-[210px] text-xs leading-5 text-slate-500">JPG or PNG, up to 2 MB. Use a clear, recent photo.</p>
+                        <p wire:loading wire:target="new_image" class="mt-2 text-xs font-bold text-[#a71930]">Preparing preview...</p>
+                        @if ($new_image)
+                            <p class="mt-2 text-xs font-bold text-emerald-700">New photo selected</p>
+                        @endif
+                        @error('new_image')
+                            <p class="mt-2 text-xs font-semibold leading-5 text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <!-- Right Side: Details View -->
-                    <div class="min-w-0 lg:flex-1">
-                        <div class="mb-8 border-b border-gray-100 pb-5">
-                            <h3 class="break-words text-2xl font-bold tracking-tight text-gray-800 sm:text-3xl">{{ $student->firstname }} {{ $student->middlename }} {{ $student->lastname }}</h3>
-                            <div class="mt-3 flex flex-wrap items-center gap-2 text-sm font-medium text-gray-500">
-                                <span class="bg-red-50 text-red-700 px-3 py-1 rounded-full border border-red-100 shadow-sm tracking-wide">{{ $section }}</span>
-                                <span class="text-gray-300">&bull;</span>
-                                <span class="bg-red-50 text-red-700 px-3 py-1 rounded-full border border-red-100 shadow-sm tracking-wide">{{ $gradeLevel }}</span>
+                    <dl class="mt-7 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white px-4">
+                        <div class="py-3.5">
+                            <dt class="text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-400">LRN</dt>
+                            <dd class="mt-1 break-words text-sm font-extrabold text-[#101928]">{{ $student->lrn ?? 'N/A' }}</dd>
+                        </div>
+                        <div class="py-3.5">
+                            <dt class="text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-400">Grade &amp; section</dt>
+                            <dd class="mt-1 text-sm font-extrabold text-[#a71930]">{{ $gradeLevel }} <span class="text-slate-300">/</span> {{ $section }}</dd>
+                        </div>
+                    </dl>
+                </aside>
+
+                <div class="p-5 sm:p-7 lg:p-8">
+                    <section aria-labelledby="identity-heading">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-[#a71930] ring-1 ring-red-100">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path stroke-linecap="round" d="M5 20a7 7 0 0 1 14 0" /></svg>
+                            </span>
+                            <div>
+                                <h3 id="identity-heading" class="font-extrabold text-[#101928]">Identity details</h3>
+                                <p class="text-xs text-slate-500">Enter your name as it appears on official records.</p>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
-                            <div class="group">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
-                                    Learner Reference Number
-                                </p>
-                                <p class="break-words text-lg font-semibold text-gray-800 sm:text-xl">{{ $student->lrn ?? 'N/A' }}</p>
+                        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                            <div>
+                                <label for="firstname" class="block text-sm font-bold text-slate-700">First name <span class="text-[#a71930]">*</span></label>
+                                <input id="firstname" type="text" wire:model="firstname" autocomplete="given-name"
+                                    class="mt-2 block min-h-12 w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]">
+                                @error('firstname') <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
                             </div>
-                            
-                            <div class="group">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                    Contact Number
-                                </p>
-                                <p class="break-words text-lg font-semibold text-gray-800 sm:text-xl">{{ $student->contact_number ?: 'Not provided' }}</p>
+                            <div>
+                                <label for="middlename" class="block text-sm font-bold text-slate-700">Middle name <span class="font-medium text-slate-400">(optional)</span></label>
+                                <input id="middlename" type="text" wire:model="middlename" autocomplete="additional-name"
+                                    class="mt-2 block min-h-12 w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]">
+                                @error('middlename') <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
                             </div>
-
-                            <div class="group">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-2.13a4 4 0 10-8 0 4 4 0 008 0zm8-2a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                    Parent Name
-                                </p>
-                                <p class="break-words text-lg font-semibold text-gray-800 sm:text-xl">{{ $student->parent_name ?: 'Not provided' }}</p>
+                            <div>
+                                <label for="lastname" class="block text-sm font-bold text-slate-700">Last name <span class="text-[#a71930]">*</span></label>
+                                <input id="lastname" type="text" wire:model="lastname" autocomplete="family-name"
+                                    class="mt-2 block min-h-12 w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]">
+                                @error('lastname') <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
                             </div>
-
-                            <div class="group">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                    Parent Contact
-                                </p>
-                                <p class="break-words text-lg font-semibold text-gray-800 sm:text-xl">{{ $student->parent_contact ?: 'Not provided' }}</p>
-                            </div>
-
-                            <div class="group">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    Birthdate
-                                </p>
-                                <p class="text-lg font-semibold text-gray-800 sm:text-xl">{{ date('F j, Y', strtotime($student->birthdate)) }}</p>
-                            </div>
-
-                            <div class="group sm:col-span-2 mt-2">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                                    Home Address
-                                </p>
-                                <p class="max-w-lg break-words text-base font-semibold leading-relaxed text-gray-800 sm:text-lg">{{ $student->address }}</p>
+                            <div>
+                                <label for="birthdate" class="block text-sm font-bold text-slate-700">Birthdate <span class="text-[#a71930]">*</span></label>
+                                <input id="birthdate" type="date" wire:model="birthdate" autocomplete="bday"
+                                    class="mt-2 block min-h-12 w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]">
+                                @error('birthdate') <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
                             </div>
                         </div>
+                    </section>
+
+                    <section class="mt-8 border-t border-slate-200 pt-7" aria-labelledby="contact-heading">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-[#a71930] ring-1 ring-red-100">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7.25 3.75h2.2l1.25 4-2.1 1.55a13.2 13.2 0 0 0 6.1 6.1l1.55-2.1 4 1.25v2.2a3.5 3.5 0 0 1-3.5 3.5c-7.18 0-13-5.82-13-13a3.5 3.5 0 0 1 3.5-3.5Z" /></svg>
+                            </span>
+                            <div>
+                                <h3 id="contact-heading" class="font-extrabold text-[#101928]">Contact &amp; family</h3>
+                                <p class="text-xs text-slate-500">Provide numbers in the Philippine international format.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                            <div>
+                                <label for="contact-number" class="block text-sm font-bold text-slate-700">Contact number</label>
+                                <input id="contact-number" type="tel" wire:model="contact_number" autocomplete="tel" placeholder="+639171234567" maxlength="13" inputmode="tel" pattern="\+63[0-9]{10}"
+                                    class="mt-2 block min-h-12 w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]">
+                                @error('contact_number') <p class="mt-1.5 text-xs font-semibold leading-5 text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="parent-name" class="block text-sm font-bold text-slate-700">Parent or guardian name</label>
+                                <input id="parent-name" type="text" wire:model="parent_name"
+                                    class="mt-2 block min-h-12 w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]">
+                                @error('parent_name') <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="parent-contact" class="block text-sm font-bold text-slate-700">Parent or guardian contact</label>
+                                <input id="parent-contact" type="tel" wire:model="parent_contact" placeholder="+639171234567" maxlength="13" inputmode="tel" pattern="\+63[0-9]{10}"
+                                    class="mt-2 block min-h-12 w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]">
+                                @error('parent_contact') <p class="mt-1.5 text-xs font-semibold leading-5 text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="address" class="block text-sm font-bold text-slate-700">Home address <span class="text-[#a71930]">*</span></label>
+                                <textarea id="address" wire:model="address" rows="3" autocomplete="street-address"
+                                    class="mt-2 block w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 py-3 text-sm leading-6 text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]"
+                                    placeholder="Street, barangay, city or municipality, province"></textarea>
+                                <p class="mt-1.5 text-xs text-slate-500">Include the street, barangay, city or municipality, and province.</p>
+                                @error('address') <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <div class="flex flex-col-reverse gap-3 border-t border-slate-200 bg-[#fdfcfb] px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-7">
+                <button type="button" wire:click="cancelEdit" wire:loading.attr="disabled" wire:target="save"
+                    class="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-extrabold text-slate-700 shadow-sm transition duration-300 hover:border-red-200 hover:text-[#a71930] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60">
+                    Cancel
+                </button>
+                <button type="submit" wire:loading.attr="disabled" wire:target="save"
+                    class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#a71930] px-5 text-sm font-extrabold text-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-[#861326] hover:shadow-md active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-70">
+                    <svg wire:loading.remove wire:target="save" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6" /></svg>
+                    <svg wire:loading wire:target="save" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" /><path class="opacity-75" fill="currentColor" d="M21 12a9 9 0 0 0-9-9v3a6 6 0 0 1 6 6h3Z" /></svg>
+                    <span wire:loading.remove wire:target="save">Save changes</span>
+                    <span wire:loading wire:target="save">Saving...</span>
+                </button>
+            </div>
+        </form>
+    @else
+        @php
+            $fullName = collect([$student->firstname, $student->middlename, $student->lastname])->filter()->implode(' ');
+            $birthdateLabel = $student->birthdate ? \Illuminate\Support\Carbon::parse($student->birthdate)->format('F j, Y') : 'Not provided';
+        @endphp
+
+        <section class="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm" aria-labelledby="profile-name">
+            <div class="h-1.5 bg-gradient-to-r from-[#8f142a] via-[#b4233b] to-[#d65a6e]" aria-hidden="true"></div>
+            <div class="flex flex-col gap-6 p-5 sm:p-7 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+                    <div class="h-28 w-28 shrink-0 overflow-hidden rounded-[22px] bg-slate-100 ring-4 ring-red-50 sm:h-32 sm:w-32">
+                        @if ($student->image_path)
+                            <img src="{{ asset('storage/' . $student->image_path) }}" class="h-full w-full object-cover" alt="Profile photo of {{ $fullName }}">
+                        @else
+                            <span class="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400">
+                                <svg class="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8" r="3.75" /><path stroke-linecap="round" d="M4.5 20a7.5 7.5 0 0 1 15 0" /></svg>
+                            </span>
+                        @endif
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#a71930]">Official student record</p>
+                        <h2 id="profile-name" class="mt-1 break-words text-2xl font-extrabold tracking-[-0.035em] text-[#101928] sm:text-3xl">{{ $fullName }}</h2>
+                        <div class="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+                            <span class="inline-flex items-center rounded-full bg-red-50 px-3 py-1.5 text-xs font-extrabold text-[#a71930] ring-1 ring-inset ring-red-100">{{ $gradeLevel }}</span>
+                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-extrabold text-slate-700 ring-1 ring-inset ring-slate-200">Section {{ $section }}</span>
+                        </div>
+                        <p class="mt-3 text-sm font-medium text-slate-500">Review the information connected to your student account.</p>
                     </div>
                 </div>
-            @endif
+
+                <button type="button" wire:click="edit" wire:loading.attr="disabled" wire:target="edit"
+                    class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#a71930] px-5 text-sm font-extrabold text-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-[#861326] hover:shadow-md active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-70">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m14.5 5.5 4 4M5 19l2.7-.55L19 7.15a1.4 1.4 0 0 0 0-2l-.15-.15a1.4 1.4 0 0 0-2 0L5.55 16.3 5 19Z" /></svg>
+                    Edit profile
+                </button>
+            </div>
+        </section>
+
+        <div class="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,.75fr)]">
+            <section class="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7" aria-labelledby="personal-details-heading">
+                <div class="flex items-start gap-3 border-b border-slate-100 pb-5">
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-[#a71930] ring-1 ring-red-100">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path stroke-linecap="round" d="M5 20a7 7 0 0 1 14 0" /></svg>
+                    </span>
+                    <div>
+                        <h3 id="personal-details-heading" class="text-lg font-extrabold tracking-tight text-[#101928]">Personal details</h3>
+                        <p class="mt-0.5 text-sm text-slate-500">Identification and contact information on file.</p>
+                    </div>
+                </div>
+
+                <dl class="mt-1 divide-y divide-slate-100">
+                    <div class="grid gap-1 py-4 sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-5">
+                        <dt class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.12em] text-slate-400">
+                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4h10a2 2 0 0 1 2 2v12H5V6a2 2 0 0 1 2-2Zm2 4h6M8 18v2h8v-2" /></svg>
+                            Learner reference no.
+                        </dt>
+                        <dd class="break-words text-sm font-bold text-slate-800 sm:text-right">{{ $student->lrn ?? 'N/A' }}</dd>
+                    </div>
+                    <div class="grid gap-1 py-4 sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-5">
+                        <dt class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.12em] text-slate-400">
+                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7.25 3.75h2.2l1.25 4-2.1 1.55a13.2 13.2 0 0 0 6.1 6.1l1.55-2.1 4 1.25v2.2a3.5 3.5 0 0 1-3.5 3.5c-7.18 0-13-5.82-13-13a3.5 3.5 0 0 1 3.5-3.5Z" /></svg>
+                            Contact number
+                        </dt>
+                        <dd class="break-words text-sm font-bold text-slate-800 sm:text-right">{{ $student->contact_number ?: 'Not provided' }}</dd>
+                    </div>
+                    <div class="grid gap-1 py-4 sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-5">
+                        <dt class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.12em] text-slate-400">
+                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M5.25 4.5h13.5a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Z" /></svg>
+                            Birthdate
+                        </dt>
+                        <dd class="text-sm font-bold text-slate-800 sm:text-right"><time datetime="{{ $student->birthdate }}">{{ $birthdateLabel }}</time></dd>
+                    </div>
+                    <div class="grid gap-1 py-4 sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-5">
+                        <dt class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.12em] text-slate-400">
+                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10.5 12 4l8 6.5V20h-5v-5H9v5H4v-9.5Z" /></svg>
+                            Home address
+                        </dt>
+                        <dd class="break-words text-sm font-bold leading-6 text-slate-800 sm:text-right">{{ $student->address ?: 'Not provided' }}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <div class="space-y-5">
+                <section class="rounded-[20px] border border-slate-200 bg-[#fdfcfb] p-5 shadow-sm sm:p-6" aria-labelledby="academic-details-heading">
+                    <div class="flex items-start gap-3">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-[#a71930] ring-1 ring-red-100">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m3.5 9 8.5-4 8.5 4-8.5 4-8.5-4Zm3 2.25V16c2.8 2.3 8.2 2.3 11 0v-4.75M20.5 9v6" /></svg>
+                        </span>
+                        <div>
+                            <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#a71930]">Current placement</p>
+                            <h3 id="academic-details-heading" class="mt-1 text-lg font-extrabold tracking-tight text-[#101928]">Academic details</h3>
+                        </div>
+                    </div>
+                    <dl class="mt-5 grid grid-cols-2 gap-3">
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                            <dt class="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">Grade level</dt>
+                            <dd class="mt-2 break-words text-lg font-extrabold text-[#101928]">{{ $gradeLevel }}</dd>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                            <dt class="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">Section</dt>
+                            <dd class="mt-2 break-words text-lg font-extrabold text-[#101928]">{{ $section }}</dd>
+                        </div>
+                    </dl>
+                    <p class="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-500">
+                        <svg class="mt-0.5 h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path stroke-linecap="round" d="M12 10.5V16M12 7.5h.01" /></svg>
+                        Academic placement is managed by the school and cannot be edited here.
+                    </p>
+                </section>
+
+                <section class="rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="guardian-heading">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-[#a71930] ring-1 ring-red-100">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="8" r="3" /><circle cx="17" cy="10" r="2.5" /><path stroke-linecap="round" d="M3.5 20a5.5 5.5 0 0 1 11 0M14 15.5a4.5 4.5 0 0 1 6.5 4" /></svg>
+                        </span>
+                        <h3 id="guardian-heading" class="font-extrabold text-[#101928]">Parent or guardian</h3>
+                    </div>
+                    <dl class="mt-5 space-y-4">
+                        <div>
+                            <dt class="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">Full name</dt>
+                            <dd class="mt-1 break-words text-sm font-bold text-slate-800">{{ $student->parent_name ?: 'Not provided' }}</dd>
+                        </div>
+                        <div class="border-t border-slate-100 pt-4">
+                            <dt class="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">Contact number</dt>
+                            <dd class="mt-1 break-words text-sm font-bold text-slate-800">{{ $student->parent_contact ?: 'Not provided' }}</dd>
+                        </div>
+                    </dl>
+                </section>
+            </div>
         </div>
-    </div>
+
+        <section class="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm" aria-labelledby="change-password-heading">
+            <div class="grid lg:grid-cols-[minmax(260px,.7fr)_minmax(0,1.3fr)]">
+                <div class="border-b border-slate-200 bg-[#fdfcfb] p-5 sm:p-7 lg:border-b-0 lg:border-r">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-[#a71930] ring-1 ring-red-100">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <rect x="5" y="10" width="14" height="10" rx="2" />
+                            <path stroke-linecap="round" d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10M12 14v2.5" />
+                        </svg>
+                    </span>
+                    <p class="mt-5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#a71930]">Account security</p>
+                    <h3 id="change-password-heading" class="mt-1 text-lg font-extrabold tracking-tight text-[#101928]">Change password</h3>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">Use a strong password you do not use for any other account.</p>
+                </div>
+
+                <form method="POST" action="{{ route('password.update') }}" x-data="{ submitting: false }" @submit="submitting = true" class="p-5 sm:p-7">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="grid gap-5 sm:grid-cols-2">
+                        <div class="sm:col-span-2">
+                            <label for="current-password" class="block text-sm font-bold text-slate-700">Current password <span class="text-[#a71930]">*</span></label>
+                            <input id="current-password" name="current_password" type="password" required autocomplete="current-password"
+                                class="mt-2 block min-h-12 w-full rounded-xl bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:bg-white focus:border-[#b4233b] focus:ring-[#b4233b] @error('current_password', 'updatePassword') border-red-400 @else border-slate-200 @enderror">
+                            @error('current_password', 'updatePassword')
+                                <p class="mt-1.5 text-xs font-semibold text-red-600" role="alert">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="new-password" class="block text-sm font-bold text-slate-700">New password <span class="text-[#a71930]">*</span></label>
+                            <input id="new-password" name="password" type="password" required autocomplete="new-password"
+                                class="mt-2 block min-h-12 w-full rounded-xl bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:bg-white focus:border-[#b4233b] focus:ring-[#b4233b] @error('password', 'updatePassword') border-red-400 @else border-slate-200 @enderror">
+                            @error('password', 'updatePassword')
+                                <p class="mt-1.5 text-xs font-semibold text-red-600" role="alert">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="password-confirmation" class="block text-sm font-bold text-slate-700">Confirm new password <span class="text-[#a71930]">*</span></label>
+                            <input id="password-confirmation" name="password_confirmation" type="password" required autocomplete="new-password"
+                                class="mt-2 block min-h-12 w-full rounded-xl border-slate-200 bg-[#fdfcfb] px-4 text-sm text-slate-800 shadow-sm transition focus:border-[#b4233b] focus:bg-white focus:ring-[#b4233b]">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end border-t border-slate-100 pt-5">
+                        <button type="submit" :disabled="submitting"
+                            class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#a71930] px-5 text-sm font-extrabold text-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-[#861326] hover:shadow-md active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b4233b] focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-70">
+                            <svg x-show="! submitting" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <rect x="5" y="10" width="14" height="10" rx="2" />
+                                <path stroke-linecap="round" d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" />
+                            </svg>
+                            <svg x-show="submitting" x-cloak class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" /><path class="opacity-75" fill="currentColor" d="M21 12a9 9 0 0 0-9-9v3a6 6 0 0 1 6 6h3Z" /></svg>
+                            <span x-text="submitting ? 'Updating...' : 'Update password'">Update password</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    @endif
 </div>
